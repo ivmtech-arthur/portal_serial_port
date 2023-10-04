@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: gm-www
+spec:
+  rules:
+  - host: gm-www.make-project.fun
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: gm-www
+            port:
+              number: 3000
+  ingressClassName: nginx

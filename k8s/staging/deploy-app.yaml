@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: 'gm-www'
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+  selector:
+    matchLabels:
+      app: gm-www
+  template:
+    metadata:
+      labels:
+        app: gm-www
+      annotations:
+        REDEPLOY_HASH: ${REDEPLOY_HASH}
+    spec:
+      containers:
+        - name: app
+          image: ${CONTAINER_IMAGE_APP}
+          imagePullPolicy: Always
+          resources:
+            limits:
+              cpu: 200m
+              memory: 800Mi
+          ports:
+            - containerPort: 80
+          envFrom:
+            - configMapRef:
+                name: 'gm-www'
+      imagePullSecrets: 
+        - name: registry-credentials
