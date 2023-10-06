@@ -8,10 +8,17 @@ import {
 import { hash } from "bcryptjs";
 import { NextRequest, NextResponse } from "next/server";
 import { ZodError } from "zod";
+import { NextApiRequest, NextApiResponse } from "next";
 
-export default async function POST(req: NextRequest) {
+type ResponseData = {
+    body: any
+}
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse<ResponseData>) {
+    // res.status(200).json({ body: 'John Doe' })
+    console.log("register service");
     try {
-        const body = (await req.json()) as RegisterUserInput;
+        const body = (await req.body) as RegisterUserInput;
         const data = RegisterUserSchema.parse(body);
 
         const password = generatePassword(2);
@@ -33,28 +40,44 @@ export default async function POST(req: NextRequest) {
         //           name: "",
         //       }
         //   })
-
-        return new NextResponse(
-            JSON.stringify({
-                status: "success",
-                data: { user: { ...user, password: undefined } },
-            }),
-            {
-                status: 201,
-                headers: { "Content-Type": "application/json" },
-            }
+         res.status(200).json(
+             {
+                 body: JSON.stringify({
+                     status: "success",
+                     data: { user: { ...user, password: undefined } },
+                 }),
+             }
+                // {
+                //     status: 201,
+                //     headers: { "Content-Type": "application/json" },
+                // }
         );
+        // return res.body(
+        //     JSON.stringify({
+        //         status: "success",
+        //         data: { user: { ...user, password: undefined } },
+        //     }),
+        //     {
+        //         status: 201,
+        //         headers: { "Content-Type": "application/json" },
+        //     }
+        // );
+        res.end();
     } catch (error: any) {
         if (error instanceof ZodError) {
-            return getErrorResponse(400, "failed validations", error);
+            // return getErrorResponse(400, "failed validations", error);
         }
 
         if (error.code === "P2002") {
-            return getErrorResponse(409, "user with that name already exists");
+            // return getErrorResponse(409, "user with that name already exists");
         }
-
-        return getErrorResponse(500, error.message);
+        res.status(400).json(error);
+        // return getErrorResponse(500, error.message);
+        console.log("error:", error);
+        // next();
     }
+    // res.status(400).json({body:"xd"});
+    // next();
 }
 
 
