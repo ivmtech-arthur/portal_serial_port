@@ -1,6 +1,7 @@
-import Block from '/components/Common/Element/Block'
+import Block from 'components/Common/Element/Block'
 import styled from 'styled-components'
 import Link from 'next/link'
+import React from 'react'
 
 const CustBlock = styled.button`
     background-color: white;

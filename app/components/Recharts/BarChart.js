@@ -1,7 +1,7 @@
 // import React from "react";
 // import { BarChart, Bar,CartesianGrid,XAxis,YAxis,Tooltip,Legend } from "recharts";
 
-// import Block from '/components/Common/Element/Block'
+// import Block from 'components/Common/Element/Block'
 function getRandomData() {
     return Array(7)
         .fill()

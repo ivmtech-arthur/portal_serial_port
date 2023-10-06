@@ -1,6 +1,6 @@
 
-import Block from '/components/Common/Element/Block'
-import StyledBody4 from '/components/Common/Element/body4'
+import Block from 'components/Common/Element/Block'
+import StyledBody4 from 'components/Common/Element/body4'
 import styled,{css} from 'styled-components'
 
 const InputField = styled.input`

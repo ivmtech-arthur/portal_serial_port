@@ -1,5 +1,5 @@
 
-import Block from '/components/Common/Element/Block'
+import Block from 'components/Common/Element/Block'
 import LoginForm from '../../components/Form/Login'
 import { useStore } from '/store'
 import Image from 'next/image'

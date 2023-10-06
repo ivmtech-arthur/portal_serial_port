@@ -1,5 +1,5 @@
 // import OutsideClickHandler from 'react-outside-click-handler'
-import Block from '/components/Common/Element/Block'
+import Block from 'components/Common/Element/Block'
 import { useStore } from '/store'
 import { useRouter } from 'next/router'
 const Popup = (props) => {

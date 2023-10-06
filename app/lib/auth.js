@@ -1,3 +1,5 @@
+import { PrismaClient } from '@prisma/client'
+import { prisma } from './prisma'
 import { ClientFetcher } from '/lib/fetcher'
 
 const fakeLogin = () => {
@@ -12,11 +14,24 @@ const fakeLogin = () => {
 }
 
 const getUser = async (token) => {
-  return await ClientFetcher.get('/api/users/me', {
-    headers: {
-      Authorization: `Bearer ${token}`,
+  // const prisma2 = new PrismaClient({datasourceUrl: "sqlserver://aws.ivmtech.com:21433;database=iVendingDB_AICabinet;user=sa;password=Ivm.98123316;encrypt=true;trustServerCertificate=true"});
+  const result = await prisma.user.findFirst({
+    where: {
+      userSession: {
+        token: token
+      }
     },
-  }).then(({ data }) => data)
+    // include: {
+    //   user: true,
+    // }
+  })
+
+  return result;
+  // return await ClientFetcher.get('/api/users/me', {
+  //   headers: {
+  //     Authorization: `Bearer ${token}`,
+  //   },
+  // }).then(({ data }) => data)
 }
 
 const getPermission = (role) => {

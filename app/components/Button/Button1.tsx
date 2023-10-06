@@ -1,5 +1,5 @@
 
-import Block from '/components/Common/Element/Block'
+import Block from 'components/Common/Element/Block'
 import React, { useRef, useEffect, useState } from 'react'
 import {
     createTheme,
@@ -17,30 +17,21 @@ const theme = createTheme({
             },
             styleOverrides: {
                 root: {
-                    backgroundColor: 'white',
-                    border: '1px solid #FF6F00',
+                    // backgroundColor: 'red',
                     borderRadius: '20px',
-                    // background: 'linear-gradient(53.34deg, #FF6F00 0%, #FFDEBF 100%)',
-                    color: '#FF6F00',
-                    fontFamily: 'Inter',
-                    fontWeight: '600',
-                    fontSize: '16px',
-                    lineHeight: '19px',
-                    letterSpacing: '0.1em',
-                    textTransform: 'uppercase',
+                    background: 'linear-gradient(53.34deg, #FF6F00 0%, #FFDEBF 100%)',
+                    color: 'red',
                     "&:hover": {
-                        backgroundColor: '#FF6F00',
-                        color: 'white',
-                        // background: '#FF6F00',
+                        background: '#FF6F00',
+                        color: 'red',
                     },
                 },
-                outlined: true
             },
         },
     },
 })
 
-const Button2 = (props) => {
+const Button1 = (props: any) => {
     const { onClick, ...restProps } = props
     const onClickEvent = (e) => {
         if (props.onClick)
@@ -49,11 +40,11 @@ const Button2 = (props) => {
     return (
         <Block {...restProps}>
             <ThemeProvider theme={theme}>
-                <Button onClick={(e) => { onClickEvent(e) }} sx={{width: '140px'}}>{props.children}</Button>
+                <Button onClick={(e) => {onClickEvent(e)}} sx={{width: '140px'}}>{props.children}</Button>
             </ThemeProvider>
         </Block>
 
     )
 }
 
-export default Button2
+export default Button1 

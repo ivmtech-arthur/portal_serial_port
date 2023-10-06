@@ -26,8 +26,8 @@ import menuContent from '../../data/menu'
 import get from 'lodash/get'
 import map from 'lodash/map';
 import { useStore } from '/store'
-import Block from '/components/Common/Element/Block'
-import Hr from '/components/Common/Element/Hr'
+import Block from 'components/Common/Element/Block'
+import Hr from 'components/Common/Element/Hr'
 import { makeStyles } from "@mui/styles";
 import { useState } from 'react';
 import Header from '../Header';
@@ -118,7 +118,10 @@ function ResponsiveDrawer(props) {
         return (<MenuItem item={item} index={index} />)
     })
     const drawer = (
-        <Block display='flex' flexDirection='column' alignItems="end">
+        <Block
+            className="flex flex-col items-end"
+            // display='flex' flexDirection='column' alignItems="end"
+        >
             {buttons}
         </Block>
     );

@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlserver"
+//   url=env("DATABASE_URL")
+//   url= "sqlserver://${env(DB_HOST)}:${env(DB_PORT)};database=${env(DB_NAME)};user=${env(DB_USER)};password=${env(DB_PASSWORD)};encrypt=${env(DB_ENCRYPT)};trustServerCertificate=${env(DB_TRUST_CERT)}" 
+//   url = "sqlserver://${env(DB_HOST)};database=iVendingDB_AICabinet;user=sa;password=Ivm.98123316;encrypt=true;trustServerCertificate=true" // uses connection pooling
+  url = "sqlserver://aws.ivmtech.com:21433;database=iVendingDB_AICabinet;user=sa;password=Ivm.98123316;encrypt=true;trustServerCertificate=true" // uses connection pooling
+//   directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+}
+
+// model Post {
+//   id        Int      @id @default(autoincrement())
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+//   title     String   @db.VarChar(255)
+//   content   String?
+//   published Boolean  @default(false)
+// //   author    User     @relation(fields: [authorId], references: [id])
+//   authorId  Int      @unique
+// }
+
+model Profile {
+  id     Int     @id @default(autoincrement())
+  desc    String?
+//   user   User    @relation(fields: [profileID], references: [id])
+  profileID Int     @unique
+}
+
+model Machine {
+    id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  machineID     String   @db.VarChar(255)
+  
+  content   String?
+  published Boolean  @default(false)
+//   author    User     @relation(fields: [authorId], references: [id])
+  authorId  Int      @unique
+}
+
+model UserSession {
+    user    User  @relation(fields: [userID], references: [userID])
+    userID String @unique
+    token String @unique
+}
+
+model User {
+  id      Int      @id @default(autoincrement())
+   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userID  String   @unique
+  password String 
+  userRole String  
+//   email   String   @unique
+  name    String
+  nameEn  String
+//   posts   Post[]
+userSession UserSession?
+//   profile Profile?
+//   machine  Machine?
+}

@@ -1,4 +1,4 @@
-import Block from '/components/Common/Element/Block'
+import Block from 'components/Common/Element/Block'
 import get from 'lodash/get'
 import { useStore } from '/store'
 import { useRouter } from 'next/router'

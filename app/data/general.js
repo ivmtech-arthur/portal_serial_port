@@ -1,6 +1,7 @@
 module.exports = {
     en: {
         lang: 'en',
+         switchLangCode: 'tc',
         placeholderEmail: 'Email Address',
         placeholderPassword: 'Password',
         confirm: 'confirm',
@@ -17,6 +18,7 @@ module.exports = {
     },
     tc: {
         lang: 'tc',
+        switchLangCode: 'en',
         placeholderEmail: 'Email Address tc',
         placeholderPassword: 'Password tc',
         confirm: 'confirm tc',

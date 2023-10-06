@@ -19,10 +19,10 @@ const withLogin = (
     const cookies = new Cookies(ctx.req, ctx.res, { keys: [''] })
 
     const token = cookies.get(tokenKey)
-    const profile = await getUser(token)
+    const user = await getUser(token)
     const role = cookies.get('role')
     const permissions = getPermission(role)
-    if (token) {
+    if (user) {
       ctx.props = {
         token,
         role,

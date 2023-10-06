@@ -182,7 +182,7 @@ function Calendar() {
     useEffect(() => { }, [])
 
     return (
-        <div>
+        <div className="bg-red">
             <LocalizationProvider dateAdapter={AdapterDayjs}>
                 {/* <CalendarPicker
                     onChange={handleCustCalendarChange}
@@ -191,7 +191,7 @@ function Calendar() {
                     // maxDate={dayjs().add(14, 'day').toDate()}
                 /> */}
                 <ThemeProvider theme={theme}>
-                    <Button className="custButton">test</Button>
+                    <Button className="mt-4">test</Button>
 
                     <CustCalendar
                         shouldDisableYear={() => {

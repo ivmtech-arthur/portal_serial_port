@@ -1,22 +1,42 @@
-import Block from '/components/Common/Element/Block'
+import Block from 'components/Common/Element/Block'
+import BarCharts from 'components/Recharts/BarChart'
+import LineChart from 'components/Recharts/LineChart'
+import PieCharts from 'components/Recharts/PieChart'
+import RadialBarCharts from 'components/Recharts/RadialBarChart'
+import StyledH1 from 'components/Common/Element/H1'
+import Calendar from 'components/test/test'
 // import { useStore } from '/store'
 
-export default function Home() {
-  return (
-    <div>
-        {/* <Login/> */}
-        {/* <FormHandler formType="Login" />
-        <FormHandler formType="ContactForm" />
-        <StyledTextField placeholder="test"  name="username"></StyledTextField>
-      <StyledH1>test</StyledH1>
-      <BarCharts />
-      <CustComposedChart/>
-      {/* <LineChart /> */}
-      {/* <PieCharts />
-      <RadialBarCharts/> */}
-      {/* <Calendar/> */}
-    </div>
+import withLogin from "/lib/with-login"
 
-    // <StyledH1>Home</StyledH1>
-  )
+const Home = () => {
+  return (<></>)
 }
+export const getServerSideProps = withLogin(
+  async (ctx) => {
+    if (ctx?.props?.profile) {
+      return {
+        redirect: {
+          permanent: false,
+          destination: '/en/patient-list',
+        },
+        props: {},
+      }
+    } else {
+      return {
+        redirect: {
+          permanent: false,
+          destination: '/en/login',
+        },
+        props: {},
+      }
+    }
+  },
+  {
+    // type: 'authenticated',
+    tokenKey: 'userToken',
+  }
+)
+
+
+export default Home

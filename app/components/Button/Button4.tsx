@@ -1,5 +1,5 @@
 
-import Block from '/components/Common/Element/Block'
+import Block from 'components/Common/Element/Block'
 import React, { useRef, useEffect, useState } from 'react'
 import {
     createTheme,
@@ -7,6 +7,7 @@ import {
     styled as muiStyled,
 } from '@mui/material/styles'
 import Button from '@mui/material/Button'
+import { ReactJSXElementAttributesProperty } from '@emotion/react/types/jsx-namespace'
 
 const theme = createTheme({
     components: {
@@ -37,7 +38,15 @@ const theme = createTheme({
     },
 })
 
-const Button4 = (props) => {
+// interface Button4Props {
+//     onClick: Function,
+//     children: React.ReactNode,
+//     restProps: 
+//     // py: any
+// // restProps: String,
+// }
+
+const Button4 = (props: any) => {
     const { onClick, ...restProps } = props
     const onClickEvent = (e) => {
         if (props.onClick)

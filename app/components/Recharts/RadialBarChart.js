@@ -1,6 +1,6 @@
 import { Block } from '@mui/icons-material';
 import { RadialBarChart, RadialBar, Legend, Tooltip, PolarAngleAxis, ResponsiveContainer } from 'recharts'
-import StyledStop from '/components/Common/Element/Stop'
+import StyledStop from 'components/Common/Element/Stop'
 
 // const data = [
 //   {

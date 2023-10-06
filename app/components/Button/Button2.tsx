@@ -1,5 +1,5 @@
 
-import Block from '/components/Common/Element/Block'
+import Block from 'components/Common/Element/Block'
 import React, { useRef, useEffect, useState } from 'react'
 import {
     createTheme,
@@ -17,21 +17,30 @@ const theme = createTheme({
             },
             styleOverrides: {
                 root: {
-                    // backgroundColor: 'red',
+                    backgroundColor: 'white',
+                    border: '1px solid #FF6F00',
                     borderRadius: '20px',
-                    background: 'linear-gradient(53.34deg, #FF6F00 0%, #FFDEBF 100%)',
-                    color: 'white',
+                    // background: 'linear-gradient(53.34deg, #FF6F00 0%, #FFDEBF 100%)',
+                    color: '#FF6F00',
+                    fontFamily: 'Inter',
+                    fontWeight: '600',
+                    fontSize: '16px',
+                    lineHeight: '19px',
+                    letterSpacing: '0.1em',
+                    textTransform: 'uppercase',
                     "&:hover": {
-                        background: '#FF6F00',
+                        backgroundColor: '#FF6F00',
                         color: 'white',
+                        // background: '#FF6F00',
                     },
                 },
+                outlined: true
             },
         },
     },
 })
 
-const Button1 = (props) => {
+const Button2 = (props) => {
     const { onClick, ...restProps } = props
     const onClickEvent = (e) => {
         if (props.onClick)
@@ -40,11 +49,11 @@ const Button1 = (props) => {
     return (
         <Block {...restProps}>
             <ThemeProvider theme={theme}>
-                <Button onClick={(e) => {onClickEvent(e)}} sx={{width: '140px'}}>{props.children}</Button>
+                <Button onClick={(e) => { onClickEvent(e) }} sx={{width: '140px'}}>{props.children}</Button>
             </ThemeProvider>
         </Block>
 
     )
 }
 
-export default Button1 
+export default Button2

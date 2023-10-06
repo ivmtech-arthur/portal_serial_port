@@ -1,5 +1,5 @@
 import * as React from 'react'
-import Block from '/components/Common/Element/Block'
+import Block from 'components/Common/Element/Block'
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
 import ListItemText from '@mui/material/ListItemText'

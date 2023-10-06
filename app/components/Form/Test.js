@@ -1,4 +1,4 @@
-import Block from '/components/Common/Element/Block'
+import Block from 'components/Common/Element/Block'
 import Image from 'next/image'
 import styled from 'styled-components'
 import Button from '@mui/material/Button'

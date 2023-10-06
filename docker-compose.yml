@@ -1,0 +1,37 @@
+version: '3.5'
+
+services:
+  app:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+      args:
+        NODE_ENV: production
+        SSG_REVALIDATE: ${SSG_REVALIDATE}
+    volumes:
+      - ./app:/app
+      - /app/node_modules
+      - ./.cache/app/yarn:/usr/local/share/.cache/yarn
+      - ./.cache/app/npm:/root/.npm
+    ports:
+      - '1111:3000'
+    environment:
+      - NODE_ENV=development
+      - BUILD_PATH_MODE=development
+      - APP_PREFIX=${APP_PREFIX}
+      - SHOW_GRID_GUIDE=true
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_TTL=1
+      - API_URL=http://18.166.75.74:1337
+      - BACKEND_URL=http://app:3000
+      - DB_PORT=21433
+- DB_NAME=iVendingDB_AICabinet
+- DB_USER=sa
+- DB_PASSWORD=DB_PASSWORD
+- DB_ENCRYPT=true
+- DB_TRUST_CERT=true
+- JWT_PUBLIC_KEY="-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA8NIzZH//r0YfE/Rgcvz4tyr4Mg5N37y+Tc4yJcPFkmpvBry1vv9tsXRUew0fO+dblj62qBGOCMdhgEtWvBafquUgcpoPQI7TCwF8VkqiOQI9p2+1IoKvbp6c2f4bSYKd/ECkmQjenxgUftKK4/Kz0FpaVxlsS2P9p93iRH/3PxK/XskIntT8ylylDpNQgOhaEJRAxuKVqY99YKtQmn0hJOWXTnRtc0CUQ00TZg6mDexfTrQCY0WlhKTS70pFCzxAtfGusKmxOxBcXlqPHZMGI8huKrvWvYzLVZ1KXLjySXVJ8HNrELD1iHLkQFotOO1j8c1J6m2PwoTuSjis/1IqowIDAQAB\n-----END PUBLIC KEY-----\n"
+- JWT_EXP=60m
+    command: npm run dev
+

@@ -1,4 +1,4 @@
-import Block from '/components/Common/Element/Block'
+import Block from 'components/Common/Element/Block'
 import { useRouter } from 'next/router'
 import { useStore } from '/store'
 import get from 'lodash/get'
@@ -47,7 +47,11 @@ const Header = (props) => {
         backgroundColor={headerTheme === 'white' ? '#8EC9C0' : 'transparent'}
         // width="100%"
       >
-        <Button5>{generalString.lang}</Button5>
+        <Button5
+          onClick={() => {
+            // console.log("generalString.switchLangCode",generalString.switchLangCode,selectedLang)
+            setSelectLang(generalString.switchLangCode)
+          }}>{generalString.lang}</Button5>
       </StyledHeaderContainer>
       {/* <Popup type="local" propsToPopup={{ menuItems: mobileMenuItems }} /> */}
     </>

@@ -1,8 +1,8 @@
 // import React from "react";
 // import { BarChart, Bar,CartesianGrid,XAxis,YAxis,Tooltip,Legend } from "recharts";
 import styled from 'styled-components';
-import Block from '/components/Common/Element/Block'
-import StyledStop from '/components/Common/Element/Stop'
+import Block from 'components/Common/Element/Block'
+import StyledStop from 'components/Common/Element/Stop'
 import { map } from "lodash";
 import React, { useState, useEffect } from "react";
 import {

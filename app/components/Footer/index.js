@@ -1,5 +1,5 @@
-import Block from '/components/Common/Element/Block'
-import Footer_ from '/components/Common/Element/Footer'
+import Block from 'components/Common/Element/Block'
+import Footer_ from 'components/Common/Element/Footer'
 // import { Button } from '@mui/material'
 import { Divider } from '@mui/material'
 import { } from '@mui/icons-material'

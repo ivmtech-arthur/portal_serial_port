@@ -3,7 +3,7 @@ import LoginForm from "./Login";
 import ContactForm from "./contactForm";
 import ForgetPasswordForm from "./ForgetPassword";
 import ResetPasswordForm from "./ResetPassword";
-import Block from '/components/Common/Element/Block'
+import Block from 'components/Common/Element/Block'
 import EditForm from "./EditForm";
 import map from 'lodash/map'
 function FormHandler(props) {

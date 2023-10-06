@@ -1,5 +1,5 @@
 
-import Block from '/components/Common/Element/Block'
+import Block from 'components/Common/Element/Block'
 import React, { useRef, useEffect, useState } from 'react'
 import {
     createTheme,

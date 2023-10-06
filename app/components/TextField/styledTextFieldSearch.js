@@ -1,4 +1,4 @@
-import Block from '/components/Common/Element/Block'
+import Block from 'components/Common/Element/Block'
 import styled, { css } from 'styled-components'
 // import TextField
 

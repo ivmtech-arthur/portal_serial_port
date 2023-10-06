@@ -4,3 +4,5 @@ module.exports = {
   StoreProvider,
   useStore,
 }
+
+export { StoreProvider, useStore }

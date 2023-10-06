@@ -1,5 +1,5 @@
 import CustomTable from "./table";
-import Block from '/components/Common/Element/Block'
+import Block from 'components/Common/Element/Block'
 import SvgIcon from "@mui/material";
 import SvgIconDeleteGrey from '/public/svg/icon_delete_grey.svg'
 import SvgIconDeleteBlack from '/public/svg/icon_delete_black.svg'

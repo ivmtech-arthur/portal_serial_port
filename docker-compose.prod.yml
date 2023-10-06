@@ -1,0 +1,29 @@
+version: '3.5'
+
+services:
+  app:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+      args:
+        NODE_ENV: production
+        SSG_REVALIDATE: ${SSG_REVALIDATE}
+    volumes:
+      - ./app:/app
+      - /app/node_modules
+      - ./.cache/app/yarn:/usr/local/share/.cache/yarn
+      - ./.cache/app/npm:/root/.npm
+      - /app/.next
+    ports:
+      - '80:3000'
+    environment:
+      - NODE_ENV=development
+      - BUILD_PATH_MODE=development
+      - APP_PREFIX=${APP_PREFIX}
+      - SHOW_GRID_GUIDE=true
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_TTL=1
+      - API_URL=http://18.166.75.74:1337
+      - BACKEND_URL=http://app:3000
+    command: npm run start
