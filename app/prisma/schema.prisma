@@ -7,48 +7,101 @@ datasource db {
 //   url=env("DATABASE_URL")
 //   url= "sqlserver://${env(DB_HOST)}:${env(DB_PORT)};database=${env(DB_NAME)};user=${env(DB_USER)};password=${env(DB_PASSWORD)};encrypt=${env(DB_ENCRYPT)};trustServerCertificate=${env(DB_TRUST_CERT)}" 
 //   url = "sqlserver://${env(DB_HOST)};database=iVendingDB_AICabinet;user=sa;password=Ivm.98123316;encrypt=true;trustServerCertificate=true" // uses connection pooling
-  url = "sqlserver://aws.ivmtech.com:21433;database=iVendingDB_AICabinet;user=sa;password=Ivm.98123316;encrypt=true;trustServerCertificate=true" // uses connection pooling
+  url = "sqlserver://aws.ivmtech.com:21433;database=iVendingDB_AICabinet;user=sa;password=Ivm.98123316;encrypt=true;trustServerCertificate=true;connection_limit=5" // uses connection pooling
 //   directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
 }
 
 // model Post {
-//   id        Int      @id @default(autoincrement())
+//   ID        Int      @ID @default(autoincrement())
 //   createdAt DateTime @default(now())
 //   updatedAt DateTime @updatedAt
 //   title     String   @db.VarChar(255)
 //   content   String?
 //   published Boolean  @default(false)
-// //   author    User     @relation(fields: [authorId], references: [id])
-//   authorId  Int      @unique
+// //   author    User     @relation(fields: [authorID], references: [ID])
+//   authorID  Int      @unique
 // }
 
 model Profile {
-  id     Int     @id @default(autoincrement())
+  ID     Int     @id @default(autoincrement())
   desc    String?
-//   user   User    @relation(fields: [profileID], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+//   user   User    @relation(fields: [profileID], references: [ID])
   profileID Int     @unique
 }
 
 model Machine {
-    id        Int      @id @default(autoincrement())
+    machineID     String  @id @db.VarChar(255)
+    // ID        Int      @ID @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  machineID     String   @db.VarChar(255)
-  
-  content   String?
-  published Boolean  @default(false)
-//   author    User     @relation(fields: [authorId], references: [id])
-  authorId  Int      @unique
+  serverToken String
+  location String
+  owner User @relation(fields: [ownerID], references: [userID])
+  ownerID String @unique
+  status String
+  config String @db.VarChar(8000)   
+  MachinePalletDetail MachinePalletDetail[]
+  MachineProductSummary MachineProductSummary[]
+}
+
+model MasterProduct {
+  productID String @id @unique
+  isActive Boolean @default(true)
+  suspend Boolean @default(false)
+  productName String 
+  productNameEn String 
+  desc String
+  descEn String
+  price Decimal
+  unitPrice Decimal
+  unit String
+  currency String
+  remark String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  MachinePalletDetails MachinePalletDetail[]
+  MachineProductSummary MachineProductSummary[]
+}
+
+model MachinePalletDetail {
+  palletDetailID String @id @unique
+  machine Machine @relation(fields: [machineID], references: [machineID])
+  machineID String
+  palletID Int
+  status String
+  description String
+  product MasterProduct @relation(fields: [productID], references: [productID])
+  productID String 
+  inventory Int
+  price Decimal
+  weight Decimal
+}
+
+model MachineProductSummary {
+  summaryID String @id @unique
+  machine Machine @relation(fields: [machineID], references: [machineID])
+  machineID String
+  product MasterProduct @relation(fields: [productID], references: [productID])
+  productID String 
+}
+
+model Transaction {
+  transactionID String @id @unique
 }
 
 model UserSession {
     user    User  @relation(fields: [userID], references: [userID])
     userID String @unique
-    token String @unique
+    token String 
+    expired Boolean @default(false)
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 }
 
 model User {
-  id      Int      @id @default(autoincrement())
+  ID      Int      @id @default(autoincrement())
    createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   userID  String   @unique
@@ -59,6 +112,7 @@ model User {
   nameEn  String
 //   posts   Post[]
 userSession UserSession?
+machine Machine?
 //   profile Profile?
 //   machine  Machine?
 }

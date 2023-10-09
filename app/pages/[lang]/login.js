@@ -5,10 +5,12 @@ import { useStore } from '/store'
 import Image from 'next/image'
 import FormHandler from '/components/Form'
 import get from 'lodash/get'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import general from '../../data/general'
 import Button7 from '../../components/Button/Button7'
 import Popup from '../../components/Popup'
+import io from 'Socket.IO-client'
+let socket
 const Login = (props) => {
     const { handleOnSubmit, handleValidation, errors, fields } = props
     const [authStage, setAuthStage] = useState(0)
@@ -30,6 +32,27 @@ const Login = (props) => {
             },
         })
     }
+    const [input, setInput] = useState('')
+    useEffect(() => socketInitializer(), [])
+
+  const socketInitializer = async () => {
+    console.log('socketInitializer')
+    const a = await fetch('/api/socketio');
+    socket = io()
+
+    socket.on('connect', () => {
+      console.log('connected')
+    })
+
+    socket.on('update-input', msg => {
+        setInput(msg)
+      })
+  }
+
+  const onChangeHandler = (e) => {
+    setInput(e.target.value)
+    socket.emit('input-change', e.target.value)
+  }
 
     return (
         <Block  height='100vh' position='relative'>
@@ -57,7 +80,11 @@ const Login = (props) => {
                         }} />}
                     <Button7 href="/" position='absolute' top='100%' left='50%' transform="-50%, -50%" width='max-content'>{generalString.tnc}</Button7>
                 </Block>
-
+                <input
+      placeholder="Type something"
+      value={input}
+      onChange={onChangeHandler}
+    />
             </Block>
             {/* <Button7 href="/"  position='absolute' top='80%' left='50%' transform="-50%, -50%" display={{ md: 'none', _: 'block' }}>{generalString.tnc}</Button7> */}
             <Popup type="local" propsToPopup={{ onClosePopupCallback: () => { setAuthStage(2) } }} />

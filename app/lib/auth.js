@@ -26,7 +26,7 @@ const getUser = async (token) => {
     // }
   })
 
-  return result;
+  // return result;
   // return await ClientFetcher.get('/api/users/me', {
   //   headers: {
   //     Authorization: `Bearer ${token}`,
