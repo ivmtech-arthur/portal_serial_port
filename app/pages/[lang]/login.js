@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react'
 import general from '../../data/general'
 import Button7 from '../../components/Button/Button7'
 import Popup from '../../components/Popup'
-import io from 'Socket.IO-client'
+// import io from 'socket.io-client'
 let socket
 const Login = (props) => {
     const { handleOnSubmit, handleValidation, errors, fields } = props
@@ -36,22 +36,22 @@ const Login = (props) => {
     useEffect(() => socketInitializer(), [])
 
   const socketInitializer = async () => {
-    console.log('socketInitializer')
-    const a = await fetch('/api/socketio');
-    socket = io()
+    // console.log('socketInitializer')
+    // const a = await fetch('/api/socketio');
+    // socket = io()
 
-    socket.on('connect', () => {
-      console.log('connected')
-    })
+    // socket.on('connect', () => {
+    //   console.log('connected')
+    // })
 
-    socket.on('update-input', msg => {
-        setInput(msg)
-      })
+    // socket.on('update-input', msg => {
+    //     setInput(msg)
+    //   })
   }
 
   const onChangeHandler = (e) => {
     setInput(e.target.value)
-    socket.emit('input-change', e.target.value)
+    // socket.emit('input-change', e.target.value)
   }
 
     return (

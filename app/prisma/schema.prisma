@@ -32,7 +32,7 @@ model Profile {
 }
 
 model Machine {
-    machineID     String  @id @db.VarChar(255)
+    machineID     String  @id @unique
     // ID        Int      @ID @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -48,7 +48,7 @@ model Machine {
 
 model MasterProduct {
   productID String @id @unique
-  isActive Boolean @default(true)
+isActive Boolean @default(true)
   suspend Boolean @default(false)
   productName String 
   productNameEn String 
@@ -68,12 +68,12 @@ model MasterProduct {
 model MachinePalletDetail {
   palletDetailID String @id @unique
   machine Machine @relation(fields: [machineID], references: [machineID])
-  machineID String
+  machineID String @unique
   palletID Int
   status String
   description String
   product MasterProduct @relation(fields: [productID], references: [productID])
-  productID String 
+  productID String @unique
   inventory Int
   price Decimal
   weight Decimal
@@ -95,24 +95,27 @@ model UserSession {
     user    User  @relation(fields: [userID], references: [userID])
     userID String @unique
     token String 
-    expired Boolean @default(false)
+    // expiredDate DateTime @default(now)
+    expiredDate DateTime // Default value is 1 year from now. 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 }
 
 model User {
-  ID      Int      @id @default(autoincrement())
-   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  userID  String   @unique
+    userID  String   @unique @id
+
+
   password String 
   userRole String  
 //   email   String   @unique
   name    String
   nameEn  String
+  authenticated Boolean
 //   posts   Post[]
 userSession UserSession?
 machine Machine?
+   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 //   profile Profile?
 //   machine  Machine?
 }

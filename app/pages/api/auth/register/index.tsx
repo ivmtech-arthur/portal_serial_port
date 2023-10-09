@@ -30,6 +30,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                 name: data.name,
                 nameEn: data.nameEn,
                 password: hashedPassword,
+                authenticated: false,
                 userRole: "",
                 userID: data.userID,
                 // photo: data.photo,

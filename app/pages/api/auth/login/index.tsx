@@ -7,25 +7,68 @@ import { NextRequest, NextResponse } from "next/server";
 import { NextApiRequest, NextApiResponse } from "next";
 import { ZodError } from "zod";
 
-export async function handler(req: NextApiRequest,res: NextApiResponse) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  console.log("login service");
   try {
     const body = (await req.body) as LoginUserInput;
     const data = LoginUserSchema.parse(body);
 
     const user = await prisma.user.findUnique({
       where: { userID: data.userID },
+      include: {
+        userSession: true
+      }
     });
 
+    console.log("user ",user)
+
     if (!user || !(await compare(data.password, user.password))) {
-      return getErrorResponse(401, "Invalid email or password");
+      // return getErrorResponse(401, "Invalid email or password");
+      
+      res.status(401).json({
+        "error": "Invalid email or password"
+      })
+      return;
     }
 
     const JWT_EXPIRES_IN = getEnvVariable("JWT_EXPIRES_IN");
 
     const token = await signJWT(
-      { sub: user.id },
+      { sub: user.userID },
       { exp: `${JWT_EXPIRES_IN}m` }
     );
+
+    if (user.userSession) {
+      let expireDate = new Date();
+      expireDate.setFullYear(expireDate.getFullYear() + 1);
+      await prisma.userSession.update({
+        where: {
+          userID: user.userID
+        },
+        data: {
+          token,
+          expiredDate: expireDate,
+        }
+      })
+    } else { 
+      let expireDate = new Date();
+      expireDate.setFullYear(expireDate.getFullYear() + 1);
+      await prisma.userSession.create({
+        data: {
+          userID: user.userID,
+          token: token,
+          expiredDate: expireDate,
+
+        }
+      })
+    }
+
+    // await prisma.userSession.findFirst({
+    //   where:
+    //     userID: {
+    //       user.userID
+    //     }
+    // })
 
     const tokenMaxAge = parseInt(JWT_EXPIRES_IN) * 60;
     const cookieOptions = {
@@ -53,12 +96,14 @@ export async function handler(req: NextApiRequest,res: NextApiResponse) {
     //   }),
     // ]);
 
-    return response;
+    res.end();
   } catch (error: any) {
     if (error instanceof ZodError) {
-      return getErrorResponse(400, "failed validations", error);
+      
+      // return getErrorResponse(400, "failed validations", error);
     }
-
-    return getErrorResponse(500, error.message);
+    console.log("error:", error);
+    res.status(400).json(error);
+    // return getErrorResponse(500, error.message);
   }
 }

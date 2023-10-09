@@ -40,10 +40,10 @@ export const RegisterUserSchema = z
 export const LoginUserSchema = z.object({
   userID: z
     .string({
-      required_error: "Email is required",
+      required_error: "UserID is required",
     })
-    .min(1, "Email is required")
-    .email("Email is invalid"),
+    .min(1, "UserID required"),
+    // .email("Email is invalid"),
   password: z
     .string({
       required_error: "Password is required",
