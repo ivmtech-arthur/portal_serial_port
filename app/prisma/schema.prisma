@@ -42,27 +42,27 @@ model Machine {
   ownerID String @unique
   status String
   config String @db.VarChar(8000)   
-  MachinePalletDetail MachinePalletDetail[]
-  MachineProductSummary MachineProductSummary[]
+  machinePalletDetail MachinePalletDetail[]
+  machineProductSummary MachineProductSummary[]
 }
 
 model MasterProduct {
   productID String @id @unique
 isActive Boolean @default(true)
   suspend Boolean @default(false)
-  productName String 
-  productNameEn String 
-  desc String
-  descEn String
+  productName String?
+  productNameEn String?
+  desc String?
+  descEn String?
   price Decimal
   unitPrice Decimal
-  unit String
+  unit String?
   currency String
   remark String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  MachinePalletDetails MachinePalletDetail[]
-  MachineProductSummary MachineProductSummary[]
+  machinePalletDetails MachinePalletDetail[]
+  machineProductSummary MachineProductSummary[]
 }
 
 model MachinePalletDetail {
@@ -72,7 +72,7 @@ model MachinePalletDetail {
   palletID Int
   status String
   description String
-  product MasterProduct @relation(fields: [productID], references: [productID])
+  masterProduct MasterProduct @relation(fields: [productID], references: [productID])
   productID String @unique
   inventory Int
   price Decimal
@@ -83,7 +83,7 @@ model MachineProductSummary {
   summaryID String @id @unique
   machine Machine @relation(fields: [machineID], references: [machineID])
   machineID String
-  product MasterProduct @relation(fields: [productID], references: [productID])
+  masterProduct MasterProduct @relation(fields: [productID], references: [productID])
   productID String 
 }
 

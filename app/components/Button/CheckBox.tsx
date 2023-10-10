@@ -35,7 +35,6 @@ const CustomCheckBox = (props) => {
     let initChecked = false
     if(initCheck)
         initChecked = true
-    console.log("CustomCheckBox",props,initCheck)
     const [checked, setChecked] = React.useState(initChecked);
 
     const handleChange = (event) => {

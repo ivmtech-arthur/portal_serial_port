@@ -1,62 +1,113 @@
 import { Machine, Prisma } from "@prisma/client";
-import { isAuthorised, prisma } from "lib/prisma";
+import { isAuthorised, prisma, schemaMap } from "lib/prisma";
+import { includes } from "lodash";
 import { NextApiRequest, NextApiResponse } from "next";
-
-interface queryParams {
-    collection: String,
-    id: String
-}
-
 // interface populateValue : String 
 
-const schemaMap = {
-    "machine": prisma.machine,
-    "machinePalletDetail": prisma.machinePalletDetail,
-    "machineProductSummary": prisma.machineProductSummary,
-    "masterProduct": prisma.masterProduct,
-    "profile": prisma.profile,
-    "transaction": prisma.transaction,
-    "user": prisma.user,
-    "userSession": prisma.userSession,
-    // "": prisma
+function createInclude(obj, includeValue: string) {
+    const tempObj = Object.assign({}, obj)
+    var reservedKey = [...new Set(includeValue.split(/[.,]+/))];
+    // var reservedKey = [];
+    // list.forEach((item) => { 
+    //     if (Object.keys(obj).some((key) => { return item.includes(key) })) {
+    //         if (item.split('.').length > 1) { 
+
+    //         }
+    //         // reservedKey.push(item)
+    //     } else { 
+
+    //     }
+    // })
+    // console.log("before", includeValue.split("."), includeValue.split(/[.,]+/), reservedKey, obj)
+    var result = iterate(tempObj, reservedKey[0], reservedKey)
+    // console.log("result", result, tempObj)
+    return result
 }
 
-function creatNextedObj(list: string[]) {
-    const a = list.reduce((result, key) => {
-        if (key.split(".").length > 1) {
-            console.log(nestedObj(key));
+function iterate(instance, key2, reservedKey) {
+    var instance2 = instance;
+    // console.log("instance start", instance2, key2)
+    if (key2 != "include") {
+        if (!reservedKey.includes(key2)) {
+            // console.log("instance is delete", instance2, instance, key2, instance[key2])
+            // delete instance2[key2]; 
+            return null;
         }
-        result[key] = true
-        return result
-    }, {})
-    return a;
+    }
+    for (let key in instance) {
+        instance2[key] = iterate(instance[key], key, reservedKey);
+        // console.log("return value,", instance2[key])
+        if (!instance2[key]) {
+            // console.log("instance deleting", instance2, instance, key, instance2[key])
+            // if (key == "include") { 
+
+            // }
+            delete instance2[key]
+        }
+        if (key == "include" && Object.keys(instance2[key]).length == 0) {
+            instance2 = true;
+        }
+    }
+    // if (key2 == "include" && Object.keys(instance2).length == 0) { 
+    //     console.log("instance end early", instance2, key2)
+    //     return true;
+    // }
+    console.log("instance end", instance2, key2)
+    return instance2;
 }
+
+// function deleteObjRecursive(object, list: string[]) {
+//     let workingKey = list[0];
+//     let tempChild = object[workingKey]['include'];
+//     object[workingKey] = true;
+//     list.slice(0, 1)
+//     if (list.length > 1) {
+//         deleteObjRecursive(object, list);
+//     }
+//     return object;
+// }
+
+// function creatNextedObj(list: string[]) {
+//     const a = list.reduce((result, key) => {
+//         if (key.split(".").length > 1) {
+//             console.log(nestedObj(key));
+//         }
+//         result[key] = true
+//         return result
+//     }, {})
+//     console.log("nextobj", list, a)
+//     return a;
+// }
 
 function nestedObj(str: String) {
     let resulta = {};
     var list = str.split(".").reverse();
-    resulta = list.reduce((result, item, index) => { 
-        if (index == 0) { 
+    resulta = list.reduce((result, item, index) => {
+        if (index == 0) {
             result = {}
             result[item] = true;
         }
-        if (index + 1 == list.length) { 
-            let tempResult = Object.assign(result);
-            console.log("tempReuslt finally", tempResult)
-            result = {};
-            result[item] = tempResult;
+        if (list.length > 1) {
+            if (index + 1 == list.length) {
+                let tempResult = Object.assign(result);
+                // console.log("tempReuslt finally", tempResult)
+                result = {};
+                result[item] = tempResult;
+            }
+            else {
+                let tempResult = Object.assign(result);
+                // console.log("tempReuslt", tempResult)
+                result = {};
+
+                result['include'] = tempResult;
+                // tempResult['include'] = result;
+                // result['include'] = result;
+                // result = {};
+
+                // result = {};
+            }
         }
-        else { 
-            let tempResult = Object.assign(result);
-            console.log("tempReuslt", tempResult)
-            result = {};
-            result['include'] = tempResult;
-            // tempResult['include'] = result;
-            // result['include'] = result;
-            // result = {};
-            
-            // result = {};
-        }
+
         return result;
     }, {})
     // list.forEach((item, index) => {
@@ -77,12 +128,9 @@ function nestedObj(str: String) {
 }
 
 function handleClause(collection, id, populate?) {
-    var populateClause;
     var allPopulate = false;
     var singlePopulate = false;
     var listPopulate = false;
-    var havePopulate = false;
-    var isPopulateString = typeof populate === 'string';
     var includeClause = {};
     var populateObj = {};
     var whereClause: any;
@@ -108,6 +156,19 @@ function handleClause(collection, id, populate?) {
             }
             whereClause = machineClause;
 
+            if (populate) {
+                var machineInclude: Prisma.MachineInclude = {
+
+                };
+
+                includeClause = {
+                    ...(allPopulate ? machineInclude : {}),
+                    ...(listPopulate ? {
+                        ...(createInclude(machineInclude, populate))
+                    } : {}),
+                    ...(singlePopulate ? { ...(createInclude(machineInclude, populate)) } : {})
+                }
+            }
             break
         case "machinePalletDetail":
             var machinePalletDetailClause: Prisma.MachinePalletDetailWhereUniqueInput = {
@@ -122,6 +183,20 @@ function handleClause(collection, id, populate?) {
                 summaryID: id
             }
             whereClause = machineProductSummaryClause;
+
+            if (populate) {
+                var machineProductSummaryInclude: Prisma.MachineProductSummaryInclude = {
+
+                };
+
+                includeClause = {
+                    ...(allPopulate ? machineProductSummaryInclude : {}),
+                    ...(listPopulate ? {
+                        ...(createInclude(machineProductSummaryInclude, populate))
+                    } : {}),
+                    ...(singlePopulate ? { ...(createInclude(machineProductSummaryInclude, populate)) } : {})
+                }
+            }
             break
         case "masterProduct":
             var masterProductClause: Prisma.MasterProductWhereUniqueInput = {
@@ -131,14 +206,20 @@ function handleClause(collection, id, populate?) {
 
 
             if (populate) {
-                var productInclude: Prisma.MasterProductInclude = {};
+                var productInclude: Prisma.MasterProductInclude = {
+
+                };
 
                 includeClause = {
-                    ...(allPopulate ? {
-                        ...(Object.keys(productInclude))
+                    ...(allPopulate ? productInclude : {}),
+                    ...(listPopulate ? {
+                        ...(createInclude(productInclude, populate))
+                        // ...(Object.keys(userInclude).filter((key) => { return !populate.split(',').includes(key) }).reduce((result, key) => {
+                        //     result[key] = true
+                        //     return result
+                        // }, {}))
                     } : {}),
-                    ...(listPopulate ? { ...(Object.keys(productInclude).filter((key) => { return !populate.includes(key) })) } : {}),
-                    ...(singlePopulate ? { populate } : {})
+                    ...(singlePopulate ? { ...(createInclude(productInclude, populate)) } : {})
                 }
             }
             break
@@ -149,39 +230,40 @@ function handleClause(collection, id, populate?) {
             whereClause = userClause
 
             if (populate) {
-                // Object.getOwnPropertyNames(userInclude);
-               
                 var userInclude: Prisma.UserInclude = {
-                    // userSession: {
-                    //     ...(_: Prisma.UserSessionInclude = {
-                    //         user
-                    //     })},
                     userSession: true,
                     machine: {
                         include: {
-                            MachinePalletDetail: true,
-                            MachineProductSummary: true
+                            machinePalletDetail: {
+                                include: {
+                                    masterProduct: true
+                                }
+                            },
+                            machineProductSummary: {
+                                include: {
+                                    masterProduct: true
+                                }
+                            }
                         }
                     },
                 };
 
-                console.log("pupulate", Object.keys(userInclude).filter((key) => { return populate.split(',').includes(key) }),
-                    Object.keys(userInclude).filter((key) => { return populate.split(',').includes(key) }).reduce((result, key) => {
-                        result[key] = true
-                        return result
-                    }, {}))
-                console.log("populate", Object.keys(userInclude), includeClause, allPopulate, listPopulate, singlePopulate, populate)
+                // console.log("pupulate", Object.keys(userInclude).filter((key) => { return populate.split(',').includes(key) }),
+                //     Object.keys(userInclude).filter((key) => { return populate.split(',').includes(key) }).reduce((result, key) => {
+                //         result[key] = true
+                //         return result
+                //     }, {}))
+                // console.log("populate", Object.keys(userInclude), includeClause, allPopulate, listPopulate, singlePopulate, populate)
                 includeClause = {
-                    ...(allPopulate ? {
-                        ...(creatNextedObj(Object.keys(userInclude)))
-                    } : {}),
+                    ...(allPopulate ? userInclude : {}),
                     ...(listPopulate ? {
-                        ...(Object.keys(userInclude).filter((key) => { return !populate.split(',').includes(key) }).reduce((result, key) => {
-                            result[key] = true
-                            return result
-                        }, {}))
+                        ...(createInclude(userInclude, populate))
+                        // ...(Object.keys(userInclude).filter((key) => { return !populate.split(',').includes(key) }).reduce((result, key) => {
+                        //     result[key] = true
+                        //     return result
+                        // }, {}))
                     } : {}),
-                    ...(singlePopulate ? { ...populateObj } : {})
+                    ...(singlePopulate ? { ...(createInclude(userInclude, populate)) } : {})
                 }
             }
             break
@@ -233,23 +315,17 @@ async function GET(req: NextApiRequest, res: NextApiResponse) {
         // const { populate }: { populate: string } = req.query
 
         if (typeof collection === 'string' && typeof id === 'string') {
-
-
-
-
-
-
             const { whereClause, includeClause } = handleClause(collection, id, populate);
             console.log("whereClause", whereClause, includeClause)
-        //    const result =await prisma.user.findFirst({
-        //         include: {
-        //             machine: {
-        //                 include: {
-        //                     MachinePalletDetail: true
-        //                 }
-        //             }
-        //         }
-        //     })
+            //    const result =await prisma.user.findFirst({
+            //         include: {
+            //             machine: {
+            //                 include: {
+            //                     MachinePalletDetail: true
+            //                 }
+            //             }
+            //         }
+            //     })
             const result = await schemaMap[collection].findUniqueOrThrow({
 
                 where: whereClause,
@@ -269,6 +345,52 @@ async function GET(req: NextApiRequest, res: NextApiResponse) {
     }
 }
 
+async function POST(req: NextApiRequest, res: NextApiResponse) {
+    try {
+        const { collection, id } = req.query
+        const { data } = req.body
+        if (typeof collection === 'string' && typeof id === 'string') {
+            const result = await schemaMap[collection].create({
+                data
+            });
+            res.status(200).json({
+                result
+            });
+            return;
+        }
+        res.end()
+    } catch (e) {
+        console.log("error", e);
+        res.status(400).json({
+            "error": e
+        })
+    }
+}
+
+async function DELETE(req: NextApiRequest, res: NextApiResponse) { 
+    try {
+        const { collection, id } = req.query
+        const { data } = req.body
+        if (typeof collection === 'string' && typeof id === 'string') {
+            const { whereClause, includeClause } = handleClause(collection, id);
+            const result = await schemaMap[collection].delete({
+                where: whereClause,
+                // include: includeClause
+            });
+            res.status(200).json({
+                result
+            });
+            return;
+        }
+        res.end()
+    } catch (e) {
+        console.log("error", e);
+        res.status(400).json({
+            "error": e
+        })
+    }
+}
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     try {
         const { authorization } = req.headers
@@ -276,7 +398,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             const tokenAuthorized = await isAuthorised(authorization.replace("Bearer ", ""));
             if (tokenAuthorized) {
                 switch (req.method) {
-                    case "DELETE":
+                    case "POST":
+                        POST(req, res)
                         break;
                     case "PUT":
                         PUT(req, res)
@@ -285,14 +408,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                         GET(req, res)
                         break;
                     case "DELETE":
+                        DELETE(req,res)
                         break;
                 }
             }
         } else {
-            throw ("Invalid Token")
+            throw ("Access Denied")
         }
     } catch (e) {
-        res.status(400).json({
+        let statusCode = 400;
+        if (e == "Access Denied") { 
+            statusCode = 403;
+        }
+        res.status(statusCode).json({
             error: e
         })
     }
