@@ -16,13 +16,13 @@ import { useEffect } from 'react'
 import getConfig from 'next/config'
 import axios from 'axios'
 import { useState } from 'react'
-import { authService } from 'pages/api/api/auth/service'
+import { Prisma } from '@prisma/client'
 const { publicRuntimeConfig } = getConfig()
 const { API_URL, APP_URL } = publicRuntimeConfig
 
 const initFields = {
   password: '',
-  email: '',
+  name: '',
   rememberMe: false,
 }
 
@@ -37,7 +37,7 @@ const LoginForm = (props) => {
   const router = useRouter()
   const generalString = get(general, lang)
   const loginString = get(login, lang)
-  const [value,setValue] = useState(fields.email)
+  const [value, setValue] = useState(fields.name)
   const handleSubmit = (e) => {
     e.preventDefault();
     if (handleOnSubmit) {
@@ -50,8 +50,8 @@ const LoginForm = (props) => {
     if (Object.keys(errors).length == 0) {
     } else {
     }
-    axios.post(`${API_URL}/api/auth/local`, {
-      identifier: fields.email,
+    axios.post(`/api/auth/local`, {
+      identifier: fields.name,
       password: fields.password,
     }, {
       headers: {
@@ -65,9 +65,10 @@ const LoginForm = (props) => {
         let opt = {
           path: '/',
           domain: '',
+          maxAge: 0,
         }
 
-        if(fields.rememberMe)
+        if (fields.rememberMe)
           opt.maxAge = 360000
 
         cookies.set('userToken', get(data, 'jwt', false), opt)
@@ -106,12 +107,32 @@ const LoginForm = (props) => {
       getInitFields(initFields)
   }, [])
   return (
-    // <form>
     <Block display='flex' flexDirection='column' alignItems='center' height='600px' width='100%'>
       <StyledH2 color='purple2'>{loginString.welcome}</StyledH2>
-      <StyledTextField py="10px" placeholder={generalString.placeholderEmail} handleValidation={handleValidation} type="email" id="email" name="email" error={errors['email']} value={value}/>
+      <StyledTextField py="10px" placeholder={generalString.placeholderName} handleValidation={handleValidation} id="name" name="name" error={errors['name']} value={value} />
+      {/* <StyledTextField py="10px" placeholder={generalString.placeholdername} handleValidation={handleValidation} type="name" id="name" name="name" error={errors['name']} value={value} /> */}
       <StyledTextFieldPassword py="10px" placeholder={generalString.placeholderPassword} handleValidation={handleValidation} id="password" name="password" error={errors['password']} />
       <CustomCheckBox alignSelf="start" label={loginString.rememberMe} handleValidation={handleValidation} onClick={(isChecked) => { }} name="rememberMe" />
+      <Button4 onClick={async () => {
+        const params: Prisma.MasterProductAggregateArgs = {
+          where: {
+            productName: {
+              contains: "test"
+            }
+          },
+          orderBy: {
+
+          }
+        }
+        const playListVideoData = await axios
+          .get(`/api/prisma/masterProduct`, {
+            headers: {
+              Authorization: `Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJTdXBlckFkbWluIiwiZXhwIjozNTg5MDAwMzA0LCJpYXQiOjE2OTY4NDAzMDR9.Tw0Lb6TH82f9NvBZTcRL0eCQl-NtKwHDrQnmSU01MVI`,
+            },
+            params: params,
+          })
+          .then(({ data }) => data.data)
+      }}>test</Button4>
       <Button1 py='30px' onClick={
         (e) => {
           // router.push(`/${lang}/`)
@@ -125,7 +146,6 @@ const LoginForm = (props) => {
             }
           }}>{loginString.forgotPassword}</Button4>
     </Block>
-    // </form>
   )
 }
 

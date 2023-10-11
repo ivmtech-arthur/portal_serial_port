@@ -26,10 +26,55 @@ const nextConfig = {
       },
     ]
   },
+  async headers() {
+    return [
+      {
+        source: '/api/(.*?)',
+        headers: [
+          {
+            key: 'Content-Security-Policy',
+            value: "connect-src 'self' https:;img-src 'self'",
+          },
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=63072000; includeSubDomains; preload'
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff'
+          },
+          {
+            key: 'X-DNS-Prefetch-Control',
+            value: 'on'
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'SAMEORIGIN'
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'no-referrer'
+          },
+          {
+            key: 'X-Download-Options',
+            value: 'noopen'
+          },
+          {
+            key: 'X-Permitted-Cross-Domain-Policies',
+            value: 'none'
+          },
+          {
+            key: 'Vary',
+            value: 'Origin'
+          }
+        ],
+      },
+    ]
+  },
   webpack(config) {
     config.module.rules.push({
       test: /\.svg$/,
-      use: [{ 
+      use: [{
         loader: "@svgr/webpack",
         options: {
           svgoConfig: {

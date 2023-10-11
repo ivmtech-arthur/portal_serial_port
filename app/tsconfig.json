@@ -46,6 +46,6 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    "components/Common/Element/Block.js"
+    "components/Common/Element/Block.tsx"
   ]
 }

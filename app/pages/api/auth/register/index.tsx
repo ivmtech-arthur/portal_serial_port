@@ -9,6 +9,7 @@ import { hash } from "bcryptjs";
 import { NextRequest, NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { NextApiRequest, NextApiResponse } from "next";
+import { Prisma } from "@prisma/client";
 
 type ResponseData = {
     body: any
@@ -25,13 +26,30 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
         const hashedPassword = await hash(data.password, 12);
 
+        // let userCreatenput: Prisma.UserCreateInput = {
+        //     name
+        // }
+        // let input2: Prisma.UserRoleCreateOrConnectWithoutUsersInput = {
+        //     connectOrCreate: {
+                
+        //     }
+        // }
         const user = await prisma.user.create({
             data: {
                 name: data.name,
                 nameEn: data.nameEn,
                 password: hashedPassword,
                 authenticated: false,
-                userRole: "",
+                userRole: {
+                    connect: {
+                        userRoleID: data.userRole
+                    }
+                },
+                userType: {
+                    connect: {
+                        userTypeID: data.userType
+                    }
+                },
                 userID: data.userID,
                 // photo: data.photo,
             },

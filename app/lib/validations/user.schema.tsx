@@ -31,6 +31,8 @@ export const RegisterUserSchema = z
         required_error: "Confirm your password",
       })
       .min(1, "Confirm your password"),
+    userType: z.number().default(3),
+    userRole: z.number().default(3),
   })
   .refine((data) => data.password === data.passwordConfirm, {
     path: ["passwordConfirm"],
@@ -38,11 +40,11 @@ export const RegisterUserSchema = z
   });
 
 export const LoginUserSchema = z.object({
-  userID: z
+  identifier: z
     .string({
-      required_error: "UserID is required",
+      required_error: "Identifier is required",
     })
-    .min(1, "UserID required"),
+    .min(1, "Identifier required"),
     // .email("Email is invalid"),
   password: z
     .string({

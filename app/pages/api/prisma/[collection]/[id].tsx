@@ -1,5 +1,6 @@
 import { Machine, Prisma } from "@prisma/client";
 import { isAuthorised, prisma, schemaMap, handleClause } from "lib/prisma";
+import CustomNextApiResponse from "lib/response";
 import { includes } from "lodash";
 import { NextApiRequest, NextApiResponse } from "next";
 // interface populateValue : String 
@@ -12,48 +13,39 @@ async function PUT(req: NextApiRequest, res: NextApiResponse) {
         if (typeof collection === 'string' && typeof id === 'string') {
             const { whereClause } = handleClause(collection, id);
             const result = await schemaMap[collection].update({
-                where: whereClause,
+                ...whereClause,
                 data
             });
-            res.status(200).json({
-                result
-            });
+            CustomNextApiResponse(res, result, 200,collection);
             return;
         }
         res.end()
     } catch (e) {
         console.log("error", e);
-        res.status(400).json({
-            "error": e
-        })
+        CustomNextApiResponse(res, e, 400);
     }
 }
 
 async function GET(req: NextApiRequest, res: NextApiResponse) {
     try {
         console.log("req.query", req.query)
-        const { collection, id, populate } = req.query
+        const { collection, id, populate,...queryParams } = req.query
 
 
         if (typeof collection === 'string' && typeof id === 'string') {
-            const { whereClause, includeClause } = handleClause(collection, id, populate);
+            const { whereClause, includeClause } = handleClause(collection, id, populate, queryParams);
             console.log("whereClause", whereClause, includeClause)
             const result = await schemaMap[collection].findUniqueOrThrow({
-
-                where: whereClause,
-                include: includeClause
+                ...whereClause,
+                ...includeClause
             })
-            res.status(200).json({
-                result
-            })
+            CustomNextApiResponse(res, result, 200, collection);
             return
         }
         res.end()
     } catch (e) {
         console.log("error", e);
-        res.status(400).json({
-            "error": e
-        })
+        CustomNextApiResponse(res, e, 400);
     }
 }
 
@@ -65,17 +57,13 @@ async function POST(req: NextApiRequest, res: NextApiResponse) {
             const result = await schemaMap[collection].create({
                 data
             });
-            res.status(200).json({
-                result
-            });
+            CustomNextApiResponse(res, result, 200, collection);
             return;
         }
         res.end()
     } catch (e) {
         console.log("error", e);
-        res.status(400).json({
-            "error": e
-        })
+        CustomNextApiResponse(res, e, 400);
     }
 }
 
@@ -86,20 +74,16 @@ async function DELETE(req: NextApiRequest, res: NextApiResponse) {
         if (typeof collection === 'string' && typeof id === 'string') {
             const { whereClause, includeClause } = handleClause(collection, id);
             const result = await schemaMap[collection].delete({
-                where: whereClause,
+                ...whereClause,
                 // include: includeClause
             });
-            res.status(200).json({
-                result
-            });
+            CustomNextApiResponse(res, result, 200, collection);
             return;
         }
         res.end()
     } catch (e) {
         console.log("error", e);
-        res.status(400).json({
-            "error": e
-        })
+        CustomNextApiResponse(res, e, 400);
     }
 }
 
@@ -111,30 +95,31 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             if (tokenAuthorized) {
                 switch (req.method) {
                     case "POST":
-                        POST(req, res)
+                        await POST(req, res)
                         break;
                     case "PUT":
-                        PUT(req, res)
+                        await PUT(req, res)
                         break
                     case "GET":
-                        GET(req, res)
+                        await GET(req, res)
                         break;
                     case "DELETE":
-                        DELETE(req,res)
+                        await DELETE(req,res)
                         break;
+                    default:
+                        throw ("invalid request type")
                 }
             }
         } else {
             throw ("Access Denied")
         }
+        // res.end()
     } catch (e) {
         let statusCode = 400;
         if (e == "Access Denied") { 
             statusCode = 403;
         }
-        res.status(statusCode).json({
-            error: e
-        })
+        CustomNextApiResponse(res, e, statusCode);
     }
 
 

@@ -23,12 +23,13 @@ datasource db {
 // }
 
 model Profile {
-  ID     Int     @id @default(autoincrement())
+  profileID String  @id @unique
   desc    String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-//   user   User    @relation(fields: [profileID], references: [ID])
-  profileID Int     @unique
+  user   User    @relation(fields: [userID], references: [userID])
+  userID String @unique
+
 }
 
 model Machine {
@@ -105,8 +106,13 @@ model User {
     userID  String   @unique @id
 
 
-  password String 
-  userRole String  
+  password String  
+  userTypeID Int 
+  userType UserType @relation(fields: [userTypeID],references: [userTypeID])
+  userRoleID Int 
+  userRole UserRole @relation(fields: [userRoleID],references: [userRoleID])
+  // userType String @default(dbgenerated("CREATE FUNCTION fnConstant() RETURNS INT AS BEGIN RETURN 2 END"))
+  // userType String @default(dbgenerated("mycol VARCHAR(10) NOT NULL CHECK (mycol IN('Useful', 'Useless', 'Unknown'))"))
 //   email   String   @unique
   name    String
   nameEn  String
@@ -116,6 +122,28 @@ userSession UserSession?
 machine Machine?
    createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-//   profile Profile?
+  profile Profile?
 //   machine  Machine?
 }
+
+model UserType {
+  users User[]
+  userTypeID Int @id @unique @default(autoincrement())
+  userTypeName String
+}
+
+model UserRole {
+  users User[]
+    userRoleID Int @id @unique @default(autoincrement())
+    userRoleName String
+}
+
+// enum UserRole {
+//   CLIENT
+// }
+
+// enum UserType {
+//   SUPERADMIN
+//   ADMIN
+//   USER
+// }

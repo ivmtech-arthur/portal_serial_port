@@ -50,16 +50,51 @@ function iterate(instance, key2, reservedKey) {
   return instance2;
 }
 
-export function handleClause(collection, id, populate?,filters?) {
+function getObjectFromKeyPath(keyPathObj: {}) {
+  // kayPath: string, value: any
+  let result = {}
+  let listinstance = [];
+  for (var keyPath in keyPathObj) {
+    let value = keyPathObj[keyPath]
+    let keys = keyPath.match(/[^[\]]+/g);
+    let prop = keys.pop();
+   
+    if (/^[0-9]*$/.test(prop)) {
+      let acc = result;
+      for (let key of keys) {
+        acc = (acc[key] = acc[key] || []);
+      }
+      if (Array.isArray(acc)) { 
+        acc.push(value);
+      }
+      // acc = []
+    } else { 
+      let acc = result;
+      for (let key of keys) {
+        acc = (acc[key] = acc[key] || {});
+      }
+      acc[prop] = keyPath.endsWith("[]")
+        ? (acc[prop] || []).concat(value)
+        : value;
+    }
+    
+  }
+
+
+  return result;
+}
+
+export function handleClause(collection, id?, populate?, queryParams?) {
   var allPopulate = false;
   var singlePopulate = false;
   var listPopulate = false;
-  var includeClause = {};
-  var whereClause: any;
+  var includeInput = {};
+  var whereInput: any;
+  var queryParamsObject: any;
 
   if (populate && typeof populate === 'string') {
     if (populate == "*") {
-      allPopulate = true;;
+      allPopulate = true;
 
     } else if (populate.split(',').length > 1) {
       listPopulate = true;
@@ -68,8 +103,9 @@ export function handleClause(collection, id, populate?,filters?) {
     }
   }
 
-  if (filters) { 
-    console.log("filter",JSON.parse(filters));
+  if (queryParams) {
+    queryParamsObject = getObjectFromKeyPath(queryParams);
+    console.log("filter", queryParamsObject);
   }
 
   switch (collection) {
@@ -77,14 +113,14 @@ export function handleClause(collection, id, populate?,filters?) {
       var machineClause: Prisma.MachineWhereUniqueInput = {
         machineID: id
       }
-      whereClause = machineClause;
+      whereInput = machineClause;
 
       if (populate) {
         var machineInclude: Prisma.MachineInclude = {
 
         };
 
-        includeClause = {
+        includeInput = {
           ...(allPopulate ? machineInclude : {}),
           ...(listPopulate ? {
             ...(createInclude(machineInclude, populate))
@@ -97,7 +133,7 @@ export function handleClause(collection, id, populate?,filters?) {
       var machinePalletDetailClause: Prisma.MachinePalletDetailWhereUniqueInput = {
         palletDetailID: id,
       }
-      whereClause = machinePalletDetailClause;
+      whereInput = machinePalletDetailClause;
 
 
       break
@@ -105,14 +141,14 @@ export function handleClause(collection, id, populate?,filters?) {
       var machineProductSummaryClause: Prisma.MachineProductSummaryWhereUniqueInput = {
         summaryID: id
       }
-      whereClause = machineProductSummaryClause;
+      whereInput = machineProductSummaryClause;
 
       if (populate) {
         var machineProductSummaryInclude: Prisma.MachineProductSummaryInclude = {
 
         };
 
-        includeClause = {
+        includeInput = {
           ...(allPopulate ? machineProductSummaryInclude : {}),
           ...(listPopulate ? {
             ...(createInclude(machineProductSummaryInclude, populate))
@@ -125,7 +161,7 @@ export function handleClause(collection, id, populate?,filters?) {
       var masterProductClause: Prisma.MasterProductWhereUniqueInput = {
         productID: id
       }
-      whereClause = masterProductClause;
+      whereInput = masterProductClause;
 
 
       if (populate) {
@@ -133,7 +169,7 @@ export function handleClause(collection, id, populate?,filters?) {
 
         };
 
-        includeClause = {
+        includeInput = {
           ...(allPopulate ? productInclude : {}),
           ...(listPopulate ? {
             ...(createInclude(productInclude, populate))
@@ -146,7 +182,7 @@ export function handleClause(collection, id, populate?,filters?) {
       var userClause: Prisma.UserWhereUniqueInput = {
         userID: id
       }
-      whereClause = userClause
+      whereInput = userClause
 
       if (populate) {
         var userInclude: Prisma.UserInclude = {
@@ -168,7 +204,7 @@ export function handleClause(collection, id, populate?,filters?) {
         };
 
 
-        includeClause = {
+        includeInput = {
           ...(allPopulate ? userInclude : {}),
           ...(listPopulate ? {
             ...(createInclude(userInclude, populate))
@@ -181,12 +217,12 @@ export function handleClause(collection, id, populate?,filters?) {
       break;
 
   }
-  return { whereClause, includeClause }
+  return { whereClause: { where: whereInput }, includeClause: { include: includeInput }, ...queryParamsObject }
 }
 
 export async function isAuthorised(token: string) {
- 
-  try{
+
+  try {
     const result = await prisma.userSession.findFirstOrThrow({
       where: {
         // userID: "SuperAdmin",
@@ -194,25 +230,24 @@ export async function isAuthorised(token: string) {
       },
 
     });
-    console.log("token", token,result.token, result.token == token);
-    if(result.expiredDate.getTime() <= new Date().getTime()){
-      throw("Token Expired")
+    console.log("token", token, result.token, result.token == token);
+    if (result.expiredDate.getTime() <= new Date().getTime()) {
+      throw ("Token Expired")
     }
     return true;
-  }catch(e){
-    console.log("error",e)
-    throw(e);
+  } catch (e) {
+    console.log("error", e)
+    throw (e);
   }
 }
 
-export function getErrorResponse(e: any,collection: String) { 
-  if (e instanceof Prisma.PrismaClientKnownRequestError) { 
-    if (e.code === 'P2002') {
-      // console.log(
-      //   thro()
-      // )
-      throw `There is a unique constraint violation on Collection: ${collection}`;
-    }
+export function getErrorMessage(code: string, collection: String) {
+  switch (code) { 
+    case "P2002":
+      return `There is a unique constraint violation on Collection: ${collection}`;
+    case "":
+    default:
+      break;
+    
   }
-
 }
