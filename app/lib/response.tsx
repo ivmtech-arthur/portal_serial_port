@@ -4,6 +4,7 @@ import { JWK } from 'jose'
 import { randomUUID } from "crypto";
 import { Prisma } from "@prisma/client";
 import { getErrorMessage } from "./prisma";
+import { ServerResponse } from "http";
 export default function CustomNextApiResponse(res: NextApiResponse,result: any,statusCode: number,collection?: any) { 
     // let result: NextApiResponse;
     let resultObj = {};
@@ -34,13 +35,13 @@ export default function CustomNextApiResponse(res: NextApiResponse,result: any,s
     if (statusCode == 200) {
         message = "Success";
         resultObj = {
-            data: result,
+            result,
             status: statusCode,
             message: message,
         }
     } else { 
         if (result instanceof Prisma.PrismaClientKnownRequestError) { 
-            message = getErrorMessage(result.code, collection)
+            message = getErrorMessage(result.code, collection) || result.message
         }
         if (result instanceof Prisma.PrismaClientValidationError) { 
             message = result.message
@@ -54,4 +55,30 @@ export default function CustomNextApiResponse(res: NextApiResponse,result: any,s
     res.status(statusCode).json({
         ...resultObj
     })
+}
+
+export function CustomServerResponse(result: any, statusCode: number, collection?: any) { 
+    let message;
+    let resultObj = {};
+    if (statusCode == 200) {
+        message = "Success";
+        resultObj = {
+            result,
+            status: statusCode,
+            message: message,
+        }
+    } else {
+        if (result instanceof Prisma.PrismaClientKnownRequestError) {
+            message = getErrorMessage(result.code, collection) || result.message
+        }
+        if (result instanceof Prisma.PrismaClientValidationError) {
+            message = result.message
+        }
+        resultObj = {
+            error: result,
+            status: statusCode,
+            message: message
+        }
+    }
+    return resultObj;
 }

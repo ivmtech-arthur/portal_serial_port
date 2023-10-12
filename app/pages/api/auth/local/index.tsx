@@ -18,22 +18,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       where: { userID: data.identifier },
       include: {
         profile: true,
-        userSession: true
+        userSession: true,
+        userRole: true,
+        userType: true,
       }
     });
 
-    console.log("user ",user)
+    console.log("user ", user)
 
     if (!user || !(await compare(data.password, user.password))) {
       // return getErrorResponse(401, "Invalid email or password");
-      
+
       res.status(401).json({
         "error": "Invalid email or password"
       })
       return;
     }
 
-    if (!user.authenticated) { 
+    if (!user.authenticated) {
       res.status(403).json({
         "error": "user not Authorized"
       })
@@ -58,7 +60,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           expiredDate: expireDate,
         }
       })
-    } else { 
+    } else {
       let expireDate = new Date();
       expireDate.setFullYear(expireDate.getFullYear() + 1);
       await prisma.userSession.create({
@@ -90,14 +92,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       maxAge: tokenMaxAge,
     };
 
-    const response = res.status(200).json(
-      JSON.stringify({
-        status: "success",
-        jwt: token,
-        user
-      }),
-    );
-
+    CustomNextApiResponse(res, {
+      jwt: token,
+      user
+    }, 200)
     // await Promise.all([
     //   response.cookies.set(cookieOptions),
     //   response.cookies.set({
@@ -107,7 +105,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     //   }),
     // ]);
 
-    res.end();
+    // res.();
   } catch (error: any) {
     let message = "";
     // if (error instanceof ZodError) {
@@ -116,7 +114,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     //   // return getErrorResponse(400, "failed validations", error);
     // }
     console.log("error:", error);
-    CustomNextApiResponse(res,error,400,"")
+    CustomNextApiResponse(res, error, 400, "")
     res.status(400).json(error);
     // return getErrorResponse(500, error.message);
   }

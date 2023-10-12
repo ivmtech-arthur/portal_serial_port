@@ -1,58 +1,55 @@
-import { AppProps } from "next/app";
 import { ThemeProvider } from 'styled-components'
 import theme from 'styles/theme'
-// import JsxGlobalStyle from '/styles/global/styled-jsx'
+import JsxGlobalStyle from 'styles/global/styled-jsx'
 import GlobalStyle from 'styles/global'
-import 'styles/globals_style.scss'
 import { StoreProvider } from 'store'
 import Layout from 'components/Layout'
-import React from "react";
-import { NextPageContext } from "next";
-import dotenv from 'dotenv';
-import dotenvExpand from 'dotenv-expand';
+import { CookiesProvider } from 'react-cookie';
 
 interface InjectStates {
   user?: {
     authenticated: boolean;
     userProfile: any;
   };
+  site?: {
+    lang: any
+  }
 }
 
-function App({ Component, pageProps }: AppProps) {
-  const config = dotenv.config();
-  dotenvExpand.expand(config);
-   const injectStates: InjectStates = {}
-  if (pageProps) {
+function App(ctx) {
+  const { Component, pageProps } = ctx
+  // console.log("pageProps", ctx.router)
+  const injectStates: InjectStates = {}
+  if (pageProps?.profile) {
     injectStates.user = {
       authenticated: true,
-      userProfile: pageProps,
+      userProfile: pageProps.profile,
     }
+
+
   }
-  console.log(injectStates, 'injectStates')
+  if (ctx.router.query.lang)
+    injectStates.site = {
+      lang: ctx.router.query.lang
+    }
   return (
     <>
-      {/* <style jsx global>
+      <style jsx global>
         {JsxGlobalStyle}
-      </style> */}
+      </style>
       <GlobalStyle />
       <StoreProvider injectStates={injectStates}>
-        <ThemeProvider theme={theme}>
-        <Layout {...pageProps}>
-            <Component {...pageProps} />
-        </Layout>
-        </ThemeProvider>
+        <CookiesProvider>
+          <ThemeProvider theme={theme}>
+            <Layout {...pageProps}>
+              <Component {...pageProps} />
+            </Layout>
+          </ThemeProvider>
+        </CookiesProvider>
+      
       </StoreProvider>
     </>
   )
-}
-
-
-App.getInitialProps = async (ctx: NextPageContext) => {
-  const props = ctx.query;
-  const config = dotenv.config();
-  dotenvExpand.expand(config);
-  return {props}
-
 }
 
 export default App

@@ -3,7 +3,11 @@ import { compose } from 'styled-system'
 import basicStyledSystem from './basic-styled-system'
 import { shouldForwardProp } from './styled-props-handler'
 
-const StyledH3 = styled.h3.withConfig({ shouldForwardProp })(
+interface H3Props {
+  [name: string]: any
+}
+
+const StyledH3 = styled.h3.withConfig<H3Props>({ shouldForwardProp })(
   compose(...basicStyledSystem)
 )
 

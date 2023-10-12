@@ -245,7 +245,8 @@ export function getErrorMessage(code: string, collection: String) {
   switch (code) { 
     case "P2002":
       return `There is a unique constraint violation on Collection: ${collection}`;
-    case "":
+    case "P2025":
+      return ``
     default:
       break;
     

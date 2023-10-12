@@ -42,6 +42,7 @@ model Machine {
   owner User @relation(fields: [ownerID], references: [userID])
   ownerID String @unique
   status String
+  remark String?
   config String @db.VarChar(8000)   
   machinePalletDetail MachinePalletDetail[]
   machineProductSummary MachineProductSummary[]

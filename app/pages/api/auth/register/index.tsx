@@ -15,7 +15,7 @@ type ResponseData = {
     body: any
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse<ResponseData>) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     // res.status(200).json({ body: 'John Doe' })
     console.log("register service");
     try {
@@ -31,7 +31,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         // }
         // let input2: Prisma.UserRoleCreateOrConnectWithoutUsersInput = {
         //     connectOrCreate: {
-                
+
         //     }
         // }
         const user = await prisma.user.create({
@@ -59,17 +59,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         //           name: "",
         //       }
         //   })
-         res.status(200).json(
-             {
-                 body: JSON.stringify({
-                     status: "success",
-                     data: { user: { ...user, password: undefined } },
-                 }),
-             }
-                // {
-                //     status: 201,
-                //     headers: { "Content-Type": "application/json" },
-                // }
+        res.status(200).json(
+            {
+                status: "success",
+                data: { user: { ...user, password: undefined } },
+            }
+
+            // {
+            //     status: 201,
+            //     headers: { "Content-Type": "application/json" },
+            // }
         );
         // return res.body(
         //     JSON.stringify({

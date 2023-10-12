@@ -17,6 +17,7 @@ import getConfig from 'next/config'
 import axios from 'axios'
 import { useState } from 'react'
 import { Prisma } from '@prisma/client'
+import Cookies from 'js-cookie'
 const { publicRuntimeConfig } = getConfig()
 const { API_URL, APP_URL } = publicRuntimeConfig
 
@@ -27,7 +28,8 @@ const initFields = {
 }
 
 const LoginForm = (props) => {
-  const { getInitFields, handleOnSubmit, handleValidation, errors, handleError, parentCallback, fields, cookies } = props
+  const { getInitFields, handleOnSubmit, handleValidation, errors, handleError, parentCallback, fields } = props
+  // const { cookies }: { cookies: Cookies } = props
   const {
     state: {
       site: { lang },
@@ -46,7 +48,7 @@ const LoginForm = (props) => {
   }
 
   const handleLogin = () => {
-
+    console.log("handleLogin",props)
     if (Object.keys(errors).length == 0) {
     } else {
     }
@@ -59,9 +61,11 @@ const LoginForm = (props) => {
       },
     }).then((res) => {
       const { data } = res
+      console.log("res is",res)
       if (data) {
-        const useType = get(data, 'user.userType')
-        const id = get(data, 'user.id')
+        const userType = get(data, 'user.userType.userTypeName')
+        const userRole = get(data, 'user.userRole.userRoleName')
+        const id = get(data, 'user.userID')
         let opt = {
           path: '/',
           domain: '',
@@ -71,10 +75,16 @@ const LoginForm = (props) => {
         if (fields.rememberMe)
           opt.maxAge = 360000
 
-        cookies.set('userToken', get(data, 'jwt', false), opt)
-
-        cookies.set('role', useType, opt)
-
+        // cookies.set('userToken', get(data, 'jwt', false), opt)
+        // cookies.set('role', useType, opt)
+        Cookies.set('userToken', get(data, 'jwt', false), opt)
+        // Cookies.set('userRole', userRole, opt)
+        Cookies.set('userType',userType,opt)
+        // Cookies.
+        // cookies.set('userToken', "test", opt)
+        
+        // cookies.set('role', "xd", opt)
+        // console.log("handleLogin cookies", props, Object.keys(cookies), cookies)
 
         dispatch({
           type: 'setAuthenticated',
@@ -86,13 +96,13 @@ const LoginForm = (props) => {
         })
         dispatch({
           type: 'setRole',
-          payload: { role: useType },
+          payload: { role: userRole },
         })
-
-        if (useType == 'Doctor')
-          router.push(`/${lang}/pallet-config`)
-        else
-          router.push(`/${lang}/pallet-config/${id}`)
+        // router.push(`/${lang}/pallet-config`)
+        // if (useType == 'Doctor')
+        //   router.push(`/${lang}/pallet-config`)
+        // else
+        //   router.push(`/${lang}/pallet-config/${id}`)
         // router.push('users')
       } else {
         // dispatch({ type: 'showAlert', payload: { alertType: 'error', message: `${data['message_name']} ${data['message']['zh']}` } })

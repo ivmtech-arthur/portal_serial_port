@@ -10,7 +10,14 @@ import SvgIconLogoutWhite from '/public/svg/icon_signout_white.svg'
 import SvgIconQuestionWhite from '/public/svg/icon_question_white.svg'
 
 module.exports = {
-    en: [{
+    en: [
+        {
+            title: 'Machine',
+            url: '/machine',
+            svg: <SvgIconListproduct />,
+            svgWhite: <SvgIconListproductWhite />
+        },
+        {
         title: 'Pallet Configuration',
         url: '/pallet-config',
         svg: <SvgIconListproduct />,

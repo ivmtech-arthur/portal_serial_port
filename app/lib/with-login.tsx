@@ -1,6 +1,6 @@
 import merge from 'lodash/merge'
 import Cookies from 'cookies'
-import { getPermission, getUser } from '/lib/auth'
+import { getPermission, getUser } from 'lib/auth'
 
 const withLogin = (
   gssp,
@@ -13,7 +13,8 @@ const withLogin = (
     },
   }
 ) => {
-  return async (ctx) => {
+  return async (ctx, staticPath?) => {
+    console.log("ctx type", typeof ctx)
     const opts = merge({}, defaultOpts, assignOpts)
     const { tokenKey } = opts
     const cookies = new Cookies(ctx.req, ctx.res, { keys: [''] })
@@ -28,14 +29,14 @@ const withLogin = (
         role,
         authenticated: true,
         permissions,
-        profile,
+        // profile,
       }
     } else {
       ctx.props = {
         authenticated: false,
       }
     }
-    return await gssp(ctx)
+    return await gssp(ctx,staticPath)
   }
 }
 

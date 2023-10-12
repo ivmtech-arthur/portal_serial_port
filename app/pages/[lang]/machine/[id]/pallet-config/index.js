@@ -1,5 +1,8 @@
 import { withCookies } from 'react-cookie'
-import { getEnvVariable,test } from '/lib/helper'
+// import { getEnvVariable, test } from '/lib/helper'
+import { preprocessServerSideProps } from 'lib/serverside-prepro'
+import { useStore } from 'store/index'
+import get from 'lodash/get'
 // import { prisma } from '../../../lib/prisma'
 
 const PalletConfig = (props) => {
@@ -13,8 +16,8 @@ const PalletConfig = (props) => {
         },
         dispatch,
     } = useStore()
-    const listPatientString = get(listPatient, lang)
-    const [editState, setEditState] = useState({})
+    // const listPatientString = get(listPatient, lang)
+    // const [editState, setEditState] = useState({})
     
 
     return (
@@ -37,13 +40,13 @@ export async function getServerSideProps(ctx) {
     return {
         props: {
             // contentData,
-            data,
-            physioData,
-            subscriptionData,
+            // data,
+            // physioData,
+            // subscriptionData,
             headerTheme: 'white',
             headerPosition: 'fixed',
-            profile,
-            siteConfig
+            // profile,
+            // siteConfig
         },
     }
 }

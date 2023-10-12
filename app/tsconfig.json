@@ -14,6 +14,12 @@
       "prisma/*": [
         "./prisma/*"
       ],
+      "data/*":[
+        "./data/*"
+      ],
+      "public/*":[
+        "./public/*"
+      ],
       "api/*": [
         "pages/api/api/*"
       ]
@@ -46,6 +52,7 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    "components/Common/Element/Block.tsx"
+    "components/Common/Element/Block.tsx",
+    // "pages/[lang]/pallet-config/index.js"
   ]
 }

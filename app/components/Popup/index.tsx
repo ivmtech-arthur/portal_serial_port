@@ -1,6 +1,7 @@
 // import OutsideClickHandler from 'react-outside-click-handler'
+import Logout from './Logout'
 import Block from 'components/Common/Element/Block'
-import { useStore } from '/store'
+import { useStore } from 'store'
 import { useRouter } from 'next/router'
 const Popup = (props) => {
   const {
@@ -26,13 +27,13 @@ const Popup = (props) => {
     dispatch,
   } = useStore()
 
-  let popupComponent = false
+  let popupComponent = (<></>)
 
   const closePopup = () => {
     if (!loading) {
       document.querySelector('body').classList.remove('no-scroll')
       dispatch({ type: 'closePopup' })
-      popupComponent = false
+      popupComponent = (<></>)
     }
 
     if (popupType === 'redeem') {
@@ -41,7 +42,11 @@ const Popup = (props) => {
   }
 
   switch (popupType) {
-  
+    case 'logout':
+      popupComponent = (
+        <Logout isOpen={true} closePopup={closePopup} {...propsToPopup} />
+      )
+      break;
     // case 'messageDeleteproduct':
     // popupComponent = (
     //   <MessageDeleteproduct isOpen={true} closePopup={closePopup} {...propsToPopup} />

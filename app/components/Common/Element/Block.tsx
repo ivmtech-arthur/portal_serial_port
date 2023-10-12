@@ -5,7 +5,6 @@ import { shouldForwardProp } from './styled-props-handler'
 
 interface BlockProps { 
   [name: string]: any
-  // readonly display: string,
 }
 
 const StyledDiv = styled.div.withConfig<BlockProps>({

@@ -1,14 +1,15 @@
 
 import Block from 'components/Common/Element/Block'
-import LoginForm from '../../components/Form/Login'
-import { useStore } from '/store'
+import LoginForm from 'components/Form/Login'
+import { useStore } from 'store'
 import Image from 'next/image'
-import FormHandler from '/components/Form'
+import FormHandler from 'components/Form'
 import get from 'lodash/get'
 import { useEffect, useState } from 'react'
-import general from '../../data/general'
-import Button7 from '../../components/Button/Button7'
-import Popup from '../../components/Popup'
+import general from 'data/general'
+import Button7 from 'components/Button/Button7'
+import Popup from 'components/Popup'
+import { preprocessServerSideProps } from 'lib/serverside-prepro'
 // import io from 'socket.io-client'
 let socket
 const Login = (props) => {
@@ -33,7 +34,7 @@ const Login = (props) => {
         })
     }
     const [input, setInput] = useState('')
-    useEffect(() => socketInitializer(), [])
+    // useEffect(() => socketInitializer(), [])
 
   const socketInitializer = async () => {
     // console.log('socketInitializer')
@@ -91,6 +92,32 @@ const Login = (props) => {
         </Block >
 
     )
+}
+
+export async function getServerSideProps(ctx) {
+    // const preProps = await preprocessServerSideProps(ctx,"")
+    // if (preProps.redirect)
+    //     return preProps
+
+    const { profile, token, siteConfig } = ctx?.props || {}
+    const { slug, lang } = ctx.params
+    const collection = 'patients'
+    const userType = profile?.userType
+    // const a = test();
+    // const b = await prisma.
+
+    return {
+        props: {
+            // contentData,
+            // data,
+            // physioData,
+            // subscriptionData,
+            headerTheme: 'white',
+            headerPosition: 'fixed',
+            // profile,
+            // siteConfig
+        },
+    }
 }
 
 export default Login
