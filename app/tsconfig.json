@@ -52,7 +52,7 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    "components/Common/Element/Block.tsx",
+    "components/Common/Element/Block.tsx", "components/Table/newTable.js", "components/Menu/drawer.js", "pages/_app.js",
     // "pages/[lang]/pallet-config/index.js"
   ]
 }

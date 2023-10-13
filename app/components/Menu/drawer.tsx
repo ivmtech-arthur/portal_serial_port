@@ -17,15 +17,15 @@ import MenuIcon from '@mui/icons-material/Menu';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import SvgIcon from '@mui/material/SvgIcon';
-import SvgIconAddproduct from '/public/svg/icon_add_product.svg'
-import SvgIconListproduct from '/public/svg/icon_list_product.svg'
-import SvgIconLock from '/public/svg/icon_lock.svg'
-import SvgIconLogout from '/public/svg/icon_logout.svg'
-import SvgIconQuestion from '/public/svg/icon_question.svg'
-import menuContent from '../../data/menu'
+import SvgIconAddproduct from 'public/svg/icon_add_product.svg'
+import SvgIconListproduct from 'public/svg/icon_list_product.svg'
+import SvgIconLock from 'public/svg/icon_lock.svg'
+import SvgIconLogout from 'public/svg/icon_logout.svg'
+import SvgIconQuestion from 'public/svg/icon_question.svg'
+import menuContent from 'data/menu'
 import get from 'lodash/get'
 import map from 'lodash/map';
-import { useStore } from '/store'
+import { useStore } from 'store'
 import Block from 'components/Common/Element/Block'
 import Hr from 'components/Common/Element/Hr'
 import { makeStyles } from "@mui/styles";
@@ -77,7 +77,7 @@ const MenuItem = (props) => {
                     sx={{
                         borderRadius: '20px 0px 0px 20px', color: 'white', height: '70px', '&:hover': {
                             backgroundColor: 'white',
-                            color: '#570680',
+                            color: 'red',
                         },
                         display: 'flex',
                         justifyContent: 'end'
@@ -106,7 +106,7 @@ function ResponsiveDrawer(props) {
     // console.log("drawer", menuContent, lang)
     const menu = get(menuContent, lang)
 
-  
+
     const handleDrawerToggle = () => {
         setMobileOpen(!mobileOpen);
     };
@@ -120,7 +120,6 @@ function ResponsiveDrawer(props) {
     const drawer = (
         <Block
             className="flex flex-col items-end"
-            // display='flex' flexDirection='column' alignItems="end"
         >
             {buttons}
         </Block>
@@ -132,9 +131,8 @@ function ResponsiveDrawer(props) {
     return (
         <Block display='flex' bg='purple2'>
             <AppBar
-
-                position="fixed"
-                sx={{
+                className="fixed md:w-[calc(100%-270px)] bg-transparent shadow-none"
+                  sx={{
                     width: { md: `calc(100% - ${drawerWidth}px)` },
                     ml: { md: `${drawerWidth}px` },
                     backgroundColor: 'transparent',
@@ -142,6 +140,7 @@ function ResponsiveDrawer(props) {
                 }}
             >
                 <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Header />
                     <IconButton
                         color="primary"
                         aria-label="open drawer"
@@ -151,7 +150,7 @@ function ResponsiveDrawer(props) {
                     >
                         <MenuIcon />
                     </IconButton>
-                    <Header />
+
                 </Toolbar>
             </AppBar>
 
@@ -170,16 +169,18 @@ function ResponsiveDrawer(props) {
                     ModalProps={{
                         keepMounted: true, // Better open performance on mobile.
                     }}
+                    anchor={'right'}
                     sx={{
                         display: { xs: 'block', md: 'none' },
-                        '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth, backgroundColor: '#570680', },
+                        '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth, backgroundColor: 'red', },
                     }}
                 >
                     <Box
-                        mx='auto'
-                        my='20px'
-                        // display={{ xs: 'none', md: 'block' }}
-                        width='220px' height='200px'
+                        className="mx-auto my-5 md:block sm-hidden w-56 h-48"
+                    // mx='auto'
+                    // my='20px'
+                    // // display={{ xs: 'none', md: 'block' }}
+                    // width='220px' height='200px'
                     >
                         <Block position='fixed' borderBottom="1px solid white" height='200px' width='220px' >
                             <Block
@@ -195,7 +196,7 @@ function ResponsiveDrawer(props) {
                     sx={{
 
                         display: { xs: 'none', md: 'block' },
-                        '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth, backgroundColor: '#570680', top: 'auto' },
+                        '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth, backgroundColor: 'red', top: 'auto' },
                     }}
                     open
                 >

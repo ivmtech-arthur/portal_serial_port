@@ -1,11 +1,13 @@
 import Block from 'components/Common/Element/Block'
 import { useRouter } from 'next/router'
-import { useStore } from '/store'
+import { useStore } from 'store'
 import get from 'lodash/get'
 import styled from 'styled-components'
 import { useState, useEffect } from 'react'
-import general from '../../data/general'
+import general from 'data/general'
 import Button5 from '../Button/Button5'
+import Button6 from 'components/Button/Button6'
+import Button4 from 'components/Button/Button4'
 const StyledHeaderContainer = styled(Block)``
 
 const Header = (props) => {
@@ -40,16 +42,18 @@ const Header = (props) => {
   return (
     <>
       <StyledHeaderContainer
-        id="header"
-        // position={"fixed"}
-        top="0"
-        zIndex="101"
-        backgroundColor={headerTheme === 'white' ? '#8EC9C0' : 'transparent'}
+        className={`top-0 z-50 ${headerTheme == 'white' ? 'bg-green' :'bg-transparent'} flex w-full` } 
+        // id="header"
+        // // position={"fixed"}
+        // top="0"
+        // zIndex="101"
+        // backgroundColor={headerTheme === 'white' ? '#8EC9C0' : 'transparent'}
         // width="100%"
       >
+        {/* <Button
+        ></Button> */}
         <Button5
           onClick={() => {
-            // console.log("generalString.switchLangCode",generalString.switchLangCode,selectedLang)
             setSelectLang(generalString.switchLangCode)
           }}>{generalString.lang}</Button5>
       </StyledHeaderContainer>

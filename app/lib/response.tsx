@@ -5,6 +5,7 @@ import { randomUUID } from "crypto";
 import { Prisma } from "@prisma/client";
 import { getErrorMessage } from "./prisma";
 import { ServerResponse } from "http";
+import { CustomResponse } from "./api/handler";
 export default function CustomNextApiResponse(res: NextApiResponse,result: any,statusCode: number,collection?: any) { 
     // let result: NextApiResponse;
     let resultObj = {};
@@ -59,7 +60,7 @@ export default function CustomNextApiResponse(res: NextApiResponse,result: any,s
 
 export function CustomServerResponse(result: any, statusCode: number, collection?: any) { 
     let message;
-    let resultObj = {};
+    let resultObj: CustomResponse = {};
     if (statusCode == 200) {
         message = "Success";
         resultObj = {

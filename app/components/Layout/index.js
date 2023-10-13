@@ -12,9 +12,28 @@ import { withCookies } from 'react-cookie'
 // import { Block } from '@mui/icons-material'
 import Block from 'components/Common/Element/Block'
 import DesktopLayout from './desktop'
+import {
+  createTheme,
+  ThemeProvider,
+  styled as muiStyled,
+} from '@mui/material/styles'
+
 const {
   publicRuntimeConfig: { SITE_URL },
 } = getConfig()
+
+const theme = createTheme({
+  breakpoints: {
+    values: {
+      xs: 0,
+      sm: 600,
+      md: 1181,
+      lg: 1440,
+      xl: 1920,
+    },
+  },
+});
+
 
 function Layout(props) {
   const {
@@ -108,7 +127,10 @@ function Layout(props) {
         )} */}
 
         {/* {verticalMenu} */}
-        {children}
+        <ThemeProvider theme={theme}>
+          {children}
+        </ThemeProvider>
+     
 
         {/* {!hideFooter && !blankLayout && (
           <Footer

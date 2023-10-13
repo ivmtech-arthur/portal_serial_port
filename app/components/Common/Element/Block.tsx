@@ -4,7 +4,8 @@ import basicStyledSystem from './basic-styled-system'
 import { shouldForwardProp } from './styled-props-handler'
 
 interface BlockProps { 
-  [name: string]: any
+  [name: string]: any,
+  className? : string
 }
 
 const StyledDiv = styled.div.withConfig<BlockProps>({

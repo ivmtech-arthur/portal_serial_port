@@ -393,6 +393,8 @@ const MachineList = (props) => {
                     }} />
             </Block>
 
+            <
+
 
             <StyledSelectField style={{ visibility: 'hidden' }} placeholder='field search' id="selectField" defaultValue={listMachineString.headerName.name} options={columns.map((item, index) => {
                 if (item.headerName != "")
@@ -400,9 +402,13 @@ const MachineList = (props) => {
             })} onChange={(value) => {
 
                 setSelectedField(find(columns, (item) => item.headerName == value)?.field)
-            }} />
+                }} />
+            
+            <IconButton color="primary" aria-label="add to shopping cart">
+                <AddShoppingCartIcon />
+            </IconButton>
 
-            {/* <Block boxShadow='0px 10p   x 30px rgba(0, 0, 0, 0.1)' borderRadius='32px' mb='30px'>
+            <Block boxShadow='0px 10p   x 30px rgba(0, 0, 0, 0.1)' borderRadius='32px' mb='30px'>
                 <Block display={{ _: 'none', md: 'block' }}>
                     <Table1 handleClickDelete={() => { handleClickDelete() }} handleClickEdit={() => { handleClickEdit() }} rows={props.data} onRowClick={(e) => { handleRowClick(e) }} filter={filter} columns={columns} />
                 </Block>
@@ -412,7 +418,7 @@ const MachineList = (props) => {
                 <Block display={{ _: 'none', xs: 'block', sm: 'none' }}>
                     <Table1 handleClickDelete={() => { handleClickDelete() }} handleClickEdit={() => { handleClickEdit() }} rows={props.data} onRowClick={(e) => { handleRowClick(e) }} filter={filter} columns={mobileColumns} />
                 </Block>
-            </Block> */}
+            </Block>
             <Popup type="local" propsToPopup={{ updateParentState: (value) => { updateParentState(value) }, mappingList: mappingList, editState: editState, data: record, physioData: props.physioData, subscriptionData: props.subscriptionData, profile: profile, serverErrorMessage: serverErrorMessage }} />
         </Block>
     )
@@ -436,18 +442,18 @@ export async function getServerSideProps(ctx: CustomCtx) {
     }
  
     
-    const result = await internalAPICallHandler(customRequest,ctx.res).then((data) => { 
+    const data = await internalAPICallHandler(customRequest,collection).then((data) => { 
         return data
     }).catch((e) => { 
         console.log("error getserversideProps",e)
     })
 
-    console.log("getServersideProps ctx", result)
+    console.log("getServersideProps ctx", data)
     
     return {
         props: {
             // contentData,
-            // data,
+            data,
             // physioData,
             // subscriptionData,
             headerTheme: 'white',

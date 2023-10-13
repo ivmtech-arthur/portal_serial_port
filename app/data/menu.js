@@ -9,7 +9,7 @@ import SvgIconLockWhite from '/public/svg/icon_lock_white.svg'
 import SvgIconLogoutWhite from '/public/svg/icon_signout_white.svg'
 import SvgIconQuestionWhite from '/public/svg/icon_question_white.svg'
 
-module.exports = {
+export default {
     en: [
         {
             title: 'Machine',
@@ -50,7 +50,14 @@ module.exports = {
         svgWhite: <SvgIconLogoutWhite />
     },
     ],
-    tc: [{
+    tc: [
+        {
+            title: '售賣機',
+            url: '/machine',
+            svg: <SvgIconListproduct />,
+            svgWhite: <SvgIconListproductWhite />
+        },
+        {
         title: '貨道設置',
         url: '/pallet-config',
         svg: <SvgIconListproduct />,

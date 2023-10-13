@@ -9,7 +9,9 @@ import StyledBody1 from '../Common/Element/body1'
 // import TextField
 
 const Container = styled(Block)`
-    ${(props) => props.errors && props.childprops && props.errors[props.childprops.id] && css`
+    ${(props) => {
+        if (props.errors && props.childprops && props.errors[props.childprops.id])
+            return css`
         {
             /* background-color: ivory; */
             /* border: none; */
@@ -17,7 +19,8 @@ const Container = styled(Block)`
             
             /* border-radius: 5px;   */
         },
-    `, (props) => css`
+    `}}
+    ${(props) => css`
             #right-icon{
                 background-image: ${props.showDropDownList ? "url('/svg/icon_vector_up.svg')" : "url('/svg/icon_vector_down.svg')"};
             /* background-image: url('/svg/eye.svg'); */
@@ -123,7 +126,7 @@ const ItemBlock = styled.div`
 
 
 const StyledSelectField = (props) => {
-    const { errors,options,onChange } = props
+    const { errors, options, onChange } = props
     const [showDropDownList, setDropDownList] = useState(false)
     const [value, setValue] = useState(null)
     let error = false
@@ -142,7 +145,7 @@ const StyledSelectField = (props) => {
     const getValue = (e) => {
         if (e && e.target && e.target.value) {
             setValue(e.target.value)
-            if(onChange)
+            if (onChange)
                 onChange(e.target.value)
             setDropDownList(false)
         }

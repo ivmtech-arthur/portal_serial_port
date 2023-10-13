@@ -6,12 +6,34 @@ module.exports = {
         'components/**/*.jsx',
         'pages/**/*.js',
         'pages/**/*.jsx',
+        'components/**/*.ts',
+        'components/**/*.tsx',
+        'pages/**/*.ts',
+        'pages/**/*.tsx',
     ],
     // corePlugins: {
     //     preflight: false,
     // },
     // important: "#__next",
     theme: {
+
+        screens: {
+            'xd': '0px',
+            'sm': '430px',
+            // => @media (min-width: 640px) { ... }
+
+            'md': '900px',
+            // => @media (min-width: 768px) { ... }
+
+            'lg': '1440px',
+            // => @media (min-width: 1024px) { ... }
+
+            'xl': '1920px',
+            // => @media (min-width: 1280px) { ... }
+
+            '2xl': '2560px',
+            // => @media (min-width: 1536px) { ... }
+        },
         extend: {
             gridTemplateColumns: {
                 24: 'repeat(24, minmax(0, 1fr))',

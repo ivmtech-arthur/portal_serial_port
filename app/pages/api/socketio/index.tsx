@@ -1,4 +1,8 @@
+import { Prisma } from '@prisma/client'
 import { Server } from 'Socket.IO'
+import { CustomRequest } from 'lib/api/handler'
+import { multipleEntryhandler } from 'lib/api/multipleEntries'
+import { singleEntryHandler } from 'lib/api/singleEntry'
 
 const SocketHandler = (req, res) => {
   if (res.socket.server.io) {
@@ -12,9 +16,20 @@ const SocketHandler = (req, res) => {
       // path: "/socket.io/",
     })
 
-    io.use((socket,next) => { 
+    io.use(async (socket,next) => { 
       if (socket.handshake.query && socket.handshake.query.token) {
-        
+        let token = `${socket.handshake.query.token}`;
+        let where: Prisma.MachineWhereInput = {
+          serverToken: token
+        }
+        const req: CustomRequest = {
+          query: {
+            collection: "user",
+            where: where
+          },
+          method: "GET"
+        }
+        const result = await multipleEntryhandler(req);
         jwt.verify(socket.handshake.query.token, 'SECRET_KEY', function (err, decoded) {
           if (err) return next(new Error('Authentication error'));
           socket.decoded = decoded;

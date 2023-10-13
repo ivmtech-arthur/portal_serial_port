@@ -1,9 +1,14 @@
 
-import { isAuthorised, prisma, schemaMap, handleClause } from "lib/prisma";
+import { isAuthorised, prisma, schemaMap, handleClause, Test } from "lib/prisma";
 import { CustomRequest } from "./handler";
+import { Prisma, } from "@prisma/client";
+import { UserResultType } from "./type";
 
-async function GET(req: CustomRequest) {
-    const { collection, id, populate, ...queryParams } = req.query
+
+
+async function GET<T extends CustomRequest, V extends string>(req: T, collection?: V): Promise<Array<Test<V>>>
+async function GET(req: CustomRequest, collection?: string) {
+    const { id, populate, ...queryParams } = req.query
     try {
 
 
@@ -20,9 +25,12 @@ async function GET(req: CustomRequest) {
             console.log("whereClause", where, include)
             const result = await schemaMap[collection].findMany({
 
-                where: where,
-                include: include
+                where: where || {},
+                include: include || {}
             })
+        console.log("result test",result)
+            // type ThenArg<T> = T extends PromiseLike<infer U> ? U : T
+            // type dynamicReturnType = ThenArg<ReturnType<typeof result>>
             // CustomNextApiResponse(res, result, 200, collection);
             return result
         }
@@ -35,7 +43,8 @@ async function GET(req: CustomRequest) {
     }
 }
 
-async function POST(req: CustomRequest) {
+
+async function POST(req: CustomRequest) : Promise<Prisma.BatchPayload> {
     const { collection } = req.query
     try {
 
@@ -55,7 +64,7 @@ async function POST(req: CustomRequest) {
     }
 }
 
-async function PUT(req: CustomRequest) {
+async function PUT(req: CustomRequest): Promise<Prisma.BatchPayload> {
     const { collection } = req.query
     const { data, ...bodyParams } = req.body;
     try {
@@ -76,13 +85,13 @@ async function PUT(req: CustomRequest) {
     }
 }
 
-async function DELETE(req: CustomRequest) {
+async function DELETE(req: CustomRequest): Promise<Prisma.BatchPayload> {
     const { collection } = req.query
     // const { where } = req.body;
     try {
         if (typeof collection === 'string') {
             const { where } = handleClause(collection, null, null, ...req.body);
-            const result = await schemaMap["user"].deleteMany({
+            const result = await schemaMap[collection].deleteMany({
                 where: where,
             })
             // CustomNextApiResponse(res, result, 200);
@@ -95,20 +104,61 @@ async function DELETE(req: CustomRequest) {
         // CustomNextApiResponse(res, e, 400, collection);
     }
 }
-export async function multipleEntryhandler(req: CustomRequest) {
+
+async function METHOD(req: CustomRequest) {
+    const { collection } = req.query
+
+}
+
+// export async function multipleEntryhandler2(method :string,collection : string,req: CustomRequest) {
+//     var result;
+//     switch (req.method) {
+//         case "GET":
+//             return await GET(req, `${collection}`);
+//             // result = a
+//             // // const a = await GET(req, `${"user"}`);
+//             // console.log("result xdd", a,a[0],a[0].)
+//             // a.fields
+//             break;
+//         case "POST":
+//             return await POST(req);
+//             break
+//         case "PUT":
+//             return await PUT(req);
+//             break;
+//         case "DELETE":
+//             return await DELETE(req);
+//             break;
+//         default:
+//             throw ("invalid request type")
+//             // res.status(200).json()
+//             break;
+
+//     }
+//     // return result;
+
+// }
+
+export async function multipleEntryhandler(req: CustomRequest, collection?: string) {
     var result;
+    // var { collection } = req.query
+    // multipleEntryhandler2()
     switch (req.method) {
         case "GET":
-            result = await GET(req);
+            return await GET(req,collection);
+            // result = a
+            // // const a = await GET(req, `${"user"}`);
+            // console.log("result xdd", a,a[0],a[0].)
+            // a.fields
             break;
         case "POST":
-            result = await POST(req);
+            return await POST(req);
             break
         case "PUT":
-            result = await PUT(req);
+           return await PUT(req);
             break;
         case "DELETE":
-            result = await DELETE(req);
+            return await DELETE(req);
             break;
         default:
             throw ("invalid request type")
@@ -116,7 +166,7 @@ export async function multipleEntryhandler(req: CustomRequest) {
             break;
 
     }
-    return result;
+    // return result;
 
 }
 

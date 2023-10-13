@@ -1,4 +1,5 @@
-import { Prisma, PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient, User } from "@prisma/client";
+import { DefaultArgs } from "@prisma/client/runtime/library";
 // import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
@@ -22,6 +23,60 @@ export const schemaMap = {
   "userSession": prisma.userSession,
   // "": prisma
 }
+
+type UserReponseType = Prisma.UserGetPayload<{
+  include: {
+    [name: string]: true | {
+      [name: string]: true | {
+        [name: string]: true
+      }
+    }
+  }
+}>
+
+type UserSessionReponseType = Prisma.UserSessionGetPayload<{
+  include: {
+    user: true,
+      // userSession: true,
+      // machine: {
+      //   include: {
+      //     [name: string]: true
+      //     // machinePalletDetail: true,
+      //   }
+      // };
+  }
+}>
+
+// const usersWithCars = await prisma.user.findMany({
+//   include: {
+//     cars: true,
+//   }
+// });
+
+// ["machine", "machinePalletDetail", "machineProductSummary", "masterProduct", "profile", "transaction", "user", "userSession"].filter((table) => {
+//   return table
+// })
+// var a: User = {};
+export type Test<W> =
+  W extends "machine" ? typeof prisma.machine.fields
+  : W extends "machinePalletDetail" ? typeof prisma.machinePalletDetail.fields
+  : W extends "machineProductSummary" ? typeof prisma.machineProductSummary.fields
+  : W extends "masterProduct" ? typeof prisma.masterProduct.fields
+  : W extends "profile" ? typeof prisma.profile.fields
+  : W extends "transaction" ? typeof prisma.transaction.fields
+  : W extends "user" ? UserReponseType
+  : W extends "userSession" ? UserSessionReponseType : any;
+
+// export type Test2<W> = 
+//   W extends "machine" ? typeof prisma.machine.fields
+//   : W extends "machinePalletDetail" ? typeof prisma.machinePalletDetail.fields
+//   : W extends "machineProductSummary" ? typeof prisma.machineProductSummary.fields
+//   : W extends "masterProduct" ? typeof prisma.masterProduct.fields
+//   : W extends "profile" ? typeof prisma.profile.fields
+//   : W extends "transaction" ? typeof prisma.transaction.fields
+//   : W extends "user" ? Prisma.UserCreate
+//   : W extends "userSession" ? UserSessionReponseType : W;
+
 
 function createInclude(obj, includeValue: string) {
   const tempObj = Object.assign({}, obj)
@@ -54,30 +109,33 @@ function getObjectFromKeyPath(keyPathObj: {}) {
   // kayPath: string, value: any
   let result = {}
   let listinstance = [];
+  console.log("getObjectFromKeyPath",keyPathObj)
+  // console.log("result llop", value, keys, prop)
   for (var keyPath in keyPathObj) {
     let value = keyPathObj[keyPath]
     let keys = keyPath.match(/[^[\]]+/g);
     let prop = keys.pop();
-   
+  
     if (/^[0-9]*$/.test(prop)) {
       let acc = result;
       for (let key of keys) {
         acc = (acc[key] = acc[key] || []);
       }
-      if (Array.isArray(acc)) { 
+      if (Array.isArray(acc)) {
         acc.push(value);
       }
       // acc = []
-    } else { 
+    } else {
       let acc = result;
+      
       for (let key of keys) {
         acc = (acc[key] = acc[key] || {});
       }
       acc[prop] = keyPath.endsWith("[]")
         ? (acc[prop] || []).concat(value)
-        : value;
+        : value == "true";
     }
-    
+
   }
 
 
@@ -242,13 +300,13 @@ export async function isAuthorised(token: string) {
 }
 
 export function getErrorMessage(code: string, collection: String) {
-  switch (code) { 
+  switch (code) {
     case "P2002":
       return `There is a unique constraint violation on Collection: ${collection}`;
     case "P2025":
       return ``
     default:
       break;
-    
+
   }
 }

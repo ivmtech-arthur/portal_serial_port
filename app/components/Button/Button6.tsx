@@ -72,7 +72,7 @@ const Button6 = (props) => {
     const [active, setActive] = useState(props.active)
     const activeEffect = { backgroundColor: '#570680', color: 'white' }
     const activeEffect2 = { backgroundColor: '#570680' }
-    let style = {
+    var style = {
         width: '100%',
         display: {
             xs: 'none',
