@@ -37,7 +37,7 @@ export default {
   themeDarkGrey1: '#333333',
   themeDarkGrey2: '#525252',
   themeMidGrey3: '#D9D9D9',
-  themeLightGrey4: '#F6F6F6',
+  themeLightGrey: '#dee2e6',
   themLightWhite: '#FFFFFF',
 }
 

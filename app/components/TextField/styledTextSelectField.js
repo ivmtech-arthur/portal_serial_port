@@ -36,7 +36,7 @@ const Container = styled(Block)`
         gap: 16px;
 
         /* position: absolute; */
-        height: 60px;
+        height: 30px;
         left: 20px;
         top: 20px;
 
@@ -143,8 +143,8 @@ const StyledTextSelectField = (props) => {
         )
     })
     return (
-        <Block display='inline-block' {...restProps} width='100%'>
-            <Container errors={errors} childprops={{ id: props.id, type: "password" }} showDropDownList={showDropDownList}>
+        <Block display='inline-block' {...restProps}>
+            <Container errors={errors}  showDropDownList={showDropDownList}>
                 {/* <i id='left-icon' aria-hidden="true" style={{ backgroundRepeat: 'no-repeat', backgroundPosition: 'center' }}></i> */}
                 <input
                     id={props.id}
@@ -162,7 +162,11 @@ const StyledTextSelectField = (props) => {
                     // console.log("ONCLICK,", e, a.value)
                 }}><i id="right-icon" aria-hidden="true" style={{ backgroundRepeat: 'no-repeat', backgroundPosition: 'center' }} /></button>
             </Container>
-            <Block display={showDropDownList ? 'block' : 'none'}>
+            <Block display={showDropDownList ? 'block' : 'none'}
+                backgroundColor="#FAFAFA"
+            borderRadius="16px"
+            position='absolute' 
+            zIndex="9">
                 {list}
             </Block>
             {errors && errors[props.id] && <Block display='flex'><i aria-hidden="true" className='error-icon' /><StyledBody4 color='errorRed'>{errors[props.id]}</StyledBody4></Block>}

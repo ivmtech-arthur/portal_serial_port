@@ -1,6 +1,8 @@
 import * as React from 'react';
+import { useState } from 'react';
 import Box from '@mui/material/Box';
 import { useEffect } from 'react';
+import Block from 'components/Common/Element/Block'
 // import { DataGrid } from '@mui/x-data-grid';
 import {
     createTheme,
@@ -16,18 +18,72 @@ import {
     useGridSelector,
     GridToolbarContainer,
     GridToolbarFilterButton,
-    GridLinkOperator
+    GridLinkOperator,
+    GridFooter,
+    GridPagination,
+    GridCallbackDetails
 } from '@mui/x-data-grid';
 import { styled } from '@mui/material/styles';
 import Pagination from '@mui/material/Pagination';
 import PaginationItem from '@mui/material/PaginationItem';
 import SvgIconVectorUp from '/public/svg/icon_vector_up.svg'
 import SvgIconVectorDown from '/public/svg/icon_vector_down.svg'
-import { Button, SvgIcon } from '@mui/material';
+import { Button, Collapse, IconButton, MenuItem, Select, SelectChangeEvent, SvgIcon, TableFooter, TablePagination, Typography } from '@mui/material';
 import { makeStyles } from "@mui/styles";
 import { GridFilterPanel } from '@mui/x-data-grid';
 import StyledTextFieldSearch from '../TextField/styledTextFieldSearch';
-import { Block } from '@mui/icons-material';
+import type { } from '@mui/x-data-grid/themeAugmentation';
+import StyledTextSelectField from 'components/TextField/styledTextSelectField';
+import FirstPageIcon from "@mui/icons-material/FirstPage";
+import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft";
+import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
+import LastPageIcon from "@mui/icons-material/LastPage";
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import StyledDropDownButton from 'components/TextField/styledDropDownButton';
+
+function TestCollapse(props) {
+    // const {open} = props
+    const [open, setOpen] = useState(false);
+    return (
+        <Block>
+            <Button onClick={() => setOpen(!open)}>TEST</Button>
+            <Collapse in={open} timeout="auto" unmountOnExit>
+                <Box sx={{ margin: 1 }}>
+                    <Typography variant="h6" gutterBottom component="div">
+                        History
+                    </Typography>
+                    {/* <Table size="small" aria-label="purchases">
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>Date</TableCell>
+                                    <TableCell>Customer</TableCell>
+                                    <TableCell align="right">Amount</TableCell>
+                                    <TableCell align="right">Total price ($)</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {row.history.map((historyRow) => (
+                                    <TableRow key={historyRow.date}>
+                                        <TableCell component="th" scope="row">
+                                            {historyRow.date}
+                                        </TableCell>
+                                        <TableCell>{historyRow.customerId}</TableCell>
+                                        <TableCell align="right">{historyRow.amount}</TableCell>
+                                        <TableCell align="right">
+                                            {Math.round(historyRow.amount * row.price * 100) / 100}
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table> */}
+                </Box>
+            </Collapse>
+        </Block>
+
+    )
+
+}
 
 const tableData = [
     {
@@ -491,6 +547,14 @@ const tableData = [
 
 const columns = [
     {
+        field: 'test', headerName: "test", width: 90, flex: 1,
+        renderCell: () => {
+            return (
+                <TestCollapse/>
+            )
+        }
+    },
+    {
         field: 'id', headerName: "id", width: 90, flex: 1,
     },
     {
@@ -568,17 +632,26 @@ const tableColumns = [
 
 const theme = createTheme({
     components: {
+        MuiSvgIcon: {
+
+        },
         MuiDataGrid: {
             styleOverrides: {
                 root: {
                     fontFamily: 'Inter',
-                    border: "none",
+                    border: "3px",
+                    '& .MuiDataGrid-iconSeparator': {
+                        visibility: 'hidden',
+                    },
                     // width: 'auto,
                     // borderRadius: '32px',
                 },
                 main: {
-                    border: "1px solid black",
-                    borderRadius: '32px',
+                    // '& > columnSeparator': {
+                    //     visibility: 'hidden',
+                    // },
+                    // border: "1px solid black",
+                    // borderRadius: '32px',
                     // display: 'flex',
                     // flexDirection: 'column',
                     // alignItems: 'center',
@@ -588,36 +661,55 @@ const theme = createTheme({
                 }
             },
             defaultProps: {
-                main: {
 
-                }
             }
         },
         MuiPaginationItem: {
             styleOverrides: {
                 root: {
+                    margin: 0,
+                    borderRadius: 0,
                     fontFamily: 'Inter',
                     backgroundColor: 'white',
-                    color: '#BF94E4',
+                    color: '#6c757d',
+                    border: "1px solid #dee2e6",
                     "&:hover": {
                         translate: '0px -5px',
-                        backgroundColor: 'white',
-                        color: '#570680',
+                        backgroundColor: '#dee2e6',
+                        // color: '#dee2e6',
                     },
                     "&:img": {
                         display: 'none'
                     },
                     "&.Mui-selected": {
-                        backgroundColor: 'white',
+                        backgroundColor: '#3B7DDD',
                         textDecorationLine: 'underline',
-                        color: '#570680',
+                        color: 'white',
                         "&:hover": {
                             translate: '0px -5px',
-                            backgroundColor: 'white',
-                            color: '#570680',
+                            backgroundColor: '#3B7DDD',
+                            // color: '#3B7DDD',
                         },
                     }
                 },
+            }
+        },
+        MuiSelect: {
+            styleOverrides: {
+                // select: {
+                //     ":focus": {
+                //         border: "1px solid red"
+                //     }
+                // },
+                outlined: {
+                    padding: '0',
+                    paddingLeft: '5px',
+
+                },
+                icon: {
+                    // display: 'none'
+                    color: 'white'
+                }
             }
         },
         MuiPagination: {
@@ -635,26 +727,132 @@ const useStyles = makeStyles({
     }
 });
 
-function CustomPagination() {
+function CustomPagination(props) {
+    const { setRowPerPage, rowPerPage } = props
+    const [localPage, setLocalPage] = useState("");
     const apiRef = useGridApiContext();
     const page = useGridSelector(apiRef, gridPageSelector);
     const pageCount = useGridSelector(apiRef, gridPageCountSelector);
     const classes = useStyles();
+
+    const handleFirstPageButtonClick = (
+        event: React.MouseEvent<HTMLButtonElement>
+    ) => {
+        apiRef.current.setPage(0);
+    };
+
+    //   const handleBackButtonClick = (
+    //     event: React.MouseEvent<HTMLButtonElement>
+    //   ) => {
+    //     onPageChange(event, page - 1);
+    //   };
+
+    //   const handleNextButtonClick = (
+    //     event: React.MouseEvent<HTMLButtonElement>
+    //   ) => {
+    //     onPageChange(event, page + 1);
+    //   };
+
+    const handleLastPageButtonClick = (
+        event: React.MouseEvent<HTMLButtonElement>
+    ) => {
+        apiRef.current.setPage(Math.max(0, pageCount - 1));
+    };
+
     return (
-        <Pagination
-            className={classes.grid}
-            color="primary"
-            // variant="outlined"
-            // shape="rounded"
-            page={page + 1}
-            count={pageCount}
-            // selected
-            // @ts-expect-error
-            // renderItem={(props2) => <PaginationItem {...props2} disableRipple />}
-            onChange={(event, value) => apiRef.current.setPage(value - 1)}
-        />
+        <Block className="flex justify-between">
+
+            <StyledDropDownButton id="search" width="60px" options={[5, 10, 25, 50]} value={rowPerPage} onChange={(e: SelectChangeEvent) => {
+                apiRef.current.setPageSize(parseInt(e.target.value));
+                setLocalPage(e.target.value as string)
+            }} theme={theme} />
+            {/* <StyledTextSelectField id="search" width="200px" options={[5, 10, 15, 50]} value={rowPerPage} onClick={(value) => { setRowPerPage(value) }} /> */}
+            <Block className="flex">
+                <IconButton
+                    className="rounded-none h-8 border-[#dee2e6]"
+                    sx={{
+                        "&:hover": {
+                            translate: '0px -5px',
+                            backgroundColor: '#dee2e6',
+                            // color: '#dee2e6',
+                        },
+                        width: '32px',
+                        height: '32px',
+                        borderRadius: 0,
+                        border: "1px solid",
+                        borderColor: "primary.main"
+                    }}
+                    onClick={handleFirstPageButtonClick}
+                    disabled={page === 0}
+                    aria-label="first page"
+                >
+                    {theme.direction === "rtl" ? <LastPageIcon /> : <FirstPageIcon />}
+                </IconButton>
+                {/* <TableFooter>
+                <TablePagination/>
+                </TableFooter> */}
+                {/* <TablePagination
+                
+                /> */}
+                <Pagination
+                    // start
+                    // className={classes.grid}
+                    className=""
+                    color="primary"
+                    // variant="outlined"
+                    // shape="rounded"
+                    page={page + 1}
+                    count={pageCount}
+                    // compo
+                    // selected
+                    // renderItem={(props2) => <PaginationItem {...props2} components={{first:  <StyledTextSelectField options={[5, 10, 15, 50]} onClick={(value) => { apiRef.current.setPageSize(value) }} />}} />}
+                    onChange={(event, value) => apiRef.current.setPage(value - 1)}
+                />
+                <IconButton
+                    className="rounded-none h-8 border-[#dee2e6]"
+                    //  sx={{
+
+                    //  }}
+                    sx={{
+                        "&:hover": {
+                            translate: '0px -5px',
+                            backgroundColor: '#dee2e6',
+                            // color: '#dee2e6',
+                        },
+                        width: '32px',
+                        height: '32px',
+                        borderRadius: 0,
+                        border: "1px solid",
+                        borderColor: "primary.main"
+                    }}
+                    onClick={handleLastPageButtonClick}
+                    disabled={page >= Math.ceil(pageCount) - 1}
+                    aria-label="last page"
+                >
+                    {theme.direction === "rtl" ? <FirstPageIcon /> : <LastPageIcon />}
+                </IconButton>
+            </Block>
+            {/* <TablePagination/> */}
+
+        </Block>
+
     );
 }
+
+// function CustomFooter() {
+//     const apiRef = useGridApiContext();
+//     const page = useGridSelector(apiRef, gridPageSelector);
+//     const pageCount = useGridSelector(apiRef, gridPageCountSelector);
+//     return (
+//         // <GridFooter>
+//         <>
+//             <Block>test</Block>
+//             <StyledTextSelectField options={[5, 10, 15, 50]} onClick={(value) => { apiRef.current.setPageSize(value) }} />
+//         </>
+
+//         // </GridFooter>
+//     )
+// }
 
 
 const CustomGridFilterPanel = (props) => {
@@ -680,52 +878,93 @@ function CustomToolbar() {
 
 export default function CustomTable3(props) {
     // const { rows, columns, onRowClick, hideFooter, filter } = props
+    const [rowPerPage, setRowPerPage] = useState(10)
     // useEffect(() => {
     //     console.log("useEffect filter", filter)
     // }, [filter])
     return (
         <ThemeProvider theme={theme}>
-           
-            <Box className="relative flex flex-col min-w-0 bg-white bg-clip-border border rounded h-96">
-                <Block className="px-3 py-5 mb-0 border-b-2">
+
+            <Box className="relative flex flex-col min-w-0 bg-white bg-clip-border border rounded">
+                <Block className="px-3 py-5 mb-0 border-b-2 h-16">
                     Export test
                     <Block className="float-right">
                         <Button>Export</Button>
                     </Block>
                 </Block>
                 <Block className="p-5 min-h-0">
+                    <DataGrid
+                        sx={{
 
+                        }
+
+                        }
+                        initialState={{
+                            // ...data.initialState,
+
+                            pagination: { pageSize: rowPerPage },
+                        }}
+                        // className="h-96"
+                        autoHeight
+                        rows={tableData}
+                        columns={columns}
+                        // pageSize={rowPerPage}
+                        rowsPerPageOptions={[5, 10, 25, 50]}
+                        checkboxSelection
+                        disableSelectionOnClick={true}
+                        pageSize={rowPerPage}
+                        // onPageSizeChange={(newPageSize) =>
+                        //     setPageSize(newPageSize)
+                        // }
+                        onPageSizeChange={(pageSize: number, details: GridCallbackDetails) => {
+                            // Maybe save into state
+                            setRowPerPage(pageSize)
+                            console.log("onPageSizeChange", pageSize, details);
+                        }}
+                        onPageChange={(page: number, details: GridCallbackDetails) => {
+                            console.log("onPageChange", page, details);
+                        }}
+
+                        // hideFooter={hideFooter}
+                        // rowGroupingColumnMode={'single'}
+                        // onRowClick={(e) => { onRowClick(e) }}
+                        // onRowDoubleClick={(e)=>{onRowClick(e)}}
+                        experimentalFeatures={{ newEditingApi: true }}
+                        // {...(filter ? {
+                        //     filterModel: {
+                        //         items: [...filter],
+                        //         linkOperator: GridLinkOperator.Or
+                        //     }
+                        // } : {
+
+                        // })}
+                        // group
+                        // slots={{
+                        //     footer: () => (
+                        //       <>
+                        //         <CustomFooter />
+                        //         <Box sx={{ p: 1, display: "flex" }}>Your custom footer stuff</Box>
+                        //       </>
+                        //     ),
+                        //   }}
+                        pagination
+                        components={{
+                            // Pagination: CustomPagination,
+                            Footer: () => (
+                                <>
+                                    {/* <GridPagination /> */}
+                                    <CustomPagination setRowPerPage={setRowPerPage} rowPerPage={rowPerPage} />
+                                    {/* <CustomFooter /> */}
+                                </>
+                            ),
+                            FilterPanel: CustomGridFilterPanel,
+                            // Toolbar: CustomToolbar,
+                            ColumnSortedAscendingIcon: SvgIconVectorDown,
+                            ColumnSortedDescendingIcon: SvgIconVectorUp,
+                        }}
+                    />
                 </Block>
-                <DataGrid
-                    className=""
-                    rows={tableData}
-                    columns={columns}
-                    pageSize={10}
-                    rowsPerPageOptions={[10]}
-                    checkboxSelection
-                    disableSelectionOnClick={true}
-                    // hideFooter={hideFooter}
-                    // rowGroupingColumnMode={'single'}
-                    // onRowClick={(e) => { onRowClick(e) }}
-                    // onRowDoubleClick={(e)=>{onRowClick(e)}}
-                    experimentalFeatures={{ newEditingApi: true }}
-                    // {...(filter ? {
-                    //     filterModel: {
-                    //         items: [...filter],
-                    //         linkOperator: GridLinkOperator.Or
-                    //     }
-                    // } : {
 
-                    // })}
-                    // group
-                    components={{
-                        Pagination: CustomPagination,
-                        FilterPanel: CustomGridFilterPanel,
-                        // Toolbar: CustomToolbar,
-                        ColumnSortedAscendingIcon: SvgIconVectorDown,
-                        ColumnSortedDescendingIcon: SvgIconVectorUp,
-                    }}
-                />
             </Box>
         </ThemeProvider>
 

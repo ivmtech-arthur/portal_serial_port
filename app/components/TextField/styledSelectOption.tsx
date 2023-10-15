@@ -1,15 +1,20 @@
 
 import Block from 'components/Common/Element/Block'
 import StyledBody4 from 'components/Common/Element/body4'
-import styled,{css} from 'styled-components'
+import styled, { css } from 'styled-components'
 
 const InputField = styled.input`
-    ${(props) => props.hover && css`
+    ${(props) => {
+        if (props.hover) {
+            return css`
         &:hover{
-            border-color: white;
-            background: white;
-        },
+            /* border-color: white; */
+            background: #FAFAFA;;
+            cursor: pointer;
+        }
     `}
+    }
+    } 
     /* box-sizing: border-box; */
 
     /* Auto layout */
@@ -29,10 +34,10 @@ const InputField = styled.input`
     top: 20px;
 
     /* Light grey 2 */
-    background: #FAFAFA;
+    background: white;
     /* Mid Grey */
-    border: none;
-    border-radius: 16px;
+    /* border: none;
+    border-radius: 16px; */
     /* &:hover{
         border-color: yellow;
     }     */
@@ -49,17 +54,18 @@ const InputField = styled.input`
 `
 
 const StyledSelectOption = (props) => {
-    const { id,handleValidation, error,onClick,name,placeholder,value,type,hover, ...restProps } = props
+    const { id, handleValidation, error, onClick, name, placeholder, value, type, hover, ...restProps } = props
     const onClickEvent = (e) => {
-        if(onClick) onClick(e)
+        if (onClick) onClick(e)
     }
     return (
-        <Block {...restProps} maxWidth='100%' width='100%'>
+        <Block {...restProps} maxWidth='100%' width='100%' className="border-red">
             <InputField
                 name={name}
                 placeholder={placeholder}
                 onChange={(e) => {
-                 if(handleValidation) handleValidation(e) }}
+                    if (handleValidation) handleValidation(e)
+                }}
                 value={value}
                 readOnly={value}
                 type={type}

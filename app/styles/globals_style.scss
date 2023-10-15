@@ -101,6 +101,10 @@ li {
   width: 100%;
 }
 
+.button {
+  @apply focus:outline-none focus:ring
+}
+
 .swiper-button-prev,
 .swiper-button-next {
   &:after {
