@@ -75,11 +75,11 @@ const MenuItem = (props) => {
                 </Block>
                 <Block className="w-3/4  text-[#6c757d] hover:text-[#153d77] ">
                     {item.title}
-              </Block>
+                </Block>
                 <Block className="w-[12.5%]">
-                    {item.list && (!open ? <Icon.ChevronRight /> : <Icon.ChevronDown />)}  
-               </Block>
-                
+                    {item.list && (!open ? <Icon.ChevronRight /> : <Icon.ChevronDown />)}
+                </Block>
+
             </Block>
             {/* {sublist} */}
             <Collapse in={open} timeout="auto" unmountOnExit>
@@ -125,34 +125,35 @@ function ResponsiveDrawer(props) {
 
 
     return (
-        <Block display='flex' bg='purple2'>
+        // <Block float="left" width="250px">
+        
+        <Block className="md:280px">
             <AppBar
-                className="fixed md:w-[calc(100%-280px)] bg-[#203A45] shadow"
-                sx={{
-                    width: { md: `calc(100% - ${drawerWidth}px)` },
-                    ml: { md: `${drawerWidth}px` },
-                    backgroundColor: 'transparent',
-                    boxShadow: 'none'
-                }}
-            >
-                <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                   
-                    <IconButton
-                        sx={{color:"white"}}
-                        color="inherit"
-                        aria-label="open drawer"
-                        edge="start"
-                        onClick={handleDrawerToggle}
-                        sx={{ mr: 2, visibility: { md: 'hidden' } }}
-                    >
-                        <MenuIcon />
-                    </IconButton>
-                    <Header />
-                </Toolbar>
-            </AppBar>
+            className="fixed md:w-[calc(100%-280px)] bg-[#203A45] shadow"
+            sx={{
+                width: { md: `calc(100% - ${drawerWidth}px)` },
+                ml: { md: `${drawerWidth}px` },
+                backgroundColor: 'transparent',
+                boxShadow: 'none'
+            }}
+        >
+            <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
 
+                <IconButton
+                    // sx={{}}
+                    color="inherit"
+                    aria-label="open drawer"
+                    edge="start"
+                    onClick={handleDrawerToggle}
+                    sx={{ mr: 2, visibility: { md: 'hidden' },color:"white" }}
+                >
+                    <MenuIcon />
+                </IconButton>
+                <Header />
+            </Toolbar>
+        </AppBar>
             <Box
-                sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }}
+                sx={{ width: { md: drawerWidth }, }}
                 aria-label="mailbox folders"
             >
                 <Drawer
@@ -206,6 +207,8 @@ function ResponsiveDrawer(props) {
                 </Drawer>
             </Box>
         </Block>
+
+        // </Block>
     );
 }
 

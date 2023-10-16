@@ -157,8 +157,8 @@ const GlobalStyle = createGlobalStyle`
   .container {
     /* border: 1px solid blue; */
     max-width: 1366px;
-    padding-right: 5px;
-    padding-left: 5px;
+    padding-right: 20px;
+    padding-left: 20px;
     margin-left: auto;
     margin-right: auto;
     

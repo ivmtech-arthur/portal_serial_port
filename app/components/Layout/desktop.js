@@ -19,6 +19,8 @@ const {
 
 const StyledMainWrapper = styled.div`
 /* background-color: #000000; */
+display: flex;
+width: 100%;
   &:before {
     position: absolute;
     content: " ";
@@ -44,7 +46,8 @@ const DesktopLayout = (props) => {
   const router = useRouter()
   const showMenu = hideMenu.every((route) => !router.asPath.includes(route))
   return (
-    <StyledMainWrapper display={showMenu ? "flex" : 'block'}>
+    <StyledMainWrapper >
+
       {/* <Block flex="0 0 200px" bg="purple1"> */}
       {showMenu && <ResponsiveDrawer />}
       {/* <StyledLHSWrapper
@@ -58,11 +61,11 @@ const DesktopLayout = (props) => {
           <Menu />
         </StyledLHSWrapper> */}
       {/* </Block> */}
-      <Block flex="0 0 1" width="100%" maxWidth='100%' p="60px" marginX='20px' className='container'>
+      <Block  width="100%" maxWidth='100%' p="80px" marginX='20px' className='container'>
         {/* <Breadcrumb breadcrumbItems={breadcrumbItems} /> */}
         <Block>{children}</Block>
-        {showMenu && <Footer/>}
-        <Popup type="global"/>
+        {showMenu && <Footer />}
+        <Popup type="global" />
       </Block>
     </StyledMainWrapper>
   )
