@@ -12,7 +12,7 @@ const preprocessServerSidePropsPromise = withLogin(
         ...(staticPath == "login" ? {
           redirect: {
             permanent: false,
-            destination: `/${lang}/machine`,
+            destination: `/${lang}/machine-management`,
           },
         } : {}),
         props: {

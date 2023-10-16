@@ -1,4 +1,4 @@
-@import 'tailwindcss/base';
+/* @import 'tailwindcss/base'; */
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
@@ -12,12 +12,12 @@
 
 /* responsive font size */
 body * {
-  font-family: 'Roboto', sans-serif;
+ font-family: "Hind Vadodara", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
   font-smooth: auto;
 }
 
 .title {
-  font-family: 'Roboto', sans-serif;
+font-family: "Hind Vadodara", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
 }
 
 /* 34px */
@@ -102,7 +102,7 @@ li {
 }
 
 .button {
-  @apply focus:outline-none focus:ring
+  @apply focus:outline-none focus:ring bg-inherit
 }
 
 .swiper-button-prev,

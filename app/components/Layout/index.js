@@ -23,6 +23,30 @@ const {
 } = getConfig()
 
 const theme = createTheme({
+
+  typography: {
+    fontFamily: [
+      "Hind Vadodara", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Helvetica Neue", "Arial", "sans-serif"
+    ].join(','),
+  },
+  palette: {
+    primary: {
+      main: "#FFFFFF",
+      light: '#FFFFFF',
+      dark: '#FFFFFF',
+      contrastText: '#fff',
+    },
+  },
+  // components: {
+  //   MuiButtonBase: {
+  //     styleOverrides: {
+  //       root: {
+  //         fontFamily: "inherit",
+  //         backgroundColor: "inherit"
+  //       }
+  //     }
+  //   }
+  // },
   breakpoints: {
     values: {
       xs: 0,

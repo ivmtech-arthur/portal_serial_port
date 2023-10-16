@@ -180,7 +180,8 @@ const StyledDropDownButton = (props) => {
 
     const list = map(options, (option, index) => {
         return (
-            <StyledSelectOption hover value={option} type="select" onChange={getValue}></StyledSelectOption>
+            <MenuItem value={option}>{option}</MenuItem>
+            // <StyledSelectOption hover value={option} type="select" onChange={getValue}></StyledSelectOption>
         )
     })
     return (
@@ -204,9 +205,10 @@ const StyledDropDownButton = (props) => {
                     onChange(e)
                 }}
             >
-                <MenuItem value={10}>10</MenuItem>
+                {list}
+                {/* <MenuItem value={10}>10</MenuItem>
                 <MenuItem value={20}>20</MenuItem>
-                <MenuItem value={30}>30</MenuItem>
+                <MenuItem value={30}>30</MenuItem> */}
             </Select>
         </Block>
         // <Block {...restProps}   

@@ -17,6 +17,21 @@ const {
   publicRuntimeConfig: { SITE_URL },
 } = getConfig()
 
+const StyledMainWrapper = styled.div`
+/* background-color: #000000; */
+  &:before {
+    position: absolute;
+    content: " ";
+    box-sizing: border-box;
+    width: 100%;
+    height: 264px;
+    top: 0;
+    left: 0;
+    background-color: #203A45;
+
+  }
+`
+
 const StyledLHSWrapper = styled(Block)`
   box-shadow: 2px 0px 10px 1px #aaaaaa;
 `
@@ -29,7 +44,7 @@ const DesktopLayout = (props) => {
   const router = useRouter()
   const showMenu = hideMenu.every((route) => !router.asPath.includes(route))
   return (
-    <Block display={showMenu ? "flex" : 'block'}>
+    <StyledMainWrapper display={showMenu ? "flex" : 'block'}>
       {/* <Block flex="0 0 200px" bg="purple1"> */}
       {showMenu && <ResponsiveDrawer />}
       {/* <StyledLHSWrapper
@@ -49,7 +64,7 @@ const DesktopLayout = (props) => {
         {showMenu && <Footer/>}
         <Popup type="global"/>
       </Block>
-    </Block>
+    </StyledMainWrapper>
   )
 }
 

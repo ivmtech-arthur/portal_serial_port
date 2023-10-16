@@ -33,7 +33,9 @@ import { useState } from 'react';
 import Header from '../Header';
 import { justifyContent } from 'styled-system';
 import { useRouter } from 'next/router';
-const drawerWidth = 270;
+import { Collapse } from '@mui/material';
+import * as Icon from "react-feather";
+const drawerWidth = 280;
 
 const useStyles = makeStyles({
     root: {
@@ -41,7 +43,9 @@ const useStyles = makeStyles({
         maxWidth: 360
     },
     icon: {
-        color: 'red',
+        color: '#153d77',
+        width: '15px',
+        height: '15px',
         //   border: '1px solid green'
     }
 });
@@ -56,40 +60,32 @@ const MenuItem = (props) => {
     } = useStore()
     const router = useRouter()
     const [hover, setHover] = useState(false)
+    const [open, setOpen] = useState(false);
     const classes = useStyles()
+    const sublist = item.list ? item.list.map((subItem) => {
+        return (
+            <Block className="block pt-1 pr-6 pb-1 pl-12 my-2 mx-0 text-[90%] cursor-pointer" onClick={() => router.push(`/${lang}/${subItem.url}`)}>{subItem.title}</Block>
+        )
+    }) : null
     return (
-        <Block width='85%' >
-            <ListItem key={index} disablePadding onMouseEnter={() => { setHover(true) }} onMouseLeave={() => { setHover(false) }}>
-                <ListItemButton
-                    onClick={() => {
-                        if (item.key == 'logout')
-                            dispatch({
-                                type: 'showPopup',
-                                payload: {
-                                    popup: true,
-                                    popupType: 'logout',
-                                    isGlobal: true,
-                                },
-                            });
-                        else
-                            router.push(`/${lang}${item.url}`)
-                    }}
-                    sx={{
-                        borderRadius: '20px 0px 0px 20px', color: 'white', height: '70px', '&:hover': {
-                            backgroundColor: 'white',
-                            color: 'red',
-                        },
-                        display: 'flex',
-                        justifyContent: 'end'
-                    }}>
-                    <ListItemIcon className={classes.icon}>
-                        {hover ? item.svg : item.svgWhite}
-                        {/* <SvgIcon component={item.svg}/> */}
-                    </ListItemIcon>
-                    <ListItemText sx={{ maxWidth: '130px' }} primary={item.title} />
-                </ListItemButton>
-            </ListItem>
-        </Block >
+        <Block className=" w-full list-item" onClick={!item.list ? () => { router.push(`/${lang}/${item.url}`) } : () => { setOpen(!open) }}>
+            <Block className=" flex items-center cursor-pointer hover block py-2 px-3 my-0 mx-2 bg-transparent rounded transition ease-in-out">
+                <Block className=" w-[12.5%]">
+                    {item.icon}
+                </Block>
+                <Block className="w-3/4  text-[#6c757d] hover:text-[#153d77] ">
+                    {item.title}
+              </Block>
+                <Block className="w-[12.5%]">
+                    {item.list && (!open ? <Icon.ChevronRight /> : <Icon.ChevronDown />)}  
+               </Block>
+                
+            </Block>
+            {/* {sublist} */}
+            <Collapse in={open} timeout="auto" unmountOnExit>
+                {sublist}
+            </Collapse>
+        </Block>
     )
 }
 
@@ -131,8 +127,8 @@ function ResponsiveDrawer(props) {
     return (
         <Block display='flex' bg='purple2'>
             <AppBar
-                className="fixed md:w-[calc(100%-270px)] bg-transparent shadow-none"
-                  sx={{
+                className="fixed md:w-[calc(100%-280px)] bg-[#203A45] shadow"
+                sx={{
                     width: { md: `calc(100% - ${drawerWidth}px)` },
                     ml: { md: `${drawerWidth}px` },
                     backgroundColor: 'transparent',
@@ -140,9 +136,10 @@ function ResponsiveDrawer(props) {
                 }}
             >
                 <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Header />
+                   
                     <IconButton
-                        color="primary"
+                        sx={{color:"white"}}
+                        color="inherit"
                         aria-label="open drawer"
                         edge="start"
                         onClick={handleDrawerToggle}
@@ -150,7 +147,7 @@ function ResponsiveDrawer(props) {
                     >
                         <MenuIcon />
                     </IconButton>
-
+                    <Header />
                 </Toolbar>
             </AppBar>
 
@@ -158,9 +155,6 @@ function ResponsiveDrawer(props) {
                 sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }}
                 aria-label="mailbox folders"
             >
-
-
-                {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
                 <Drawer
                     container={container}
                     variant="temporary"
@@ -169,20 +163,16 @@ function ResponsiveDrawer(props) {
                     ModalProps={{
                         keepMounted: true, // Better open performance on mobile.
                     }}
-                    anchor={'right'}
+                    // anchor={'lef'}
                     sx={{
                         display: { xs: 'block', md: 'none' },
-                        '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth, backgroundColor: 'red', },
+                        '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth, backgroundColor: 'white', },
                     }}
                 >
                     <Box
                         className="mx-auto my-5 md:block sm-hidden w-56 h-48"
-                    // mx='auto'
-                    // my='20px'
-                    // // display={{ xs: 'none', md: 'block' }}
-                    // width='220px' height='200px'
                     >
-                        <Block position='fixed' borderBottom="1px solid white" height='200px' width='220px' >
+                        <Block position='fixed' borderBottom="1px solid red" height='200px' width='220px' >
                             <Block
                                 mx='auto'
                                 backgroundImage="url(/image/logo.jpg)" backgroundPosition='100% 100%' width='160px' height='160px'></Block>
@@ -196,14 +186,13 @@ function ResponsiveDrawer(props) {
                     sx={{
 
                         display: { xs: 'none', md: 'block' },
-                        '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth, backgroundColor: 'red', top: 'auto' },
+                        '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth, backgroundColor: 'white', top: 'auto', boxShadow: '0 0 2rem 0 rgba(0, 0, 0, 0.05)' },
                     }}
                     open
                 >
                     <Box
                         mx='auto'
                         my='20px'
-                        // display={{ xs: 'none', md: 'block' }}
                         width='220px' height='200px'
                     >
                         <Block position='fixed' borderBottom="1px solid white" height='200px' width='220px' >

@@ -42,7 +42,7 @@ const Header = (props) => {
   return (
     <>
       <StyledHeaderContainer
-        className={`top-0 z-50 ${headerTheme == 'white' ? 'bg-green' :'bg-transparent'} flex w-full` } 
+        className={`top-0 z-50 ${headerTheme == 'white' ? 'bg-green' :'bg-transparent'}` } 
         // id="header"
         // // position={"fixed"}
         // top="0"

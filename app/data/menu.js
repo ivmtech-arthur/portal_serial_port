@@ -1,92 +1,130 @@
-import SvgIconAddproduct from '/public/svg/icon_add_product.svg'
-import SvgIconListproduct from '/public/svg/icon_list_product.svg'
-import SvgIconLock from '/public/svg/icon_lock.svg'
-import SvgIconLogout from '/public/svg/icon_signout.svg'
-import SvgIconQuestion from '/public/svg/icon_question.svg'
-import SvgIconAddproductWhite from '/public/svg/icon_list_all_white.svg'
-import SvgIconListproductWhite from '/public/svg/icon_list_product_white.svg'
-import SvgIconLockWhite from '/public/svg/icon_lock_white.svg'
-import SvgIconLogoutWhite from '/public/svg/icon_signout_white.svg'
-import SvgIconQuestionWhite from '/public/svg/icon_question_white.svg'
+import * as Icon from "react-feather";
 
 export default {
     en: [
         {
-            title: 'Machine',
-            url: '/machine',
-            svg: <SvgIconListproduct />,
-            svgWhite: <SvgIconListproductWhite />
+            title: 'Machine Management',
+            url: '/machine-management',
+            icon: <Icon.Cpu width="15"/>,
         },
         {
-        title: 'Pallet Configuration',
-        url: '/pallet-config',
-        svg: <SvgIconListproduct />,
-        svgWhite: <SvgIconListproductWhite />
-    },
-    {
-        title: 'Cabinet Maintenance',
-        url: '/cabinet-config',
-        svg: <SvgIconAddproduct />,
-        svgWhite: <SvgIconAddproductWhite />
-    },
+            title: 'Product Management',
+            url: '/product-management',
+            list: [
+                {
+                    title: "Product List",
+                    url: '/product-list',
+                    icon: <Icon.FileText />
+                },
+                {
+                    title: "Create Product",
+                    url: "/create-product",
+                    icon: <Icon.FilePlus />
+                }
+            ],
+            icon: <Icon.DollarSign width="15px" />,
+        },
+        {
+            title: 'Data Analysis',
+            url: '/data-anaylysis',
+            list: [
+                {
+                    title: "Daily Analysis",
+                    url: '/daily-anaylsis',
+                    icon: <Icon.FileText />
+                },
+                {
+                    title: "Sales Ranking",
+                    url: "/sales-ranking",
+                    icon: <Icon.Award />
+                },
+                {
+                    title: "Sales Summary",
+                    url: "/sales-summary",
+                    icon: <Icon.File />
+                }
+            ],
+            icon: <Icon.PieChart width="15px" />,
+        },
 
-    {
-        title: 'Privacy Policy',
-        url: '/',
-        svg: <SvgIconLock />,
-        svgWhite: <SvgIconLockWhite />
-    },
-    {
-        title: 'Help',
-        url: '/',
-        svg: <SvgIconQuestion />,
-        svgWhite: <SvgIconQuestionWhite />
-    },
-    {
-        title: 'Logout',
-        key: 'logout',
-        url: '/',
-        svg: <SvgIconLogout />,
-        svgWhite: <SvgIconLogoutWhite />
-    },
+        {
+            title: 'Energy Management',
+            url: '/energy-management',
+            icon: <Icon.BatteryCharging width="15px" />,
+        },
+        {
+            title: 'Operation History',
+            url: '/operation-history',
+            icon: <Icon.RotateCcw width="15px" />,
+        },
+        {
+            title: 'Logout',
+            key: 'logout',
+            url: '/',
+            icon: <Icon.LogOut width="15px" />,
+        },
     ],
     tc: [
         {
-            title: '售賣機',
-            url: '/machine',
-            svg: <SvgIconListproduct />,
-            svgWhite: <SvgIconListproductWhite />
+            title: '設備管理',
+            url: '/machine-managment',
+            icon: <Icon.Cpu width="15px" />,
         },
         {
-        title: '貨道設置',
-        url: '/pallet-config',
-        svg: <SvgIconListproduct />,
-        svgWhite: <SvgIconListproductWhite />
-    },
-    {
-        title: '設備營運',
-        url: '/cabinet-config',
-        svg: <SvgIconAddproduct />,
-        svgWhite: <SvgIconAddproductWhite />
-    },
+            title: '商品管理',
+            url: '/product-management',
+            list: [
+                {
+                    title: "商品列表",
+                    url: '/product-list',
+                    icon: <Icon.FileText />
+                },
+                {
+                    title: "建立商品",
+                    url: "/create-product",
+                    icon: <Icon.FilePlus />
+                }
+            ],
+            icon: <Icon.DollarSign width="15px" />,
+        },
+        {
+            title: '數據分析',
+            url: '/data-anaylysis',
+            list: [
+                {
+                    title: "每日數據",
+                    url: '/daily-anaylsis',
+                    icon: <Icon.FileText />
+                },
+                {
+                    title: "銷售排行",
+                    url: "/sales-ranking",
+                    icon: <Icon.FilePlus />
+                },
+                {
+                    title: "銷售統計",
+                    url: "/sales-summary",
+                    icon: <Icon.FilePlus />
+                }
+            ],
+            icon: <Icon.PieChart width="15px" />,
+        },
 
-    {
-        title: 'Privacy Policy tc',
-        url: '/',
-        svg: <SvgIconLock />,
-        svgWhite: <SvgIconLockWhite />
-    },
-    {
-        title: 'Help tc',
-        url: '/',
-        svg: <SvgIconLogout />,
-        svgWhite: <SvgIconLogoutWhite />
-    },
-    {
-        title: 'Logout tc',
-        url: '/',
-        svg: <SvgIconQuestion />,
-        svgWhite: <SvgIconQuestionWhite />
-    },
+        {
+            title: '能源管理',
+            url: '/energy-management',
+            icon: <Icon.BatteryCharging width="15px" />,
+        },
+        {
+            title: '操作紀錄',
+            url: '/operation-history',
+            icon: <Icon.RotateCcw width="15px" />,
+        },
+        {
+            title: '登出',
+            url: '/',
+            key: 'logout',
+            icon: <Icon.LogOut width="15px" />,
+        },
     ]
 }

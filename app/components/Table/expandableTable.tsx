@@ -1,26 +1,199 @@
-import React from "react";
-import MUIDataTable from "mui-datatables";
-import { Table,TableBody,TableCell,TableContainer,TableHead,TableRow,Paper } from "@mui/material";
-// import Table from "@material-ui/core/Table";
-// import TableBody from "@mui/core/TableBody";
-// import TableCell from "@material-ui/core/TableCell";
-// import TableContainer from "@material-ui/core/TableContainer";
-// import TableHead from "@material-ui/core/TableHead";
-// import TableRow from "@material-ui/core/TableRow";
-// import Paper from "@material-ui/core/Paper";
+import MUIDataTable, { MUIDataTableOptions, MUIDataTableProps } from "mui-datatables";
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from "@mui/material";
+import { useState } from 'react';
+import Box from '@mui/material/Box';
+import { useEffect } from 'react';
+import Block from 'components/Common/Element/Block'
+// import { DataGrid } from '@mui/x-data-grid';
+import {
+  createTheme,
+  ThemeProvider,
+  styled as muiStyled,
+} from '@mui/material/styles'
 
-// const Card = () => (
-//   <tr>
-//     <td className="fullWidth">
-//       <h1>
-//         lorem ipsum dorel em quol acee, vion, bloolw, wafeo, feiwjfoiew,
-//         foiwejifowefjweoi, fewjoewjfowei, fwefwefewfewfewf
-//       </h1>
-//     </td>
-//   </tr>
-// );
+import {
+  DataGrid,
+  gridPageCountSelector,
+  gridPageSelector,
+  useGridApiContext,
+  useGridSelector,
+  GridToolbarContainer,
+  GridToolbarFilterButton,
+  GridLinkOperator,
+  GridFooter,
+  GridPagination,
+  GridCallbackDetails
+} from '@mui/x-data-grid';
+import { styled } from '@mui/material/styles';
+import Pagination from '@mui/material/Pagination';
+import PaginationItem from '@mui/material/PaginationItem';
+import SvgIconVectorUp from '/public/svg/icon_vector_up.svg'
+import SvgIconVectorDown from '/public/svg/icon_vector_down.svg'
+import { Button, Collapse, IconButton, MenuItem, Select, SelectChangeEvent, SvgIcon, TableFooter, TablePagination, Typography } from '@mui/material';
+import { makeStyles } from "@mui/styles";
+import { GridFilterPanel } from '@mui/x-data-grid';
+import StyledTextFieldSearch from '../TextField/styledTextFieldSearch';
+import type { } from '@mui/x-data-grid/themeAugmentation';
+import StyledTextSelectField from 'components/TextField/styledTextSelectField';
+import FirstPageIcon from "@mui/icons-material/FirstPage";
+import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft";
+import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
+import LastPageIcon from "@mui/icons-material/LastPage";
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import StyledDropDownButton from 'components/TextField/styledDropDownButton';
 
-const ExpandableRowTable = props => {
+const theme = createTheme({
+  components: {
+    MUIDataTable: {
+      styleOverrides: {
+        root: {
+          padding: '1.25rem'
+        },
+      }
+    },
+    MuiPaginationItem: {
+      styleOverrides: {
+        root: {
+          margin: 0,
+          borderRadius: 0,
+          fontFamily: 'Inter',
+          backgroundColor: 'white',
+          color: '#6c757d',
+          border: "1px solid #dee2e6",
+          "&:hover": {
+            translate: '0px -5px',
+            backgroundColor: '#dee2e6',
+            // color: '#dee2e6',
+          },
+          "&:img": {
+            display: 'none'
+          },
+          "&.Mui-selected": {
+            backgroundColor: '#3B7DDD',
+            textDecorationLine: 'underline',
+            color: 'white',
+            "&:hover": {
+              translate: '0px -5px',
+              backgroundColor: '#3B7DDD',
+              // color: '#3B7DDD',
+            },
+          }
+        },
+      }
+    },
+    MuiSelect: {
+      styleOverrides: {
+        // select: {
+        //     ":focus": {
+        //         border: "1px solid red"
+        //     }
+        // },
+        outlined: {
+          padding: '0',
+          paddingLeft: '5px',
+
+        },
+        icon: {
+          // display: 'none'
+          color: 'white'
+        }
+      }
+    },
+    MuiPagination: {
+      styleOverrides: {
+
+      }
+    }
+  },
+
+})
+
+
+function CustomPagination(props) {
+  const { changeRowsPerPage, rowPerPage, changePage, page, rowCount, pageNum } = props
+  const [localPage, setLocalPage] = useState("");
+
+  const handleFirstPageButtonClick = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    changePage(0)
+
+  };
+
+
+  const handleLastPageButtonClick = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    changePage(Math.max(0, pageNum - 1))
+  };
+
+  return (
+    <Block className="flex justify-between">
+
+      <StyledDropDownButton id="search" width="60px" options={[5, 10, 25, 50]} value={rowPerPage} onChange={(e: SelectChangeEvent) => {
+        changeRowsPerPage(parseInt(e.target.value))
+      }} theme={theme} />
+
+      <Block className="flex">
+        <IconButton
+          className="rounded-none h-8 border-[#dee2e6]"
+          sx={{
+            "&:hover": {
+              translate: '0px -5px',
+              backgroundColor: '#dee2e6',
+            },
+            width: '32px',
+            height: '32px',
+            borderRadius: 0,
+            border: "1px solid",
+            borderColor: "primary.main"
+          }}
+          onClick={handleFirstPageButtonClick}
+          disabled={page === 0}
+          aria-label="first page"
+        >
+          {theme.direction === "rtl" ? <LastPageIcon /> : <FirstPageIcon />}
+        </IconButton>
+        <Pagination
+          className=""
+          color="primary"
+          page={page + 1}
+          count={pageNum}
+          onChange={(event, value) => changePage(value - 1)}
+        />
+        <IconButton
+          className="rounded-none h-8 border-[#dee2e6]"
+          //  sx={{
+
+          //  }}
+          sx={{
+            "&:hover": {
+              translate: '0px -5px',
+              backgroundColor: '#dee2e6',
+              // color: '#dee2e6',
+            },
+            width: '32px',
+            height: '32px',
+            borderRadius: 0,
+            border: "1px solid",
+            borderColor: "primary.main"
+          }}
+          onClick={handleLastPageButtonClick}
+          disabled={page >= Math.ceil(page) - 1}
+          aria-label="last page"
+        >
+          {theme.direction === "rtl" ? <FirstPageIcon /> : <LastPageIcon />}
+        </IconButton>
+      </Block>
+      {/* <TablePagination/> */}
+
+    </Block>
+
+  );
+}
+
+const ExpandableRowTable = (props) => {
   const columns = [
     {
       name: "Name"
@@ -77,109 +250,46 @@ const ExpandableRowTable = props => {
     ["Mason Ray", "Computer Scientist", "San Francisco", 39, 142000]
   ];
 
-  function createData(name, calories, fat, carbs, protein) {
-    return { name, calories, fat, carbs, protein };
-  }
-
-  const rows = [
-    createData("Frozen yoghurt", 159, 6.0, 24, 4.0),
-    createData("Ice cream sandwich", 237, 9.0, 37, 4.3),
-    createData("Eclair", 262, 16.0, 24, 6.0),
-    createData("Cupcake", 305, 3.7, 67, 4.3),
-    createData("Gingerbread", 356, 16.0, 49, 3.9)
-  ];
-
-  const options = {
+  const options: MUIDataTableOptions = {
     filter: true,
+    customFooter: (rowCount, page, rowPerPage, changeRowsPerPage, changePage) => {
+      return (
+        <CustomPagination pageNum={data.length / rowPerPage} page={page} rowCount={rowCount} rowPerPage={rowPerPage} changeRowsPerPage={changeRowsPerPage} changePage={changePage} />
+      );
+    },
     onFilterChange: (changedColumn, filterList) => {
       console.log(changedColumn, filterList);
     },
     selectableRows: "single",
     filterType: "dropdown",
-    responsive: "scrollMaxHeight",
-    rowsPerPage: 10,
+    // responsive: "scrollMaxHeight",
+    rowsPerPage: 5,
     expandableRows: true,
+    selectableRowsHideCheckboxes: true,
     renderExpandableRow: (rowData, rowMeta) => {
       console.log(rowData, rowMeta);
       return (
-        <React.Fragment>
-          <tr>
-            <td colSpan={6}>
-              <TableContainer component={Paper}>
-                <Table style={{ minWidth: "650" }} aria-label="simple table">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Dessert (100g serving)</TableCell>
-                      <TableCell align="right">Calories</TableCell>
-                      <TableCell align="right">Fat&nbsp;(g)</TableCell>
-                      <TableCell align="right">Carbs&nbsp;(g)</TableCell>
-                      <TableCell align="right">Calories</TableCell>
-                      <TableCell align="right">Fat&nbsp;(g)</TableCell>
-                      <TableCell align="right">Calories</TableCell>
-                      <TableCell align="right">Fat&nbsp;(g)</TableCell>
-                      <TableCell align="right">Protein&nbsp;(g)</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {rows.map(row => (
-                      <TableRow key={row.name}>
-                        <TableCell component="th" scope="row">
-                          {row.name}
-                        </TableCell>
-                        <TableCell align="right">{row.calories}</TableCell>
-                        <TableCell align="right">{row.fat}</TableCell>
-                        <TableCell align="right">{row.carbs}</TableCell>
-                        <TableCell align="right">{row.protein}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </td>
-          </tr>
-          <tr>
-            <td colSpan={6}>
-              <TableContainer component={Paper}>
-                <Table style={{ minWidth: "650" }} aria-label="simple table">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Dessert (100g serving)</TableCell>
-                      <TableCell align="right">Calories</TableCell>
-                      <TableCell align="right">Fat&nbsp;(g)</TableCell>
-                      <TableCell align="right">Carbs&nbsp;(g)</TableCell>
-                      <TableCell align="right">Protein&nbsp;(g)</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {rows.map(row => (
-                      <TableRow key={row.name}>
-                        <TableCell component="th" scope="row">
-                          {row.name}
-                        </TableCell>
-                        <TableCell align="right">{row.calories}</TableCell>
-                        <TableCell align="right">{row.fat}</TableCell>
-                        <TableCell align="right">{row.carbs}</TableCell>
-                        <TableCell align="right">{row.protein}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </td>
-          </tr>
-        </React.Fragment>
+        <Block>
+          Collase Element to be added
+        </Block>
       );
     },
     page: 1
   };
 
   return (
-    <MUIDataTable
-      title={"ACME Employee list"}
-      data={data}
-      columns={columns}
-      options={options}
-    />
+    <ThemeProvider theme={theme}>
+      {/* <Block className="p-5 min-h-0"> */}
+      <MUIDataTable
+        title={"ACME Employee list"}
+        data={data}
+        columns={columns}
+        options={options}
+      />
+      {/* </Block> */}
+
+    </ThemeProvider>
+
   );
 };
 

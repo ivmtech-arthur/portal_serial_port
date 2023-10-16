@@ -24,6 +24,7 @@ export default {
   activeGreen: '#52C93F',
   linkBlue: '#4A3AFF',
   //theme color
+  blue1: '#153d77',
   purple1: '#BF94E4',
   purple1_80: rgba('#8295C1',0.8),
   purple2: '#570680',

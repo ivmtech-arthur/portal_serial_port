@@ -112,17 +112,7 @@ const Container = styled(Block)`
      }
 
     
-`
-
-const ItemBlock = styled.div`
- ${(props) => props.hover && css`
-        &:hover{
-            border-color: white;
-            background: white;
-        },
-    `}
-    border-radius: 16px;
-`
+`;
 
 
 const StyledSelectField = (props) => {
