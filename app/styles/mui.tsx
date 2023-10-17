@@ -256,8 +256,8 @@ export const muiTheme = createTheme({
                 //     }
                 // },
                 outlined: {
-                    padding: '0',
-                    paddingLeft: '5px',
+                    // padding: '0',
+                    // paddingLeft: '5px',
 
                 },
                 icon: {

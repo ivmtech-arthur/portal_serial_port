@@ -1,8 +1,8 @@
-import MUIDataTable, { MUIDataTableOptions,MUIDataTableToolbar, MUIDataTableProps, MUIDataTableColumn, MUIDataTableColumnDef } from "mui-datatables";
+import MUIDataTable, { MUIDataTableOptions, MUIDataTableToolbar, MUIDataTableProps, MUIDataTableColumn, MUIDataTableColumnDef } from "mui-datatables";
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Theme, ButtonGroup, Drawer } from "@mui/material";
 import { useState } from 'react';
 import Box from '@mui/material/Box';
-import { useEffect,useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import Block from 'components/Common/Element/Block'
 // import { DataGrid } from '@mui/x-data-grid';
 import {
@@ -48,35 +48,35 @@ import { muiTheme } from "styles/mui";
 import { DownloadCloud } from "react-feather";
 import FilterForm from "./filterForm";
 
-function CustomToolbar(props) { 
+function CustomToolbar(props) {
 
   return (<>
     {/* <Button variant="outlined">test</Button> */}
-    <BasicButton variant="text" tooltip="Add Record"><Add/></BasicButton>
+    <BasicButton variant="text" tooltip="Add Record"><Add /></BasicButton>
   </>)
 }
 
 
-function CustomDownloadIcon(props) { 
+function CustomDownloadIcon(props) {
   // const ref = props.tableRef();
   console.log("toolbar", props)
   return (
-    <IconButton><KeyboardArrowDownIcon/></IconButton>
+    <IconButton><KeyboardArrowDownIcon /></IconButton>
   )
 }
 
-function MobileToolbar(props) { 
+function MobileToolbar(props) {
   const { setDrawerOpen } = props
   const buttons = [
-    <BasicButton size="large"  key="search"><Search/></BasicButton>,
-    <BasicButton size="large" onClick={() => { 
+    <BasicButton size="large" key="search"><Search /></BasicButton>,
+    <BasicButton size="large" onClick={() => {
       setDrawerOpen(true)
-    }} key="filter"><FilterList/></BasicButton>,
-    <BasicButton size="large" key="download"><DownloadCloud/></BasicButton>,
-    <BasicButton key="add"><Add/></BasicButton>,
+    }} key="filter"><FilterList /></BasicButton>,
+    <BasicButton size="large" key="download"><DownloadCloud /></BasicButton>,
+    <BasicButton key="add"><Add /></BasicButton>,
   ];
 
-  const [open,setOpen] = useState(false)
+  const [open, setOpen] = useState(false)
   return (
     <Box
       sx={{
@@ -84,6 +84,7 @@ function MobileToolbar(props) {
         // scale: '1.3',
         // transformOrigin: '100% 100% 0',
         // transform
+        zIndex: 9999,
         right: 10,
         bottom: 50,
         position: 'fixed',
@@ -103,15 +104,15 @@ function MobileToolbar(props) {
           variant="contained"
         >
           {buttons}
-        </ButtonGroup>  
+        </ButtonGroup>
       </Collapse>
       <BasicButton
         size="large"
         onClick={() => {
-        setOpen(!open)
-      }}>
-        <MoreVert/>
-    </BasicButton>
+          setOpen(!open)
+        }}>
+        <MoreVert />
+      </BasicButton>
     </Box>
   )
 }
@@ -128,16 +129,16 @@ function CustomPagination(props) {
 
   };
   // console.log("page",pageNum,page,tempPageNum)
-  useEffect(() => { 
+  useEffect(() => {
     if (pageNum == 0) {
       setTempPageNum(1)
-    } else { 
+    } else {
       setTempPageNum(pageNum)
     }
-    if (pageNum <= page) { 
-      changePage(Math.max(0,pageNum - 1))
+    if (pageNum <= page) {
+      changePage(Math.max(0, pageNum - 1))
     }
-  },[pageNum])
+  }, [pageNum])
 
   const handleLastPageButtonClick = (
     event: React.MouseEvent<HTMLButtonElement>
@@ -210,29 +211,30 @@ function CustomPagination(props) {
   );
 }
 
-function createCritieras(columns, data) { 
+function createCritieras(columns, data) {
   var mapping = {};
   var result = columns.reduce((tempResult, value, index) => {
     tempResult[value.name] = [];
     mapping[index] = value.name
     return tempResult
   }, {})
-  console.log("createCrtieria",result,columns,data)
-    data.forEach((entries) => {
-      result[mapping[0]].push(entries[0])
-      result[mapping[1]].push(entries[1])
-      result[mapping[2]].push(entries[2])
-      result[mapping[3]].push(entries[3])
-      result[mapping[4]].push(entries[4])
-    })
-    return result
+  console.log("createCrtieria", result, columns, data)
+  data.forEach((entries) => {
+    result[mapping[0]].push(entries[0])
+    result[mapping[1]].push(entries[1])
+    result[mapping[2]].push(entries[2])
+    result[mapping[3]].push(entries[3])
+    result[mapping[4]].push(entries[4])
+  })
+  return result
   // return {}
 }
 
 const ExpandableRowTable = (props) => {
-  const [drawerOpen,setDrawerOpen] = useState(false)
+  const [drawerOpen, setDrawerOpen] = useState(false)
   const tableRef = useRef(null);
-
+  const [filterObj, setFilterObj] = useState({})
+  const [localPage,setLocalPage] = useState(0)
   const columns = [
     {
       name: "Name"
@@ -253,11 +255,42 @@ const ExpandableRowTable = (props) => {
 
   const mobileColumn: MUIDataTableColumnDef[] = [
     {
+      name: "Name",
+      options: {
+        ...(filterObj["Name"] ? { filterList: [filterObj["Name"]] } : {}),
+      }
+    },
+
+
+    {
+      name: "Title",
+      options: {
+        ...(filterObj["Title"] ? { filterList: [filterObj["Title"]] } : {}),
+        display: false,
+      }
+    },
+    {
+      name: "Location",
+      options: {
+        ...(filterObj["Location"] ? { filterList: [filterObj["Location"]] } : {}),
+        display: false,
+      }
+    },
+    {
+      name: "Age",
+      options: {
+        ...(filterObj["Age"] ? { filterList: [filterObj["Age"]] } : {}),
+        display: false,
+      }
+    },
+    {
       name: "Salary",
       options: {
-        filterList: [],
+        ...(filterObj["Salary"] ? { filterList: [filterObj["Salary"]] } : {}),
+        display: false,
       }
-    }
+    },
+
   ]
   const data = [
     ["Gabby George", "Business Analyst", "Minneapolis", 30, 100000],
@@ -297,12 +330,12 @@ const ExpandableRowTable = (props) => {
     ],
     ["Mason Ray", "Computer Scientist", "San Francisco", 39, 142000]
   ];
-
+console.log("column",mobileColumn)
   const criterias = createCritieras(columns, data)
 
   const options: MUIDataTableOptions = {
     filter: true,
-    customToolbar: (data) => { return <CustomToolbar/> },
+    customToolbar: (data) => { return <CustomToolbar /> },
     customFooter: (rowCount, page, rowPerPage, changeRowsPerPage, changePage) => {
       return (
         <CustomPagination pageNum={Math.ceil(data.length / rowPerPage)} page={page} rowCount={rowCount} rowPerPage={rowPerPage} changeRowsPerPage={changeRowsPerPage} changePage={changePage} />
@@ -332,12 +365,17 @@ const ExpandableRowTable = (props) => {
     filter: true,
     // customToolbar: (data) => { return null },
     customFooter: (rowCount, page, rowPerPage, changeRowsPerPage, changePage) => {
+      setLocalPage(page)
       return (
-        <CustomPagination pageNum={Math.ceil(data.length / rowPerPage)} page={page} rowCount={rowCount} rowPerPage={rowPerPage} changeRowsPerPage={changeRowsPerPage} changePage={changePage} />
+        <CustomPagination pageNum={Math.ceil(rowCount / rowPerPage)} page={page} rowCount={rowCount} rowPerPage={rowPerPage} changeRowsPerPage={changeRowsPerPage} changePage={changePage} />
       );
     },
-    onFilterChange: (changedColumn, filterList) => {
-      console.log(changedColumn, filterList);
+    onChangePage: (page) => {
+      console.log()
+    },
+    // onTableChange
+    onFilterChange: (changedColumn, filterList,type,index,data) => {
+      console.log(changedColumn, filterList,);
     },
     selectableRows: "single",
     filterType: "dropdown",
@@ -367,14 +405,14 @@ const ExpandableRowTable = (props) => {
       <Block className="md:block xs:hidden">
         <MUIDataTable
           // components={ }
-          
+
           title={"ACME Employee list"}
           data={data}
           columns={columns}
           options={options}
         />
       </Block>
-     
+
       <Block className="md:hidden">
         <MUIDataTable
           components={{
@@ -402,8 +440,13 @@ const ExpandableRowTable = (props) => {
           open={drawerOpen}
           onClose={() => { setDrawerOpen(false) }}
         >
-          <FilterForm criterias={criterias} />
-          </Drawer>
+          <FilterForm criterias={criterias} onChange={(value, field) => {
+            var tempFilterObj = filterObj
+            console.log("onChange",tempFilterObj,value,field)
+            tempFilterObj[field] = value
+            setFilterObj({ ...tempFilterObj })
+          }} />
+        </Drawer>
       </Block>
       {/* </Block> */}
 
