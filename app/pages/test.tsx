@@ -16,6 +16,7 @@ export default function Test() {
                 height:"316px"
             }} desc="test test" title="test title" />
             <BasicButton
+                variant="contained"
                 startIcon={<Icon.Smile />}
                 // endIcon={ <Icon.Smile />}
             >
@@ -23,6 +24,7 @@ export default function Test() {
                 {/* <Icon.Smile /> */}
                 {/* <Icon.Smile className="pr-1 w-4" /> */}
             </BasicButton>
+            
         </>
     )
 } 

@@ -92,6 +92,8 @@ module.exports = {
         fontFamily: {
             oswald: ['Oswald', 'sans-serif', 'Arial'],
             inter: ['Inter', 'sans-serif', 'Arial'],
+            notoSansTC: ['Noto Sans TC', 'sans-serif'],
+            jost: ["Jost", '-apple-system', 'BlinkMacSystemFont', "Segoe UI", "Helvetica Neue", 'Arial', 'sans-serif']
         },
         container: {
             center: true,

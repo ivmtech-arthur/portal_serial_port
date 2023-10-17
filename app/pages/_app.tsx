@@ -10,15 +10,20 @@ import React from "react";
 import { NextPageContext } from "next";
 import dotenv from 'dotenv';
 import dotenvExpand from 'dotenv-expand';
+import { getMenu } from "data/menu";
 
 interface InjectStates {
   user?: {
     authenticated: boolean;
     userProfile: any;
   };
+  site?: {
+    [name: string]: any
+  }
 }
 
-function App({ Component, pageProps }: AppProps) {
+function App({ Component, pageProps, router }: AppProps) {
+  //notes: case when store refresh need inject state
   const config = dotenv.config();
   dotenvExpand.expand(config);
   const injectStates: InjectStates = {}
@@ -28,7 +33,21 @@ function App({ Component, pageProps }: AppProps) {
       userProfile: pageProps,
     }
   }
-  console.log(injectStates, 'injectStates')
+
+  if (router.query.lang) { 
+    
+    var pageName = "";
+    let urlList = router.asPath.split('/');
+    if (urlList.length > 1) { 
+      pageName = getMenu(router.query.lang).find((menu) => { return menu.url === urlList[urlList.length - 1]}).title
+    }
+    injectStates.site = {
+      lang: router.query.lang,
+      pageName
+    }
+  }
+    
+  // console.log(injectStates, 'injectStates', router.basePath)
   return (
     <>
       {/* <style jsx global>

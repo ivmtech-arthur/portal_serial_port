@@ -33,14 +33,11 @@ const mq = reduce(
 
 export default {
   colors,
-  // fonts: {
-  //   roboto: 'Roboto, sans-serif',
-  //   robotocon: 'Roboto Condensed, sans-serif',
-  //   merriweather: 'Merriweather, serif',
-  //   abril: 'Abril Fatface, serif',
-  //   notoSansTc: 'Noto Sans TC',
-  //   notoSerifTc: 'Noto Serif TC',
-  // },
+  fonts: {
+    roboto: 'Roboto, sans-serif',
+    jost: '"Jost",-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif',
+    notoSansTc: "'Noto Sans TC', sans-serif",
+  },
   breakpoints,
   variables: {
     baseFontSize,

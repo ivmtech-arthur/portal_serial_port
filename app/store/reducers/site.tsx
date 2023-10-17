@@ -1,9 +1,10 @@
 import get from 'lodash/get'
 import slice from 'lodash/slice'
-import copy from '/data/copy'
+import copy from 'data/copy'
 
 const initialState = {
   lang: 'en',
+  pageName: '',
   siteCopy: {},
   popup: false,
   popupType: '',
@@ -33,6 +34,13 @@ function reducer(state, action) {
         ...state,
         lang,
         siteCopy,
+      }
+    }
+    case 'setPageName': { 
+      const { pageName } = payload
+      return { 
+        ...state,
+        pageName
       }
     }
     case 'setLoading': {

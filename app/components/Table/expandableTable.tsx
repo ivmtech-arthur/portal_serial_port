@@ -1,8 +1,8 @@
-import MUIDataTable, { MUIDataTableOptions, MUIDataTableProps } from "mui-datatables";
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from "@mui/material";
+import MUIDataTable, { MUIDataTableOptions,MUIDataTableToolbar, MUIDataTableProps, MUIDataTableColumn, MUIDataTableColumnDef } from "mui-datatables";
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Theme, ButtonGroup, Drawer } from "@mui/material";
 import { useState } from 'react';
 import Box from '@mui/material/Box';
-import { useEffect } from 'react';
+import { useEffect,useRef } from 'react';
 import Block from 'components/Common/Element/Block'
 // import { DataGrid } from '@mui/x-data-grid';
 import {
@@ -42,85 +42,102 @@ import LastPageIcon from "@mui/icons-material/LastPage";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import StyledDropDownButton from 'components/TextField/styledDropDownButton';
+import BasicButton from "components/Button/BasicButton";
+import { Add, Download, Filter, FilterList, MoreVert, Search } from "@mui/icons-material";
+import { muiTheme } from "styles/mui";
+import { DownloadCloud } from "react-feather";
+import FilterForm from "./filterForm";
 
-const theme = createTheme({
-  components: {
-    MUIDataTable: {
-      styleOverrides: {
-        root: {
-          padding: '1.25rem'
+function CustomToolbar(props) { 
+
+  return (<>
+    {/* <Button variant="outlined">test</Button> */}
+    <BasicButton variant="text" tooltip="Add Record"><Add/></BasicButton>
+  </>)
+}
+
+
+function CustomDownloadIcon(props) { 
+  // const ref = props.tableRef();
+  console.log("toolbar", props)
+  return (
+    <IconButton><KeyboardArrowDownIcon/></IconButton>
+  )
+}
+
+function MobileToolbar(props) { 
+  const { setDrawerOpen } = props
+  const buttons = [
+    <BasicButton size="large"  key="search"><Search/></BasicButton>,
+    <BasicButton size="large" onClick={() => { 
+      setDrawerOpen(true)
+    }} key="filter"><FilterList/></BasicButton>,
+    <BasicButton size="large" key="download"><DownloadCloud/></BasicButton>,
+    <BasicButton key="add"><Add/></BasicButton>,
+  ];
+
+  const [open,setOpen] = useState(false)
+  return (
+    <Box
+      sx={{
+        // width: "100px",
+        // scale: '1.3',
+        // transformOrigin: '100% 100% 0',
+        // transform
+        right: 10,
+        bottom: 50,
+        position: 'fixed',
+        // display: 'flex',
+        '& > *': {
+          marginX: 1,
         },
-      }
-    },
-    MuiPaginationItem: {
-      styleOverrides: {
-        root: {
-          margin: 0,
-          borderRadius: 0,
-          fontFamily: 'Inter',
-          backgroundColor: 'white',
-          color: '#6c757d',
-          border: "1px solid #dee2e6",
-          "&:hover": {
-            translate: '0px -5px',
-            backgroundColor: '#dee2e6',
-            // color: '#dee2e6',
-          },
-          "&:img": {
-            display: 'none'
-          },
-          "&.Mui-selected": {
-            backgroundColor: '#3B7DDD',
-            textDecorationLine: 'underline',
-            color: 'white',
-            "&:hover": {
-              translate: '0px -5px',
-              backgroundColor: '#3B7DDD',
-              // color: '#3B7DDD',
-            },
-          }
-        },
-      }
-    },
-    MuiSelect: {
-      styleOverrides: {
-        // select: {
-        //     ":focus": {
-        //         border: "1px solid red"
-        //     }
-        // },
-        outlined: {
-          padding: '0',
-          paddingLeft: '5px',
-
-        },
-        icon: {
-          // display: 'none'
-          color: 'white'
-        }
-      }
-    },
-    MuiPagination: {
-      styleOverrides: {
-
-      }
-    }
-  },
-
-})
+      }}
+    >
+      <Collapse in={open} >
+        <ButtonGroup
+          // sx={{
+          //   transformOrigin: '100% 100% 0',
+          // }}
+          orientation="vertical"
+          aria-label="vertical contained button group"
+          variant="contained"
+        >
+          {buttons}
+        </ButtonGroup>  
+      </Collapse>
+      <BasicButton
+        size="large"
+        onClick={() => {
+        setOpen(!open)
+      }}>
+        <MoreVert/>
+    </BasicButton>
+    </Box>
+  )
+}
 
 
 function CustomPagination(props) {
   const { changeRowsPerPage, rowPerPage, changePage, page, rowCount, pageNum } = props
   const [localPage, setLocalPage] = useState("");
-
+  const [tempPageNum, setTempPageNum] = useState(pageNum);
   const handleFirstPageButtonClick = (
     event: React.MouseEvent<HTMLButtonElement>
   ) => {
     changePage(0)
 
   };
-
+  // console.log("page",pageNum,page,tempPageNum)
+  useEffect(() => { 
+    if (pageNum == 0) {
+      setTempPageNum(1)
+    } else { 
+      setTempPageNum(pageNum)
+    }
+    if (pageNum <= page) { 
+      changePage(Math.max(0,pageNum - 1))
+    }
+  },[pageNum])
 
   const handleLastPageButtonClick = (
     event: React.MouseEvent<HTMLButtonElement>
@@ -133,7 +150,7 @@ function CustomPagination(props) {
 
       <StyledDropDownButton id="search" width="60px" options={[5, 10, 25, 50]} value={rowPerPage} onChange={(e: SelectChangeEvent) => {
         changeRowsPerPage(parseInt(e.target.value))
-      }} theme={theme} />
+      }} theme={muiTheme} />
 
       <Block className="flex">
         <IconButton
@@ -153,13 +170,13 @@ function CustomPagination(props) {
           disabled={page === 0}
           aria-label="first page"
         >
-          {theme.direction === "rtl" ? <LastPageIcon /> : <FirstPageIcon />}
+          {muiTheme.direction === "rtl" ? <LastPageIcon /> : <FirstPageIcon />}
         </IconButton>
         <Pagination
           className=""
           color="primary"
           page={page + 1}
-          count={pageNum}
+          count={tempPageNum == 0 ? 1 : tempPageNum}
           onChange={(event, value) => changePage(value - 1)}
         />
         <IconButton
@@ -183,7 +200,7 @@ function CustomPagination(props) {
           disabled={page >= Math.ceil(page) - 1}
           aria-label="last page"
         >
-          {theme.direction === "rtl" ? <FirstPageIcon /> : <LastPageIcon />}
+          {muiTheme.direction === "rtl" ? <FirstPageIcon /> : <LastPageIcon />}
         </IconButton>
       </Block>
       {/* <TablePagination/> */}
@@ -193,7 +210,29 @@ function CustomPagination(props) {
   );
 }
 
+function createCritieras(columns, data) { 
+  var mapping = {};
+  var result = columns.reduce((tempResult, value, index) => {
+    tempResult[value.name] = [];
+    mapping[index] = value.name
+    return tempResult
+  }, {})
+  console.log("createCrtieria",result,columns,data)
+    data.forEach((entries) => {
+      result[mapping[0]].push(entries[0])
+      result[mapping[1]].push(entries[1])
+      result[mapping[2]].push(entries[2])
+      result[mapping[3]].push(entries[3])
+      result[mapping[4]].push(entries[4])
+    })
+    return result
+  // return {}
+}
+
 const ExpandableRowTable = (props) => {
+  const [drawerOpen,setDrawerOpen] = useState(false)
+  const tableRef = useRef(null);
+
   const columns = [
     {
       name: "Name"
@@ -211,6 +250,15 @@ const ExpandableRowTable = (props) => {
       name: "Salary"
     }
   ];
+
+  const mobileColumn: MUIDataTableColumnDef[] = [
+    {
+      name: "Salary",
+      options: {
+        filterList: [],
+      }
+    }
+  ]
   const data = [
     ["Gabby George", "Business Analyst", "Minneapolis", 30, 100000],
     ["Business Analyst", "Business Consultant", "Dallas", 55, 200000],
@@ -250,11 +298,14 @@ const ExpandableRowTable = (props) => {
     ["Mason Ray", "Computer Scientist", "San Francisco", 39, 142000]
   ];
 
+  const criterias = createCritieras(columns, data)
+
   const options: MUIDataTableOptions = {
     filter: true,
+    customToolbar: (data) => { return <CustomToolbar/> },
     customFooter: (rowCount, page, rowPerPage, changeRowsPerPage, changePage) => {
       return (
-        <CustomPagination pageNum={data.length / rowPerPage} page={page} rowCount={rowCount} rowPerPage={rowPerPage} changeRowsPerPage={changeRowsPerPage} changePage={changePage} />
+        <CustomPagination pageNum={Math.ceil(data.length / rowPerPage)} page={page} rowCount={rowCount} rowPerPage={rowPerPage} changeRowsPerPage={changeRowsPerPage} changePage={changePage} />
       );
     },
     onFilterChange: (changedColumn, filterList) => {
@@ -277,15 +328,83 @@ const ExpandableRowTable = (props) => {
     page: 1
   };
 
+  const mobileOptions: MUIDataTableOptions = {
+    filter: true,
+    // customToolbar: (data) => { return null },
+    customFooter: (rowCount, page, rowPerPage, changeRowsPerPage, changePage) => {
+      return (
+        <CustomPagination pageNum={Math.ceil(data.length / rowPerPage)} page={page} rowCount={rowCount} rowPerPage={rowPerPage} changeRowsPerPage={changeRowsPerPage} changePage={changePage} />
+      );
+    },
+    onFilterChange: (changedColumn, filterList) => {
+      console.log(changedColumn, filterList);
+    },
+    selectableRows: "single",
+    filterType: "dropdown",
+
+    // responsive: "scrollMaxHeight",
+    rowsPerPage: 5,
+    expandableRows: true,
+    selectableRowsHideCheckboxes: true,
+    renderExpandableRow: (rowData, rowMeta) => {
+      console.log(rowData, rowMeta);
+      return (
+        <Block>
+          Collase Element to be added
+        </Block>
+      );
+    },
+    page: 1,
+    searchText: "",
+    // print
+    // selectToolbarPlacement: "above",
+    // download: false
+  };
+
   return (
-    <ThemeProvider theme={theme}>
+    <ThemeProvider theme={muiTheme}>
       {/* <Block className="p-5 min-h-0"> */}
-      <MUIDataTable
-        title={"ACME Employee list"}
-        data={data}
-        columns={columns}
-        options={options}
-      />
+      <Block className="md:block xs:hidden">
+        <MUIDataTable
+          // components={ }
+          
+          title={"ACME Employee list"}
+          data={data}
+          columns={columns}
+          options={options}
+        />
+      </Block>
+     
+      <Block className="md:hidden">
+        <MUIDataTable
+          components={{
+            // TableToolbar: () => { return null}
+            // TableToolbarSelect: CustomDownloadIcon
+            // icons: {
+            //   TableToolbarSelect: CustomDownloadIcon
+            // }
+          }}
+          innerRef={tableRef}
+          title={"ACME Employee list"}
+          data={data}
+          columns={mobileColumn}
+          options={mobileOptions}
+        />
+        {/* <BasicButton onClick={() => { 
+          console.log("click,",tableRef)
+        }}>test</BasicButton>
+        <BasicButton onClick={() => {
+          console.log("click,", tableRef)
+        }}>test</BasicButton> */}
+        <MobileToolbar setDrawerOpen={setDrawerOpen} />
+        <Drawer
+          anchor="bottom"
+          open={drawerOpen}
+          onClose={() => { setDrawerOpen(false) }}
+        >
+          <FilterForm criterias={criterias} />
+          </Drawer>
+      </Block>
       {/* </Block> */}
 
     </ThemeProvider>

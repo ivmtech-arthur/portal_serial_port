@@ -6,7 +6,7 @@ import merge from 'lodash/merge'
 import reduce from 'lodash/reduce'
 
 const reducers = map(
-  importAll.sync('../reducers/*.js'),
+  importAll.sync('../reducers/*.tsx'),
   ({ default: reducer }) => reducer
 )
 const StoreContext = createContext(null)

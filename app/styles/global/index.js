@@ -39,57 +39,48 @@ const GlobalStyle = createGlobalStyle`
     }
   }
 
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.h1,
+.h2,
+.h3,
+.h4,
+.h5,
+.h6 {
+      margin-top: 0;
+    margin-bottom: 0.5rem;
+
+    font-weight: 500;
+    line-height: 1.2;
+    color: #203A45;
+}
+
+
   /* H1 Header */
   h1 {
-    font-style: normal;
-    font-weight: 600;
-    font-size: 48px;
-    line-height: 58px;
+    font-size: 1.875rem;
     /* identical to box height */
-
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
   }
 
   h2 {
     /* H2 Header */
+    font-size: 1.64rem;
+  }
 
-    font-family: 'Inter';
-    font-style: normal;
-    font-weight: 700;
-    font-size: 36px;
-    line-height: 44px;
-    /* identical to box height */
-
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-
+  h3 {
+    font-size: 1.40rem;
   }
 
   h4 {
-        /* H4 Header */
-
-    font-family: 'Inter';
-    font-style: normal;
-    font-weight: 500;
-    font-size: 24px;
-    line-height: 29px;
-    /* identical to box height */
-
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
+    font-size: 1.17rem;
   }
 
   h5 {
-        /* H5 Header */
-
-    font-family: 'Inter';
-    font-style: normal;
-    font-weight: 500;
-    font-size: 24px;
-    line-height: 29px;
-    /* identical to box height */
-
+  font-size: 0.9375rem;
   }
 
   textarea {
@@ -98,7 +89,7 @@ const GlobalStyle = createGlobalStyle`
   }
 
   .bodyBold1 {
-    font-family: 'Inter';
+    /* font-family: 'Inter'; */
     font-style: normal;
     font-weight: 600;
     font-size: 18px;
@@ -106,7 +97,7 @@ const GlobalStyle = createGlobalStyle`
   }
 
   .body1 {
-    font-family: 'Inter';
+    /* font-family: 'Inter'; */
     font-style: normal;
     font-weight: 400;
     font-size: 16px;
@@ -114,7 +105,7 @@ const GlobalStyle = createGlobalStyle`
   }
 
   .body2 {
-    font-family: 'Inter';
+    /* font-family: 'Inter'; */
     font-style: normal;
     font-weight: 400;
     font-size: 16px;
@@ -122,7 +113,7 @@ const GlobalStyle = createGlobalStyle`
   }
 
   .body3 {
-    font-family: 'Inter';
+    /* font-family: 'Inter'; */
     font-style: normal;
     font-weight: 400;
     font-size: 14px;
@@ -130,7 +121,7 @@ const GlobalStyle = createGlobalStyle`
   }
 
   .body4 {
-    font-family: 'Inter';
+    /* font-family: 'Inter'; */
     font-style: normal;
     font-weight: 400;
     font-size: 12px;
@@ -138,7 +129,7 @@ const GlobalStyle = createGlobalStyle`
   }
 
   .bodyLight1 {
-    font-family: 'Inter';
+    /* font-family: 'Inter'; */
     font-style: normal;
     font-weight: 300;
     font-size: 16px;

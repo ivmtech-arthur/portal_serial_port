@@ -5,13 +5,14 @@ import Header from 'components/Header'
 import Footer from 'components/Footer'
 import getConfig from 'next/config'
 // import Loading from 'components/Loading'
-import { useStore } from '/store'
+import { useStore } from 'store'
 import { useRouter } from 'next/router'
 import { useState, useEffect } from 'react'
 import { withCookies } from 'react-cookie'
 // import { Block } from '@mui/icons-material'
 import Block from 'components/Common/Element/Block'
 import DesktopLayout from './desktop'
+import { getMenu } from 'data/menu'
 import {
   createTheme,
   ThemeProvider,
@@ -22,41 +23,7 @@ const {
   publicRuntimeConfig: { SITE_URL },
 } = getConfig()
 
-const theme = createTheme({
-
-  typography: {
-    fontFamily: [
-      "Hind Vadodara", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Helvetica Neue", "Arial", "sans-serif"
-    ].join(','),
-  },
-  palette: {
-    primary: {
-      main: "#FFFFFF",
-      light: '#FFFFFF',
-      dark: '#FFFFFF',
-      contrastText: '#fff',
-    },
-  },
-  // components: {
-  //   MuiButtonBase: {
-  //     styleOverrides: {
-  //       root: {
-  //         fontFamily: "inherit",
-  //         backgroundColor: "inherit"
-  //       }
-  //     }
-  //   }
-  // },
-  breakpoints: {
-    values: {
-      xs: 0,
-      sm: 600,
-      md: 1181,
-      lg: 1440,
-      xl: 1920,
-    },
-  },
-});
+import { muiTheme } from 'styles/mui'
 
 
 function Layout(props) {
@@ -85,12 +52,26 @@ function Layout(props) {
   const [fireMenu, setFireMenu] = useState(false)
   const [headerButtonTheme, setHeaderButtonTheme] = useState('')
   const handleRouteChangeComplete = () => {
+
+
+   
     const urlLang = get(window, 'location.href', '').match(/\/(zh|en)/)
     if (get(urlLang, '[1]') && lang !== get(urlLang, '[1]')) {
       dispatch({
         type: 'switchLang',
         payload: { lang: get(urlLang, '[1]'), cookies },
       })
+    }
+    const pathList = get(window, 'location.href', '').split('/');
+    console.log("path", pathList[pathList.length - 1], getMenu(get(urlLang, '[1]')).find((menu) => { console.log(menu.url); return menu.url == pathList[pathList.length - 1] }))
+    if (pathList && pathList[pathList.length - 1]) {
+      dispatch({
+        type: 'setPageName',
+        payload: {
+          pageName: getMenu(get(urlLang, '[1]')).find((menu) => { return menu.url == pathList[pathList.length - 1] }).title
+        }
+      })
+
     }
     // dispatch({ type: 'setLoading', payload: { value: false } })
   }
@@ -151,7 +132,7 @@ function Layout(props) {
         )} */}
 
         {/* {verticalMenu} */}
-        <ThemeProvider theme={theme}>
+        <ThemeProvider theme={muiTheme}>
           {children}
         </ThemeProvider>
      
@@ -169,4 +150,4 @@ function Layout(props) {
   )
 }
 
-export default withCookies(withTheme(Layout))
+export default withCookies((Layout))

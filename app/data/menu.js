@@ -1,46 +1,90 @@
 import * as Icon from "react-feather";
 
-export default {
-    en: [
+export const getMenu = (lang) => { 
+
+    const menu = [
         {
-            title: 'Machine Management',
-            url: '/machine-management',
-            icon: <Icon.Cpu width="15"/>,
+            title: lang == 'en' ? 'Machine Management' : "設備管理",
+            url: 'machine-management',
         },
         {
-            title: 'Product Management',
-            url: '/product-management',
+            title: lang == 'en' ? 'Product Management' : "商品管理",
+            url: 'product-management',
+        },
+        {
+            title: lang == 'en' ? "Product List" : "商品列表",
+            url: 'product-list',
+        },
+        {
+            title: lang == 'en' ? "Create Product" : "建立商品",
+            url: "create-product",
+        },
+        {
+            title: lang == 'en' ? 'Data Analysis' : "數據分析",
+            url: 'data-anaylysis',
+        },
+        {
+            title: lang == 'en' ? "Daily Analysis" : "每日數據",
+            url: 'daily-anaylsis',
+        },
+        {
+            title: lang == 'en' ? "Sales Ranking" : "銷售排行",
+            url: "sales-ranking",
+        },
+        {
+            title: lang == 'en' ? "Sales Summary" : "銷售統計",
+            url: "sales-summary",
+        },
+        {
+            title: lang == 'en' ? 'Energy Management' : "能源管理",
+            url: 'energy-management',
+        },
+        {
+            title: lang == 'en' ? 'Operation History' : "操作紀錄",
+            url: 'operation-history',
+        },
+        {
+            title: lang == 'en' ? 'Logout' : "登出",
+            url: '/',
+        }
+    ]
+
+    return menu
+}
+
+export const menuContent = ["en", "tc"].reduce((result, lang, index) => {
+    result[lang] = [
+        {
+            ...getMenu(lang)[0],
+            icon: <Icon.Cpu width="15" />,
+        },
+        {
+            ...getMenu(lang)[1],
             list: [
                 {
-                    title: "Product List",
-                    url: '/product-list',
+                    ...getMenu(lang)[2],
                     icon: <Icon.FileText />
                 },
                 {
-                    title: "Create Product",
-                    url: "/create-product",
+                    ...getMenu(lang)[3],
                     icon: <Icon.FilePlus />
                 }
             ],
             icon: <Icon.DollarSign width="15px" />,
         },
         {
-            title: 'Data Analysis',
-            url: '/data-anaylysis',
+            ...getMenu(lang)[4],
             list: [
                 {
-                    title: "Daily Analysis",
-                    url: '/daily-anaylsis',
+                    ...getMenu(lang)[5],
                     icon: <Icon.FileText />
                 },
                 {
-                    title: "Sales Ranking",
-                    url: "/sales-ranking",
+                    ...getMenu(lang)[6],
                     icon: <Icon.Award />
                 },
                 {
-                    title: "Sales Summary",
-                    url: "/sales-summary",
+                    ...getMenu(lang)[8],
                     icon: <Icon.File />
                 }
             ],
@@ -48,83 +92,136 @@ export default {
         },
 
         {
-            title: 'Energy Management',
-            url: '/energy-management',
+            ...getMenu(lang)[8],
             icon: <Icon.BatteryCharging width="15px" />,
         },
         {
-            title: 'Operation History',
-            url: '/operation-history',
+            ...getMenu(lang)[9],
             icon: <Icon.RotateCcw width="15px" />,
         },
         {
-            title: 'Logout',
-            key: 'logout',
-            url: '/',
-            icon: <Icon.LogOut width="15px" />,
-        },
-    ],
-    tc: [
-        {
-            title: '設備管理',
-            url: '/machine-managment',
-            icon: <Icon.Cpu width="15px" />,
-        },
-        {
-            title: '商品管理',
-            url: '/product-management',
-            list: [
-                {
-                    title: "商品列表",
-                    url: '/product-list',
-                    icon: <Icon.FileText />
-                },
-                {
-                    title: "建立商品",
-                    url: "/create-product",
-                    icon: <Icon.FilePlus />
-                }
-            ],
-            icon: <Icon.DollarSign width="15px" />,
-        },
-        {
-            title: '數據分析',
-            url: '/data-anaylysis',
-            list: [
-                {
-                    title: "每日數據",
-                    url: '/daily-anaylsis',
-                    icon: <Icon.FileText />
-                },
-                {
-                    title: "銷售排行",
-                    url: "/sales-ranking",
-                    icon: <Icon.FilePlus />
-                },
-                {
-                    title: "銷售統計",
-                    url: "/sales-summary",
-                    icon: <Icon.FilePlus />
-                }
-            ],
-            icon: <Icon.PieChart width="15px" />,
-        },
-
-        {
-            title: '能源管理',
-            url: '/energy-management',
-            icon: <Icon.BatteryCharging width="15px" />,
-        },
-        {
-            title: '操作紀錄',
-            url: '/operation-history',
-            icon: <Icon.RotateCcw width="15px" />,
-        },
-        {
-            title: '登出',
-            url: '/',
+            ...getMenu(lang)[10],
             key: 'logout',
             icon: <Icon.LogOut width="15px" />,
         },
     ]
-}
+    return result;
+}, {})
+
+// export const menuContent2 = {
+//     en: [
+//         {
+//             ...getMenu(en)[0],
+//             icon: <Icon.Cpu width="15"/>,
+//         },
+//         {
+//             ...getMenu(en)[1],
+//             list: [
+//                 {
+//                     ...getMenu(en)[2],
+//                     icon: <Icon.FileText />
+//                 },
+//                 {
+//                     ...getMenu(en)[3],
+//                     icon: <Icon.FilePlus />
+//                 }
+//             ],
+//             icon: <Icon.DollarSign width="15px" />,
+//         },
+//         {
+//             ...getMenu(en)[4],
+//             list: [
+//                 {
+//                     ...getMenu(en)[5],
+//                     icon: <Icon.FileText />
+//                 },
+//                 {
+//                     ...getMenu(en)[6],
+//                     icon: <Icon.Award />
+//                 },
+//                 {
+//                     ...getMenu(en)[8],
+//                     icon: <Icon.File />
+//                 }
+//             ],
+//             icon: <Icon.PieChart width="15px" />,
+//         },
+
+//         {
+//             ...getMenu(en)[8],
+//             icon: <Icon.BatteryCharging width="15px" />,
+//         },
+//         {
+//             ...getMenu(en)[9],
+//             icon: <Icon.RotateCcw width="15px" />,
+//         },
+//         {
+//             ...getMenu(en)[10],
+//             key: 'logout',
+//             icon: <Icon.LogOut width="15px" />,
+//         },
+//     ],
+//     tc: [
+//         {
+//             title: '設備管理',
+//             url: '/machine-managment',
+//             icon: <Icon.Cpu width="15px" />,
+//         },
+//         {
+//             title: '商品管理',
+//             url: '/product-management',
+//             list: [
+//                 {
+//                     title: "商品列表",
+//                     url: '/product-list',
+//                     icon: <Icon.FileText />
+//                 },
+//                 {
+//                     title: "建立商品",
+//                     url: "/create-product",
+//                     icon: <Icon.FilePlus />
+//                 }
+//             ],
+//             icon: <Icon.DollarSign width="15px" />,
+//         },
+//         {
+//             title: '數據分析',
+//             url: '/data-anaylysis',
+//             list: [
+//                 {
+//                     title: "每日數據",
+//                     url: '/daily-anaylsis',
+//                     icon: <Icon.FileText />
+//                 },
+//                 {
+//                     title: "銷售排行",
+//                     url: "/sales-ranking",
+//                     icon: <Icon.FilePlus />
+//                 },
+//                 {
+//                     title: "銷售統計",
+//                     url: "/sales-summary",
+//                     icon: <Icon.FilePlus />
+//                 }
+//             ],
+//             icon: <Icon.PieChart width="15px" />,
+//         },
+
+//         {
+//             title: '能源管理',
+//             url: '/energy-management',
+//             icon: <Icon.BatteryCharging width="15px" />,
+//         },
+//         {
+//             title: '操作紀錄',
+//             url: '/operation-history',
+//             icon: <Icon.RotateCcw width="15px" />,
+//         },
+//         {
+//             title: '登出',
+//             url: '/',
+//             key: 'logout',
+//             icon: <Icon.LogOut width="15px" />,
+//         },
+//     ]
+// }

@@ -61,9 +61,9 @@ const DesktopLayout = (props) => {
           <Menu />
         </StyledLHSWrapper> */}
       {/* </Block> */}
-      <Block  width="100%" maxWidth='100%' p="80px" marginX='20px' className='container'>
+      <Block className='container w-full max-w-full pt-20 mx-5 z-10'>
         {/* <Breadcrumb breadcrumbItems={breadcrumbItems} /> */}
-        <Block>{children}</Block>
+        <Block className="pb-6">{children}</Block>
         {showMenu && <Footer />}
         <Popup type="global" />
       </Block>

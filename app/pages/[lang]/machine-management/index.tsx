@@ -23,6 +23,8 @@ import { withCookies } from 'react-cookie'
 import { type } from 'os'
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import { CustomRequest, internalAPICallHandler } from 'lib/api/handler'
+import ExpandableRowTable from 'components/Table/expandableTable'
+import StyledH1 from 'components/Common/Element/H1'
 const { publicRuntimeConfig } = getConfig()
 const { API_URL, APP_URL } = publicRuntimeConfig
 
@@ -98,16 +100,16 @@ const CustomMoreButton = (props) => {
 }
 
 const MachineList = (props) => {
-    const { cookies, profile } = props
+    const { cookies, profile, collection } = props
     const token = cookies.get("userToken")
-    console.log("MachineList props", props)
     const {
         state: {
-            site: { lang },
+            site: { lang,pageName },
             user: { userProfile }
         },
         dispatch,
     } = useStore()
+    console.log("MachineList props", props, pageName,lang)
     const listMachineString = get(listMachine, lang)
     const [editState, setEditState] = useState({})
     const [filter, setFilter] = useState([])
@@ -116,255 +118,14 @@ const MachineList = (props) => {
     const [fieldValue, setFieldValue] = useState('test')
     const [serverErrorMessage, setServerErrorMessage] = useState(null)
     const router = useRouter()
-    const columns = [
-        {
-            field: 'id', headerName: listMachineString.headerName.id, width: 90, flex: 1,
-        },
-        {
-            field: 'attributes.name',
-            headerName: listMachineString.headerName.name,
-            flex: 1,
-            valueGetter: (params) => {
-                const name = params.row.attributes?.name
-                return name
-            }
-        },
-        {
-            field: 'attributes.rehabitType',
-            headerName: listMachineString.headerName.rehabitType,
-            flex: 1,
-            valueGetter: (params) => {
-                const rehabitType = params.row.attributes?.rehabitType
-                return rehabitType
-            }
-        },
-        {
-            field: 'attributes.physiotherapist',
-            headerName: listMachineString.headerName.physiotherapist,
-            flex: 1,
-            valueGetter: (params) => {
-                const name = params.row.attributes?.physio?.data?.attributes?.name
-                return name
-            }
-        },
-        {
-            field: 'attributes.subscriptionEndDate',
-            headerName: listMachineString.headerName.subscriptionEndDate,
-            flex: 1,
-
-            valueGetter: (params) => {
-                const subscriptionEndDate = params.row.attributes?.subscriptionEndDate
-                return subscriptionEndDate
-            }
-        },
-        {
-            field: 'edit',
-            headerName: '',
-            width: 50,
-            align: 'center',
-            flex: 0.2,
-            renderCell: (params) => {
-
-                return (
-                    <CustomEditButton params={params} handleClickEdit={handleClickEdit} />
-                )
-            }
-        },
-        {
-            field: 'delete',
-            headerName: '',
-            width: 50,
-            align: 'center',
-            sortable: false,
-            flex: 0.2,
-            renderCell: (params) => {
-                return (
-                    <CustomDeleteButton params={params} handleClickDelete={handleClickDelete} />
-                )
-            }
-        }
-    ];
-
-    const tabletColumns = [
-        {
-            field: 'id', headerName: listMachineString.headerName.id, width: 90, flex: 1,
-        },
-        {
-            field: 'attributes.name',
-            headerName: listMachineString.headerName.name,
-            flex: 1,
-            valueGetter: (params) => {
-                const name = params.row.attributes?.name
-                return name
-            }
-        },
-        {
-            field: 'attributes.rehabitType',
-            headerName: listMachineString.headerName.rehabitType,
-            flex: 1,
-            valueGetter: (params) => {
-                const rehabitType = params.row.attributes?.rehabitType
-                return rehabitType
-            }
-        },
-        {
-            field: 'edit',
-            headerName: '',
-            width: 50,
-            align: 'center',
-            flex: 0.2,
-            renderCell: (params) => {
-
-                return (
-                    <CustomEditButton params={params} handleClickEdit={handleClickEdit} />
-                )
-            }
-        },
-        {
-            field: 'delete',
-            headerName: '',
-            width: 50,
-            align: 'center',
-            sortable: false,
-            flex: 0.2,
-            renderCell: (params) => {
-                return (
-                    <CustomDeleteButton params={params} handleClickDelete={handleClickDelete} />
-                )
-            }
-        }
-    ];
-
-    const mobileColumns = [
-        {
-            field: 'id', headerName: listMachineString.headerName.id, width: 90, flex: 1,
-        },
-        {
-            field: 'attributes.name',
-            headerName: listMachineString.headerName.name,
-            flex: 1,
-            valueGetter: (params) => {
-                const name = params.row.attributes?.name
-                return name
-            }
-        },
-        {
-            field: 'attributes.rehabitType',
-            headerName: listMachineString.headerName.rehabitType,
-            flex: 1,
-            valueGetter: (params) => {
-                const rehabitType = params.row.attributes?.rehabitType
-                return rehabitType
-            }
-        },
-        {
-            field: 'more',
-            headerName: '',
-            width: 50,
-            align: 'center',
-            sortable: false,
-            flex: 0.2,
-            renderCell: (params) => {
-                return (<CustomMoreButton params={params} handleClickDelete={handleClickDelete} handleClickEdit={handleClickEdit} />)
-            }
-        }
-    ];
-
-    const mappingList = [
-        {
-            node: '1',
-            func: () => {
-                dispatch({
-                    type: 'showPopup',
-                    payload: {
-                        popup: true,
-                        popupType: 'editMachine',
-                        isGlobal: false,
-                    },
-                })
-            },
-        },
-        {
-            node: '2',
-            func: () => {
-                dispatch({
-                    type: 'showPopup',
-                    payload: {
-                        popup: true,
-                        popupType: 'messageEditMachineConfirm',
-                        isGlobal: false,
-                    },
-                })
-            }
-        },
-        {
-            node: '3',
-            func: () => {
-                dispatch({
-                    type: 'showPopup',
-                    payload: {
-                        popup: true,
-                        popupType: 'messageEditMachineCancel',
-                        isGlobal: false,
-                    },
-                })
-            }
-        },
-        {
-            node: '4',
-            func: (serverErrorMessage) => {
-                setServerErrorMessage(serverErrorMessage)
-                dispatch({
-                    type: 'showPopup',
-                    payload: {
-                        popup: true,
-                        popupType: 'generalError',
-                        isGlobal: false,
-                    },
-                })
-            }
-        }
-    ]
-    const updateParentState = (updateField) => {
-        let newState = { ...editState, ...updateField }
-        setEditState({ ...newState })
-    }
-
-    const handleClickDelete = (e?) => {
-        setRecord(e.row)
-        dispatch({
-            type: 'showPopup',
-            payload: {
-                popup: true,
-                popupType: 'messageDeleteMachine',
-                isGlobal: false,
-            },
-        })
-    }
-
-    const handleClickEdit = (e?) => {
-        // console.log("e", e)
-        setRecord(e.row)
-        dispatch({
-            type: 'showPopup',
-            payload: {
-                popup: true,
-                popupType: 'editMachine',
-                isGlobal: false,
-            },
-        })
-    }
-
-    const handleDelete = () => {
-
-    }
-
-    const handleRowClick = (state) => {
-        router.push(`/${lang}/Machine-list/${state.row.id}/dashboard`)
-    }
 
     return (
         <Block>
+            <StyledH1 className=" text-white font-jost" color="white"
+                // fontFamily={lang == "tc" ? "notoSansTc" : "jost"}
+            >
+                {pageName}
+            </StyledH1>
             <Block
                 color='midGrey1'
                 fontWeight={{ _: 500, md: 700 }}
@@ -379,7 +140,7 @@ const MachineList = (props) => {
                 fontWeight={{ _: 700, md: 600 }}
                 fontSize={{ _: '30px', md: '48px' }}
                 lineHeight={{ _: '36px', md: '58px' }}
-            >{profile && (profile.doctorPhysioProfile?.name || profile.username)}</Block>
+            >{profile && profile.username}</Block>
             <Block width={{ md: '50%', _: '100%' }} pt={{ _: '20px' }}>
                 <StyledTextFieldSearch placeholder={listMachineString.placeholderSearch} id="search" name="search"
                     onChange={(e) => {
@@ -393,33 +154,15 @@ const MachineList = (props) => {
                         ])
                     }} />
             </Block>
-
-
-
-            <StyledSelectField style={{ visibility: 'hidden' }} placeholder='field search' id="selectField" defaultValue={listMachineString.headerName.name} options={columns.map((item, index) => {
-                if (item.headerName != "")
-                    return { label: item.headerName, value: item.headerName }
-            })} onChange={(value) => {
-
-                setSelectedField(find(columns, (item) => item.headerName == value)?.field)
-                }} />
             
             <IconButton color="primary" aria-label="add to shopping cart">
                 {/* <AddShoppingCartIcon /> */}
             </IconButton>
 
             <Block boxShadow='0px 10p   x 30px rgba(0, 0, 0, 0.1)' borderRadius='32px' mb='30px'>
-                <Block display={{ _: 'none', md: 'block' }}>
-                    <Table1 handleClickDelete={() => { handleClickDelete() }} handleClickEdit={() => { handleClickEdit() }} rows={props.data} onRowClick={(e) => { handleRowClick(e) }} filter={filter} columns={columns} />
-                </Block>
-                <Block display={{ _: 'none', sm: 'block', md: 'none' }}>
-                    <Table1 handleClickDelete={() => { handleClickDelete() }} handleClickEdit={() => { handleClickEdit() }} rows={props.data} onRowClick={(e) => { handleRowClick(e) }} filter={filter} columns={tabletColumns} />
-                </Block>
-                <Block display={{ _: 'none', xs: 'block', sm: 'none' }}>
-                    <Table1 handleClickDelete={() => { handleClickDelete() }} handleClickEdit={() => { handleClickEdit() }} rows={props.data} onRowClick={(e) => { handleRowClick(e) }} filter={filter} columns={mobileColumns} />
-                </Block>
+             <ExpandableRowTable/>
             </Block>
-            <Popup type="local" propsToPopup={{ updateParentState: (value) => { updateParentState(value) }, mappingList: mappingList, editState: editState, data: record, physioData: props.physioData, subscriptionData: props.subscriptionData, profile: profile, serverErrorMessage: serverErrorMessage }} />
+            <Popup type="local" propsToPopup={{editState: editState, data: record, physioData: props.physioData, subscriptionData: props.subscriptionData, profile: profile, serverErrorMessage: serverErrorMessage }} />
         </Block>
     )
 }
@@ -429,6 +172,8 @@ export async function getServerSideProps(ctx: CustomCtx) {
     if (preProps.redirect)
         return preProps
 
+    console.log("ctx is", ctx.params)
+    const { pageName } = ctx.query
     const { profile, token, siteConfig } = ctx?.props || {}
     const { slug, lang } = ctx.params
     const collection = 'machine'
@@ -458,6 +203,8 @@ export async function getServerSideProps(ctx: CustomCtx) {
             // subscriptionData,
             headerTheme: 'white',
             headerPosition: 'fixed',
+            collection,
+            // pageName: "Machine Management"
             // profile,
             // siteConfig
         },

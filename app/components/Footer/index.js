@@ -25,10 +25,10 @@ const Footer = () => {
       textAlign="center"
       position="relative"
       id="footer"
-      pt="20px"
+      // pt="20px"
     >
       <Divider
-        sx={{ borderBottomWidth: 5, background: 'black', zIndex: '100' }}
+        sx={{ borderBottomWidth: 5, background: 'black' }}
       />
       <Block display='flex' justifyContent={{md:'space-between'}}  flexDirection={{md:'row',_:'column'}}>
         <StyledBody4>{generalString.copyright}</StyledBody4>

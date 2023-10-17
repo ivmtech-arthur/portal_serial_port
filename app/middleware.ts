@@ -80,11 +80,12 @@ import type { NextRequest } from 'next/server'
  
 // This function can be marked `async` if using `await` inside
 export function middleware(request: NextRequest) {
-  console.log("middleware called");
-  return NextResponse.redirect(new URL('/api/auth', request.url))
+  // console.log("middleware called",request.);
+  return NextResponse.next()
+  // return NextResponse.redirect(new URL('/api/auth', request.url))
 }
  
 // See "Matching Paths" below to learn more
 export const config = {
-  matcher: '/auth/registera',
+  // matcher: ['/en/:path*', '/tc/:path*']
 }

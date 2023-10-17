@@ -22,7 +22,7 @@ import SvgIconListproduct from 'public/svg/icon_list_product.svg'
 import SvgIconLock from 'public/svg/icon_lock.svg'
 import SvgIconLogout from 'public/svg/icon_logout.svg'
 import SvgIconQuestion from 'public/svg/icon_question.svg'
-import menuContent from 'data/menu'
+import { menuContent } from 'data/menu'
 import get from 'lodash/get'
 import map from 'lodash/map';
 import { useStore } from 'store'
@@ -68,7 +68,7 @@ const MenuItem = (props) => {
         )
     }) : null
     return (
-        <Block className=" w-full list-item" onClick={!item.list ? () => { router.push(`/${lang}/${item.url}`) } : () => { setOpen(!open) }}>
+        <Block className=" w-full list-item" onClick={!item.list ? () => { router.push({ pathname: `/${lang}/${item.url}`, query: { pageName: item.title } }, `/${lang}/${item.url}`) } : () => { setOpen(!open) }}>
             <Block className=" flex items-center cursor-pointer hover block py-2 px-3 my-0 mx-2 bg-transparent rounded transition ease-in-out">
                 <Block className=" w-[12.5%]">
                     {item.icon}
