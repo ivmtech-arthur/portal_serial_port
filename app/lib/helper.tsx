@@ -1,4 +1,6 @@
+import { get } from "lodash";
 import { NextResponse } from "next/server";
+import { Cookies } from "react-cookie";
 import { ZodError } from "zod";
 
 type EnvVariableKey = "JWT_SECRET_KEY" | "JWT_EXPIRES_IN";
@@ -14,8 +16,8 @@ export function getEnvVariable(key: EnvVariableKey): string {
   return value;
 }
 
-export function test(): string { 
-    return "test"
+export function test(): string {
+  return "test"
 }
 
 export function getErrorResponse(
@@ -37,32 +39,32 @@ export function getErrorResponse(
 }
 
 export const generatePassword = (noOfSpecialCharacter: number) => {
-        const specialCharacterList = '!@#$%&*'.split('');
-        const lowerCaseChars = 'abcdefghijklmnopqrstuvwxyz'.split('');
-        const upperCaseChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-        const noOfChars = noOfSpecialCharacter ? 4 : 5
-      const passChars : String[] = [];
-        for (let k = 0; k < noOfChars; k++) {
-            const idx = Math.floor(Math.random() * lowerCaseChars.length)
-            passChars.push(lowerCaseChars[idx]);
-            passChars.push(upperCaseChars[idx]);
-        }
-        if (noOfSpecialCharacter && noOfSpecialCharacter > 0) {
-            for (let j = 0; j < noOfSpecialCharacter; j++) {
-                const idx = Math.floor(Math.random() * specialCharacterList.length)
-                passChars.push(specialCharacterList[idx])
-            }
-        }
-        for (let i = passChars.length - 1; i > 0; i--) {
-            const swapIndex = Math.floor(Math.random() * (i + 1));
-            const temp = passChars[i];
-            passChars[i] = passChars[swapIndex];
-            passChars[swapIndex] = temp;
-        };
-        return passChars.join('');
+  const specialCharacterList = '!@#$%&*'.split('');
+  const lowerCaseChars = 'abcdefghijklmnopqrstuvwxyz'.split('');
+  const upperCaseChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+  const noOfChars = noOfSpecialCharacter ? 4 : 5
+  const passChars: String[] = [];
+  for (let k = 0; k < noOfChars; k++) {
+    const idx = Math.floor(Math.random() * lowerCaseChars.length)
+    passChars.push(lowerCaseChars[idx]);
+    passChars.push(upperCaseChars[idx]);
+  }
+  if (noOfSpecialCharacter && noOfSpecialCharacter > 0) {
+    for (let j = 0; j < noOfSpecialCharacter; j++) {
+      const idx = Math.floor(Math.random() * specialCharacterList.length)
+      passChars.push(specialCharacterList[idx])
+    }
+  }
+  for (let i = passChars.length - 1; i > 0; i--) {
+    const swapIndex = Math.floor(Math.random() * (i + 1));
+    const temp = passChars[i];
+    passChars[i] = passChars[swapIndex];
+    passChars[swapIndex] = temp;
+  };
+  return passChars.join('');
 }
-    
-export function hexToRgbA(hex,opacity = 1) {
+
+export function hexToRgbA(hex: string, opacity = 1) {
   var c;
   if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)) {
     c = hex.substring(1).split('');
@@ -73,4 +75,26 @@ export function hexToRgbA(hex,opacity = 1) {
     return 'rgba(' + [(c >> 16) & 255, (c >> 8) & 255, c & 255].join(',') + `,${opacity})`;
   }
   throw new Error('Bad Hex');
+}
+
+export function mapDataByCol(data: any[], columnMap: any[], userRole: string, isMobile: boolean) {
+  console.log("columnMap", columnMap)
+  const action = ["edit","delete","more"]
+  return data.map((entries, index) => {
+    return {
+      data: [
+        ...(columnMap.filter((mapItem) => { return !action.includes(mapItem.name)}).map((mapItem, index) => {
+          
+          return get(entries, mapItem.objPath)
+        }))
+      ],
+      ...(!isMobile ? {
+        edit: userRole == "SuperAdmin" || userRole == "Admin",
+        delete: userRole == "SuperAdmin"
+      } : {}),
+      ...(isMobile ? {
+        more: userRole == "SuperAdmin" || userRole == "Admin"
+      } : {})
+    }
+  })
 }

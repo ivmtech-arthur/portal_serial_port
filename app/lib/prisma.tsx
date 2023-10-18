@@ -133,7 +133,7 @@ function getObjectFromKeyPath(keyPathObj: {}) {
       }
       acc[prop] = keyPath.endsWith("[]")
         ? (acc[prop] || []).concat(value)
-        : value == "true";
+        : value == "true" ? true : value ;
     }
 
   }

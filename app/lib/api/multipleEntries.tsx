@@ -19,14 +19,15 @@ async function GET(req: CustomRequest, collection?: string) {
             filters = filterKeys[0];
 
         }
-        console.log("req.query", req.query, Object.entries(req.query), new URLSearchParams(filters))
+        console.log("req.query", req.query, Object.entries(req.query), new URLSearchParams(filters), typeof collection)
         if (typeof collection === 'string') {
-            const { where, include } = handleClause(collection, id, populate, queryParams);
+            const { where, include,select } = handleClause(collection, id, populate, queryParams);
             console.log("whereClause", where, include)
             const result = await schemaMap[collection].findMany({
 
-                where: where || {},
-                include: include || {}
+                ...(where ? { where: where } : {}),
+                ...(select ? { select: select } : {}),
+                ...(include ? { include: include } : {}),
             })
         console.log("result test",result)
             // type ThenArg<T> = T extends PromiseLike<infer U> ? U : T

@@ -64,7 +64,7 @@ const MenuItem = (props) => {
     const classes = useStyles()
     const sublist = item.list ? item.list.map((subItem) => {
         return (
-            <Block className="block pt-1 pr-6 pb-1 pl-12 my-2 mx-0 text-[90%] cursor-pointer" onClick={() => router.push(`/${lang}/${subItem.url}`)}>{subItem.title}</Block>
+            <Block className="block pt-1 pr-6 pb-1 pl-12 my-2 mx-0 text-[90%] cursor-pointer flex" onClick={() => router.push(`/${lang}/${item.url}/${subItem.url}`)}>{subItem.title}</Block>
         )
     }) : null
     return (

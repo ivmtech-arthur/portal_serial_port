@@ -48,6 +48,89 @@ export const muiTheme = createTheme({
         }
     },
     components: {
+        // MuiFilledInput: {
+        //     styleOverrides: {
+        //         root: {
+        //             backgroundColor: "green",
+        //             "&.Mui-focused": {
+        //                 backgroundColor: "yellow",
+        //             }
+        //         },
+        //     }
+        // },
+        MuiOutlinedInput: {
+            styleOverrides: {
+                root: {
+                    borderColor: '#FFFFFF',
+                    '&:hover fieldset': {
+                        // background: '#000000',
+                        border: '1px solid red'
+                    },
+                }
+                // input: ({ ownerState, theme }) => { 
+                //     // ownerState.size = ""
+                //     // let padding = '16.5px,14px';
+                //     // return {
+                //     //     padding: '5px',
+                //     // }
+                // }
+            }
+        },
+        // MuiInput: {
+        //     styleOverrides: {
+        //         root: ({ ownerState, theme }) => {
+        //             return {
+        //                 border: '1px solid red',
+        //                 // // backgroundColor: "green",
+        //                 // "&.Mui-focused": {
+        //                 //     boxShadow: `0 0 0 0.2rem ${hexToRgbA(theme.palette[ownerState.color].light, 0.5)}`
+        //                 // }
+        //             }
+        //         },
+        //     }
+        // },
+        MuiInputBase: {
+            styleOverrides: {
+                root: ({ ownerState, theme }) => {
+                    return {
+                        border: '1px solid #FFFFFF',
+                        // backgroundColor: "green",
+                        "&.Mui-focused": {
+                            boxShadow: `0 0 0 0.2rem ${hexToRgbA(theme.palette[ownerState.color].light, 0.5)}`
+                        }
+                    }
+                },
+            }
+        },
+        MuiTextField: {
+            styleOverrides: {
+                root: ({ ownerState, theme }) => {
+                    return {
+                        '&:hover': {
+                            ...(ownerState.variant == "filled" && {
+                                background: theme.palette[ownerState.color]?.dark,
+                                color: 'white',
+                            }),
+                            ...(ownerState.variant == "standard" && {
+                                // border: 
+                                background: theme.palette[ownerState.color]?.dark,
+                                color: 'white',
+                            }),
+                            ...(ownerState.variant == "outlined" && {
+                                // border: `1px solid ${theme.palette[ownerState.color]?.dark}`,
+                                background: 'white',
+                                color: theme.palette[ownerState.color]?.main,
+
+                            })
+                        },
+                        '&.Mui-focused': {
+                            boxShadow: `0 0 0 2rem ${hexToRgbA(theme.palette[ownerState.color].light, 0.5)}`
+                        },
+                    }
+                },
+
+            }
+        },
         MuiButtonGroup: {
             defaultProps: {
                 // The default props to change
@@ -65,7 +148,7 @@ export const muiTheme = createTheme({
             },
             styleOverrides: {
                 root: ({ ownerState, theme }) => {
-                    if (ownerState.color) { 
+                    if (ownerState.color) {
                         ownerState.color = "primary"
                     }
                     // console.log("ownerState", ownerState, theme)
@@ -176,6 +259,100 @@ export const muiTheme = createTheme({
                     }
                 }
             },
+        },
+        MuiCheckbox: {
+            defaultProps: {
+                // disableRipple: true
+            },
+            styleOverrides: {
+                root: ({ ownerState, theme }) => { 
+                    return {
+                        borderRadius: 0,
+                        padding: 0,
+                        appearance: 'auto',
+                        '& svg': {
+                            
+                            borderRadius:'2px',
+                            padding: '0px',
+                            margin: 0,
+                            color: '#dee2e6',                   
+                        },
+                        '&.Mui-checked': {
+                            "&.Mui-focusVisible": {
+                                color: "red",
+                                '& > svg': {
+                                    boxShadow: `0 0 0 0.2rem ${hexToRgbA(theme.palette[ownerState.color].light, 0.5)}`
+                                }
+                            },
+                            '& > svg': {
+                                color: theme.palette[ownerState.color]?.main,
+                            }
+                        },
+                        "&.Mui-focusVisible": {
+                            '& > svg': {
+                                boxShadow: `0 0 0 0.2rem ${hexToRgbA(theme.palette[ownerState.color].light, 0.5)}`
+                            }
+                          
+                        },
+                        //notes checkbox no focus props: https://stackoverflow.com/questions/59374131/material-ui-global-checkbox-focus-styling-not-locally
+                        "&.focused": {
+                            '& > svg': {
+                                boxShadow: `0 0 0 0.2rem ${hexToRgbA(theme.palette[ownerState.color].light, 0.5)}`
+                            }
+                        },
+                        "&.focused:not(.Mui-focusVisible):not(.Mui-checked)": {
+                            '& > svg': {
+                                boxShadow: `0 0 0 0.2rem ${hexToRgbA(theme.palette[ownerState.color].light, 0.5)}`
+                            }
+                        }
+                    }
+                }
+                
+            }
+        },
+        MuiRadio: {
+            styleOverrides: {
+                root: ({ ownerState,theme}) => {
+                    return {
+                        '& svg': {
+
+                            borderRadius: '2px',
+                            padding: '0px',
+                            margin: 0,
+                            color: '#dee2e6',
+                        },
+                        '&.Mui-checked': {
+                            "&.Mui-focusVisible": {
+                                color: "red",
+                                '& > svg': {
+                                    boxShadow: `0 0 0 0.2rem ${hexToRgbA(theme.palette[ownerState.color].light, 0.5)}`
+                                }
+                            },
+                            '& > svg': {
+                                color: theme.palette[ownerState.color]?.main,
+                            }
+                        },
+                        "&.Mui-focusVisible": {
+                            border: '1px solid red',
+                            '& > svg': {
+                                boxShadow: `0 0 0 0.2rem ${hexToRgbA(theme.palette[ownerState.color].light, 0.5)}`
+                            }
+
+                        },
+                        //notes checkbox no focus props: https://stackoverflow.com/questions/59374131/material-ui-global-checkbox-focus-styling-not-locally
+                        "&.focused": {
+                            '& > svg': {
+                                boxShadow: `0 0 0 0.2rem ${hexToRgbA(theme.palette[ownerState.color].light, 0.5)}`
+                            }
+                        },
+                        "&.focused:not(.Mui-focusVisible):not(.Mui-checked)": {
+                            '& > svg': {
+                                boxShadow: `0 0 0 0.2rem ${hexToRgbA(theme.palette[ownerState.color].light, 0.5)}`
+                            }
+                        }
+                    }
+                }
+            }
         },
         //table related
         MUIDataTableToolbar: {

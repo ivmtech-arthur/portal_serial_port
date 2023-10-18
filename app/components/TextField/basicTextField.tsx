@@ -5,15 +5,14 @@ import {
     ThemeProvider,
     styled as muiStyled,
 } from '@mui/material/styles'
-import Button from '@mui/material/Button'
 import { inherits } from 'util'
 import { hexToRgbA } from 'lib/helper'
-import { IconButton, Tooltip } from '@mui/material'
+import { IconButton, TextField, TextareaAutosize, Tooltip } from '@mui/material'
 import { some } from 'lodash'
 import { muiTheme } from 'styles/mui'
-    
-const BasicButton = (props: any) => {
-    const { onClick,color, rounded, disabled, variant, startIcon, endIcon,hover,tooltip,size,sx, ...restProps } = props
+
+const BasicTextField = (props: any) => {
+    const { type, onClick, color, rounded, disabled, variant, startIcon, endIcon, hover, size, sx, placeholder, ...restProps } = props
     // console.log("children", props.children, Array.isArray(props.children),some((props.chilren), (child) => { return typeof child == 'string' }))
     let isIconButton = true;
     // if (props.children && typeof props.children === "string"
@@ -28,24 +27,31 @@ const BasicButton = (props: any) => {
     }
     return (
         <ThemeProvider theme={muiTheme}>
-            <Tooltip title={tooltip}>
-                <Button
+            {
+                type == "textarea" && <TextareaAutosize
+                    style={{resize: "vertical"}}
+                color={color}
+                className={`${rounded ? " rounded-full" : ""}`}
+                onClick={(e) => { onClickEvent(e) }}
+                placeholder={placeholder}
+            />
+            }
+            {!type &&
+                <TextField
+                    {...restProps}
                     size={size}
                     sx={{ opacity: 1, zIndex: 999, ...(sx) }}
-                    startIcon={startIcon}
-                    endIcon={endIcon}
                     disabled={disabled}
-                    variant={variant || 'contained'}
+                    variant={variant || 'outlined'}
                     color={color || "primary"}
                     className={`${rounded ? " rounded-full" : ""}`}
-                    onClick={(e) => { onClickEvent(e) }}>{props.children}</Button>
-                {/* {isIconButton && <IconButton color='primary'>{props.children}</IconButton>}
-                {!isIconButton && <Button startIcon={startIcon} endIcon={endIcon} disabled={disabled} variant={variant || 'contained'} color="primary" className={`${rounded ? " rounded-full" : ""}`} onClick={(e) => { onClickEvent(e) }}>{props.children}</Button>} */}
-            </Tooltip>
+                    onClick={(e) => { onClickEvent(e) }}
+                    placeholder={placeholder}>{props.children}</TextField>
+            }
         </ThemeProvider>
-          
-         
+
+
     )
 }
 
-export default BasicButton 
+export default BasicTextField 

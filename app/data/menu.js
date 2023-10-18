@@ -44,6 +44,14 @@ export const getMenu = (lang) => {
             url: 'operation-history',
         },
         {
+            title: lang == 'en' ? 'Setting' : "設定",
+            url: 'setting',
+        },
+        {
+            title: lang == 'en' ? 'Account' : "帳戶",
+            url: 'account',
+        },
+        {
             title: lang == 'en' ? 'Logout' : "登出",
             url: '/',
         }
@@ -101,6 +109,16 @@ export const menuContent = ["en", "tc"].reduce((result, lang, index) => {
         },
         {
             ...getMenu(lang)[10],
+            icon: <Icon.Settings width="15px" />,
+            list: [
+                {
+                    ...getMenu(lang)[11],
+                    icon: <Icon.User width="15px" />,
+                },
+            ]
+        },
+        {
+            ...getMenu(lang)[12],
             key: 'logout',
             icon: <Icon.LogOut width="15px" />,
         },

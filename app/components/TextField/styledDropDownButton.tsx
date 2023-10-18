@@ -140,6 +140,7 @@ const Container = styled(Block)`
     }
 
     input {
+        
         width: 100%;
         height: 100%;
         border: none;

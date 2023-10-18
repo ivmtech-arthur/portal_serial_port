@@ -27,7 +27,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                         },
                         method: req.method
                     }
-                    var result = await multipleEntryhandler(customRequest)
+                    var result = await multipleEntryhandler(customRequest, collection)
                     CustomNextApiResponse(res, result, 200)
                 } else {
                     throw "invalid parameter"

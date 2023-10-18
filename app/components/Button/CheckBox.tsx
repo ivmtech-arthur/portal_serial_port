@@ -9,37 +9,48 @@ import {
 import Box from '@mui/material/Box';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import { muiTheme } from 'styles/mui';
+import { faSquare, faCheckSquare } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+// const theme = createTheme({
+//     components: {
+//         MuiCheckbox: {
+//             styleOverrides: {
+//                 root: {
+//                     // color: "red"
+//                     fontFamily: 'Inter',
+//                     "&.Mui-checked": {
+//                         color: "purple"
+//                     }
+//                 },
+//                 // checked: {
+//                 //     color: "purple"
+//                 // }
+//             }
+//         },
 
-const theme = createTheme({
-    components: {
-        MuiCheckbox: {
-            styleOverrides: {
-                root: {
-                    // color: "red"
-                    fontFamily: 'Inter',
-                    "&.Mui-checked": {
-                        color: "purple"
-                    }
-                },
-                // checked: {
-                //     color: "purple"
-                // }
-            }
-        },
+//     },
+// })
 
-    },
-})
+const Icon = ({ icon }) => (
+    <FontAwesomeIcon
+        // className="align-middle"
+        icon={icon}
+        // fixedWidth
+    />
+);
 
 const CustomCheckBox = (props) => {
-    const { onClick, name, handleValidation, initCheck, ...restProps } = props
+    const { onClick, name, handleValidation, initCheck,color, ...restProps } = props
     let initChecked = false
-    if(initCheck)
+    if (initCheck)
         initChecked = true
     const [checked, setChecked] = React.useState(initChecked);
+    const [focused, setFocused] = useState(false);
 
     const handleChange = (event) => {
         console.log("e")
-        if(handleValidation)
+        if (handleValidation)
             handleValidation(event)
         setChecked(event.target.checked)
         if (onClick)
@@ -49,11 +60,19 @@ const CustomCheckBox = (props) => {
 
     return (
         <Block {...restProps}>
-            <ThemeProvider theme={theme}>
+            <ThemeProvider theme={muiTheme}>
                 <FormControlLabel
                     name={name}
                     label={props.label}
-                    control={<Checkbox checked={initCheck ? initCheck : checked} onChange={(e) => {handleChange(e)}} />}
+                    control={<Checkbox
+                        className={focused ? "focused" : ""}
+                        onFocus={() => setFocused(true)}
+                        onBlur={() => setFocused(false)}
+                        color={color || 'primary'}
+                        icon={<Icon icon={faSquare} />}
+                        checkedIcon={<Icon icon={faCheckSquare} />}
+                        checked={initCheck ? initCheck : checked}
+                        onChange={(e) => { handleChange(e) }} />}
                 />
             </ThemeProvider>
         </Block>

@@ -84,8 +84,8 @@ h6,
   }
 
   textarea {
-    width: 100%;
-    height: 100%
+    /* width: 100%;
+    height: 100% */
   }
 
   .bodyBold1 {
