@@ -29,7 +29,7 @@ export default function Test() {
                 {/* <Icon.Smile className="pr-1 w-4" /> */}
             </BasicButton>
             <FormControl fullWidth>
-  <InputLabel id="demo-simple-select-label">Age</InputLabel>
+  {/* <InputLabel id="demo-simple-select-label">Age</InputLabel> */}
   <Select
     // labelId="demo-simple-select-label"
     // id="demo-simple-select"
@@ -37,7 +37,7 @@ export default function Test() {
     // label="Age"
     // onChange={handleChange}
   >
-    <MenuItem value={10}>Ten</MenuItem>
+    
     <MenuItem value={20}>Twenty</MenuItem>
     <MenuItem value={30}>Thirty</MenuItem>
   </Select>

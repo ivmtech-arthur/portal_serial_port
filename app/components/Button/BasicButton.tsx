@@ -13,7 +13,7 @@ import { some } from 'lodash'
 import { muiTheme } from 'styles/mui'
     
 const BasicButton = (props: any) => {
-    const { onClick,color, rounded, disabled, variant, startIcon, endIcon,hover,tooltip,size,sx, ...restProps } = props
+    const { onClick,color, rounded, disabled, variant, startIcon, endIcon,hover,tooltip,size,sx,className, ...restProps } = props
     // console.log("children", props.children, Array.isArray(props.children),some((props.chilren), (child) => { return typeof child == 'string' }))
     let isIconButton = true;
     // if (props.children && typeof props.children === "string"
@@ -30,6 +30,7 @@ const BasicButton = (props: any) => {
         <ThemeProvider theme={muiTheme}>
             <Tooltip title={tooltip}>
                 <Button
+                    {...restProps}
                     size={size}
                     sx={{ opacity: 1, zIndex: 999, ...(sx) }}
                     startIcon={startIcon}
@@ -37,8 +38,10 @@ const BasicButton = (props: any) => {
                     disabled={disabled}
                     variant={variant || 'contained'}
                     color={color || "primary"}
-                    className={`${rounded ? " rounded-full" : ""}`}
-                    onClick={(e) => { onClickEvent(e) }}>{props.children}</Button>
+                    className={`${rounded ? " rounded-full" : ""} ${className}`}
+                    onClick={(e) => { onClickEvent(e) }}>{props.children}
+                    
+                </Button>
                 {/* {isIconButton && <IconButton color='primary'>{props.children}</IconButton>}
                 {!isIconButton && <Button startIcon={startIcon} endIcon={endIcon} disabled={disabled} variant={variant || 'contained'} color="primary" className={`${rounded ? " rounded-full" : ""}`} onClick={(e) => { onClickEvent(e) }}>{props.children}</Button>} */}
             </Tooltip>

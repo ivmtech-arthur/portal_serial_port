@@ -8,6 +8,8 @@ import general from 'data/general'
 import Button5 from '../Button/Button5'
 import Button6 from 'components/Button/Button6'
 import Button4 from 'components/Button/Button4'
+import BasicButton from 'components/Button/BasicButton'
+import { KeyboardArrowLeft } from '@mui/icons-material'
 const StyledHeaderContainer = styled(Block)``
 
 const Header = (props) => {
@@ -52,6 +54,9 @@ const Header = (props) => {
       >
         {/* <Button
         ></Button> */}
+        <BasicButton variant="text" onClick={() => { 
+          router.back()
+        }}><KeyboardArrowLeft/></BasicButton>
         <Button5
           onClick={() => {
             setSelectLang(generalString.switchLangCode)

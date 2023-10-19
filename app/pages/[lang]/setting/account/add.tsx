@@ -19,8 +19,8 @@ const { publicRuntimeConfig } = getConfig()
 const { API_URL, APP_URL } = publicRuntimeConfig
 
 
-const AccountDetail = (props) => {
-    const { cookies, userTypeData, userRoleData, userData,collection } = props
+const AccountAdd = (props) => {
+    const { cookies, userTypeData, userRoleData, collection } = props
     const token = cookies.get("userToken")
     const role = cookies.get("userRole")
     const {
@@ -48,7 +48,7 @@ const AccountDetail = (props) => {
             </StyledH1>
 
             <Block boxShadow='0px 10px 30px rgba(0, 0, 0, 0.1)' bg='white' borderRadius='32px' mb='30px'>
-                <FormHandler formType="AccountForm" userTypeData={userTypeData} userRoleData={userRoleData} mode="edit" userData={userData[0]} />
+                <FormHandler formType="AccountForm" userTypeData={userTypeData} userRoleData={userRoleData} mode="add" />
             </Block>
             <Popup type="local" />
         </Block>
@@ -63,25 +63,8 @@ export async function getServerSideProps(ctx: CustomCtx) {
     console.log("ctx is", ctx.params)
     const { pageName } = ctx.query
     const { profile, token, siteConfig } = ctx?.props || {}
-    const { slug, lang,id } = ctx.params
+    const { slug, lang } = ctx.params
     const collection = 'user'
-
-    var getUser: CustomRequest = {
-        query: {
-            collection: "user",
-            where: {
-                userID: id
-            },
-            select: {
-                userID: true,
-                name: true,
-                nameEn: true,
-                userType: true,
-                userRole: true
-            }
-        },
-        method: ctx.req.method,
-    }
 
     var getUserRole: CustomRequest = {
         query: {
@@ -97,11 +80,6 @@ export async function getServerSideProps(ctx: CustomCtx) {
         method: ctx.req.method,
     }
 
-    const userData = await internalAPICallHandler(getUser).then((data) => {
-        return JSON.parse(JSON.stringify(data.result))
-    }).catch((e) => {
-        console.log("error getserversideProps", e)
-    })
 
 
     const userRoleData = await internalAPICallHandler(getUserRole).then((data) => {
@@ -119,7 +97,6 @@ export async function getServerSideProps(ctx: CustomCtx) {
 
     return {
         props: {
-            userData,
             userRoleData,
             userTypeData,
             collection,
@@ -127,4 +104,4 @@ export async function getServerSideProps(ctx: CustomCtx) {
     }
 }
 
-export default withCookies(AccountDetail)
+export default withCookies(AccountAdd)

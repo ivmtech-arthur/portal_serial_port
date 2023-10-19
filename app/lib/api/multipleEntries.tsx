@@ -6,9 +6,9 @@ import { UserResultType } from "./type";
 
 
 
-async function GET<T extends CustomRequest, V extends string>(req: T, collection?: V): Promise<Array<Test<V>>>
-async function GET(req: CustomRequest, collection?: string) {
-    const { id, populate, ...queryParams } = req.query
+async function GET<T extends CustomRequest, V extends string>(req: T, collectionName?: V): Promise<Array<Test<V>>>
+async function GET(req: CustomRequest, collectionName?: string) {
+    const { id, populate,collection, ...queryParams } = req.query
     try {
 
 
@@ -140,13 +140,13 @@ async function METHOD(req: CustomRequest) {
 
 // }
 
-export async function multipleEntryhandler(req: CustomRequest, collection?: string) {
+export async function multipleEntryhandler(req: CustomRequest) {
     var result;
     // var { collection } = req.query
     // multipleEntryhandler2()
     switch (req.method) {
         case "GET":
-            return await GET(req,collection);
+            return await GET(req);
             // result = a
             // // const a = await GET(req, `${"user"}`);
             // console.log("result xdd", a,a[0],a[0].)

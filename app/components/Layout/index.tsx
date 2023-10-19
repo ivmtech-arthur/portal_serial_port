@@ -4,7 +4,7 @@ import Header from 'components/Header'
 // import VerticalMenu from 'components/VerticalMenu'
 import Footer from 'components/Footer'
 import getConfig from 'next/config'
-// import Loading from 'components/Loading'
+import Loading from 'components/Loading'
 import { useStore } from 'store'
 import { useRouter } from 'next/router'
 import { useState, useEffect } from 'react'
@@ -47,7 +47,7 @@ function Layout(props) {
   } = useStore()
   const router = useRouter()
   const handleRouteChangeStart = () => {
-    // dispatch({ type: 'setLoading', payload: { value: true } })
+    dispatch({ type: 'setLoading', payload: { value: true } })
   }
   const [fireMenu, setFireMenu] = useState(false)
   const [headerButtonTheme, setHeaderButtonTheme] = useState('')
@@ -62,18 +62,18 @@ function Layout(props) {
         payload: { lang: get(urlLang, '[1]'), cookies },
       })
     }
-    const pathList = get(window, 'location.href', '').split('/');
-    console.log("path", pathList[pathList.length - 1], getMenu(get(urlLang, '[1]')).find((menu) => { console.log(menu.url); return menu.url == pathList[pathList.length - 1] }))
+    const pathList = window.location.pathname.split('/');
+    console.log("pathxd", pathList,pathList[pathList.length - 1], getMenu(get(urlLang, '[1]')).find((menu) => { console.log(menu.url); return menu.url == pathList[pathList.length - 1] }))
     if (pathList && pathList[pathList.length - 1]) {
       dispatch({
         type: 'setPageName',
         payload: {
-          pageName: getMenu(get(urlLang, '[1]')).find((menu) => { return menu.url == pathList[pathList.length - 1] }).title
+          pageName: getMenu(get(urlLang, '[1]')).find((menu) => { return menu.url == pathList.slice(2).join('/') || menu.regex?.test(pathList.slice(2).join('/')) }).title
         }
       })
 
     }
-    // dispatch({ type: 'setLoading', payload: { value: false } })
+    dispatch({ type: 'setLoading', payload: { value: false } })
   }
 
   // const idNeedUpdateFromScroll = [
@@ -143,9 +143,10 @@ function Layout(props) {
             hideGenericFooter={hideGenericFooter}
           />
         )} */}
-        {/* {loading && <Loading />} */}
+        
+       
       </DesktopLayout>
-
+      {loading && <Loading />}
     </>
   )
 }

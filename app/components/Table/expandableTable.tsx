@@ -54,12 +54,25 @@ import SvgIconEditGrey from 'public/svg/icon_edit_grey.svg'
 import SvgIconEditBlack from 'public/svg/icon_edit_black.svg'
 import SvgIconMore from 'public/svg/icon_more_arrow_black.svg'
 import SearchForm from "./searchForm";
+import { CSVLink, CSVDownload } from "react-csv";
+import { useRouter } from "next/router";
+import { useStore } from "store/contexts";
 
 function CustomToolbar(props) {
-
+  const router = useRouter()
+  const {
+    state: {
+      site: { lang, pageName },
+    },
+    dispatch,
+  } = useStore()
+  const { } = props
   return (<>
     {/* <Button variant="outlined">test</Button> */}
-    <BasicButton variant="text" tooltip="Add Record"><Add /></BasicButton>
+    <BasicButton variant="text" tooltip="Add Record" onClick={() => {
+      console.log("path", window.location.href, router.asPath)
+      router.push({ pathname: `${router.asPath}/add`, query: { pageName: pageName } }, `${router.asPath}/add`)
+    }}><Add /></BasicButton>
   </>)
 }
 
@@ -73,12 +86,14 @@ function CustomDownloadIcon(props) {
 }
 
 function MobileToolbar(props) {
-  const { setDrawerOpen,setDrawerAction } = props
+  const { setDrawerOpen, setDrawerAction, data } = props
   const buttons = [
     <BasicButton size="large" key="search" onClick={() => {
       setDrawerOpen(true)
       setDrawerAction("search")
     }}><Search /></BasicButton>,
+
+
     <BasicButton size="large" onClick={() => {
       setDrawerOpen(true)
       setDrawerAction("filter")
@@ -92,13 +107,13 @@ function MobileToolbar(props) {
     <Box
       sx={{
         // width: "100px",
-       
+
         // trnasform: 'translate(100%,100%)',
         transformOrigin: '0 100% 0',
         scale: '1.3',
         // transform
         zIndex: 9999,
-        right: 10,
+        right: 20,
         bottom: 50,
         position: 'fixed',
         display: 'flex',
@@ -118,6 +133,9 @@ function MobileToolbar(props) {
           aria-label="vertical contained button group"
           variant="contained"
         >
+          {/* <Block>
+            <CSVDownload data={data} target="_blank" />
+          </Block> */}
           {buttons}
         </ButtonGroup>
       </Collapse>
@@ -164,9 +182,33 @@ function CustomPagination(props) {
   return (
     <Block className="flex justify-between">
 
-      <StyledDropDownButton id="search" width="60px" options={[5, 10, 25, 50]} value={rowPerPage} onChange={(e: SelectChangeEvent) => {
-        changeRowsPerPage(parseInt(e.target.value))
-      }} theme={muiTheme} />
+      <StyledDropDownButton
+        variant={'filled'}
+        id="search"
+        width="60px"
+        color={"secondary"}
+        options={[
+          {
+            value: 5,
+            label: 5
+          },
+          {
+            value: 10,
+            label: 10
+          },
+          {
+            value: 25,
+            label: 25
+          },
+          {
+            value: 50,
+            label: 50
+          },
+        ]}
+        value={rowPerPage}
+        onChange={(e: SelectChangeEvent) => {
+          changeRowsPerPage(parseInt(e.target.value))
+        }} theme={muiTheme} />
 
       <Block className="flex">
         <IconButton
@@ -247,7 +289,7 @@ function createCritieras(columns, data) {
 
 const CustomEditButton = (props) => {
   const [hover, setHover] = useState(false)
-  const { params, handleClickEdit } = props
+  const { data, handleClickEdit } = props
   return (
     <BasicButton
       color="primary"
@@ -256,14 +298,15 @@ const CustomEditButton = (props) => {
       onClick={(event) => {
         setHover(false)
         event.stopPropagation()
-        handleClickEdit(params)
+        console.log("handleClickEdit",data)
+        handleClickEdit(data)
       }}
       // sx={{ mr: 2, visibility: { md: 'hidden' } }}
       onMouseEnter={() => { setHover(true) }}
       onMouseLeave={() => { setHover(false) }}
     >
       {/* {hover ? <SvgIconEditBlack /> : <SvgIconEditGrey />} */}
-      {<Edit/>}
+      {<Edit />}
     </BasicButton>
   )
 }
@@ -284,7 +327,7 @@ const CustomDeleteButton = (props) => {
     onMouseEnter={() => { setHover(true) }}
     onMouseLeave={() => { setHover(false) }}
   >
-    <Delete/>
+    <Delete />
   </BasicButton>)
 }
 
@@ -292,7 +335,7 @@ const CustomMoreButton = (props) => {
   const { handleClickDelete, handleClickEdit, params } = props
   const [showMore, setShowMore] = useState(false)
   return (
-    
+
     // <Block className="relative">
     //   <Collapse
     //     sx={{ position: "absolute" }}
@@ -326,7 +369,7 @@ const CustomMoreButton = (props) => {
     //   </IconButton>
     // </Block>
     <Block
-      className="h-[inherit] w-[inherit] relative"
+      className="h-[inherit] w-[inherit] relative md:hidden"
     >
       <Box
         sx={{
@@ -349,7 +392,7 @@ const CustomMoreButton = (props) => {
           },
         }}
       >
-        <Collapse in={showMore} >
+        <Collapse in={showMore}>
           <ButtonGroup
             // sx={{
             //   transformOrigin: '100% 100% 0',
@@ -383,7 +426,7 @@ const CustomMoreButton = (props) => {
         </BasicButton>
       </Box>
     </Block>
-    
+
   )
 }
 
@@ -393,22 +436,32 @@ const ExpandableRowTable = (props) => {
   var columns = []
   columns = JSON.parse(JSON.stringify(columnsFromParent))
   const [drawerOpen, setDrawerOpen] = useState(false)
-  const [drawerAction,setDrawerAction] = useState("")
+  const [drawerAction, setDrawerAction] = useState("")
   const tableRef = useRef(null);
+  const router = useRouter()
   const [filterObj, setFilterObj] = useState({})
-  const [searchText,setSearchText] = useState("")
+  const [searchText, setSearchText] = useState("")
+
+  const handleClickEdit = (id) => {
+    router.push(`${router.asPath}/${id}`)
+  }
+
+  const handleClickDelete = () => {
+
+  }
 
   console.log("ExpandableRowTable props", columns, dataObjList)
   const data = dataObjList.map((dataObj) => {
     var result = Object.assign([], dataObj.data)
-    console.log("ExpandableRowTable loopxd", columns, dataObj)
+    // console.log("ExpandableRowTable loopxd", columns, dataObj)
     if (dataObj.edit) {
 
       if (!columns.some((column) => { return column.name == "edit" })) {
         columns.push({ name: "edit" })
       }
       // if (result.length < columns.length) { 
-      result.push(<CustomEditButton />)
+      //notes: assume all id field are always at first column
+      result.push(<CustomEditButton data={result} handleClickEdit={(data) => { handleClickEdit(data[0]) }} />)
       // }
 
     }
@@ -418,7 +471,7 @@ const ExpandableRowTable = (props) => {
       }
 
       // if (result.length < columns.length) {
-      result.push(<CustomDeleteButton />)
+      result.push(<CustomDeleteButton handleClickDelete={() => { handleClickDelete() }} />)
       // }
 
     }
@@ -592,7 +645,6 @@ const ExpandableRowTable = (props) => {
 
   const mobileOptions: MUIDataTableOptions = {
     filter: true,
-    
     // customToolbar: (data) => { return null },
     customFooter: (rowCount, page, rowPerPage, changeRowsPerPage, changePage) => {
       // setLocalPage(page)
@@ -676,7 +728,11 @@ const ExpandableRowTable = (props) => {
     page: 1,
     searchText: searchText,
     search: false,
-    customSearchRender: () => null
+    customSearchRender: () => null,
+
+    onRowSelectionChange: (currentRow, allRow, rows) => {
+      console.log("")
+    },
     // print
     // selectToolbarPlacement: "above",
     // download: false
@@ -724,16 +780,16 @@ const ExpandableRowTable = (props) => {
           open={drawerOpen}
           onClose={() => { setDrawerOpen(false) }}
         >
-          {drawerAction == "search" && <SearchForm/> }
+          {drawerAction == "search" && <SearchForm />}
           {drawerAction == "filter" && <FilterForm criterias={criterias} onChange={(tempFilter) => {
             var tempFilterObj = filterObj
-            for (const field in tempFilter) { 
+            for (const field in tempFilter) {
               var value = tempFilter[field]
               // console.log("onChange", tempFilterObj, value, field)
               tempFilterObj[field] = value
             }
-        
-            
+
+
             setFilterObj({ ...tempFilterObj })
           }} selectedCriteria={filterObj} />}
         </Drawer>

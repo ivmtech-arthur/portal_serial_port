@@ -39,7 +39,10 @@ function App({ Component, pageProps, router }: AppProps) {
     var pageName = "";
     let urlList = router.asPath.split('/');
     if (urlList.length > 1) { 
-      pageName = getMenu(router.query.lang).find((menu) => { return menu.url === urlList[urlList.length - 1]}).title
+      pageName = getMenu(router.query.lang).find((menu) => {
+        // console.log("regex test", menu.regex?.test(urlList.slice(2).join('/')), menu.regex, urlList.slice(2).join('/'))
+        return menu.url === urlList.slice(2).join('/') || menu.regex?.test(urlList.slice(2).join('/'))
+      })?.title
     }
     injectStates.site = {
       lang: router.query.lang,

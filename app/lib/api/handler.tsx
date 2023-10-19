@@ -18,12 +18,12 @@ export interface CustomResponse {
     error?: any
 }
 
-export async function internalAPICallHandler(req: CustomRequest,collection: string) {
+export async function internalAPICallHandler(req: CustomRequest) {
     console.log("internalAPICALlhandler",req)
     return new Promise<CustomResponse>(async (resolve, reject) => {
         const { id } = req.query;
         if (!id) {
-            const result = await multipleEntryhandler(req, collection);
+            const result = await multipleEntryhandler(req);
             resolve(CustomServerResponse(result, 200));
         } else { 
             const result = await singleEntryHandler(req);

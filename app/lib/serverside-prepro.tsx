@@ -1,11 +1,14 @@
 import { GetServerSidePropsContext } from "next"
 import withLogin from "./with-login"
+import { useRouter } from "next/router"
 
 const preprocessServerSidePropsPromise = withLogin(
   async (ctx, staticPath?) => {
+    // const router = useRouter();
     const { props, params } = ctx
     const { token, authenticated } = props
     const { lang } = params
+    // console.log("path serversidexd", ctx.resolvedUrl)
     if (authenticated && token) {
       // if () { }
       return {

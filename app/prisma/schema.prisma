@@ -107,7 +107,7 @@ model User {
     userID  String   @unique @id
 
 
-  password String  
+  password String
   userTypeID Int 
   userType UserType @relation(fields: [userTypeID],references: [userTypeID])
   userRoleID Int 

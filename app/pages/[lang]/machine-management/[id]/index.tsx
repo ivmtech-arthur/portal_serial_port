@@ -436,7 +436,7 @@ export async function getServerSideProps(ctx: CustomCtx) {
     }
 
 
-    const result = await internalAPICallHandler(customRequest,collection).then((data) => {
+    const result = await internalAPICallHandler(customRequest).then((data) => {
         return data
     }).catch((e) => {
         console.log("error getserversideProps", e)

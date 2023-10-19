@@ -49,12 +49,22 @@ export const getMenu = (lang) => {
         },
         {
             title: lang == 'en' ? 'Account' : "帳戶",
-            url: 'account',
+            url: 'setting/account',
         },
         {
             title: lang == 'en' ? 'Logout' : "登出",
             url: '/',
-        }
+        },
+        {
+            title: lang == 'en' ? 'Account Add' : "新增帳戶",
+            url: 'setting/account/add',
+        },
+        {
+            title: lang == 'en' ? 'Account Change' : "Change帳戶",
+            url: 'setting/account/[id]',
+            regex: /setting\/account\/([^(?!add)*]+)/
+        },
+        // {}
     ]
 
     return menu

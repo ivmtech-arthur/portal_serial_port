@@ -21,6 +21,8 @@ export const schemaMap = {
   "transaction": prisma.transaction,
   "user": prisma.user,
   "userSession": prisma.userSession,
+  "userRole": prisma.userRole,
+  "userType": prisma.userType,
   // "": prisma
 }
 

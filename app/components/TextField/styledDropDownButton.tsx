@@ -7,24 +7,40 @@ import { map } from 'lodash'
 import StyledSelectOption from './styledSelectOption'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import { Button, IconButton, MenuItem, Select, SelectChangeEvent, SvgIcon, TableFooter, TablePagination,InputBase } from '@mui/material';
+import { Button, IconButton, MenuItem, Select, SelectChangeEvent, SvgIcon, TableFooter, TablePagination, InputBase } from '@mui/material';
+import { muiTheme } from 'styles/mui'
+import { hexToRgbA } from 'lib/helper'
 
 // import TextField
 
 
-const BootstrapInput = styled(InputBase)(({ theme }) => ({
+const BootstrapInput = styled(InputBase)(({ theme, color, inputProps }) => ({
+    borderRadius: 4,
+    '&.Mui-focused': {
+        '& .MuiInputBase-input': {
+            // border: '1px solid red',
+            borderColor: theme.palette[color].main,
+            border: `2px solid ${hexToRgbA(theme.palette[color].main, 1)}`
+        },
+       
+    },
     'label + &': {
         marginTop: theme.spacing(3),
     },
     '& .MuiInputBase-input': {
-        borderRadius: 4,
+        borderRadius: '4px',
         position: 'relative',
         backgroundColor: theme.palette.background.paper,
         border: '1px solid #ced4da',
         fontSize: 16,
         padding: '10px 26px 10px 12px',
-        background: '#6f42c1',
-        color: 'white',
+        ...(inputProps.variant == "filled" ? {
+            background: hexToRgbA(theme.palette[color].main, 1),
+            color: 'white',
+        } : {
+            // color: 'black',
+        }),
+
         transition: theme.transitions.create(['border-color', 'box-shadow']),
         // Use the system font instead of the default Roboto font.
         fontFamily: [
@@ -39,129 +55,22 @@ const BootstrapInput = styled(InputBase)(({ theme }) => ({
             '"Segoe UI Emoji"',
             '"Segoe UI Symbol"',
         ].join(','),
+
         '&:focus': {
-            borderRadius: 4,
-            borderColor: '#ba9ceb',
-            boxShadow: '0 0 0 0.2rem #ba9ceb',
+            // ...(inputProps.variant == "outlined" ? {
+            //     border: `2px solid ${hexToRgbA(theme.palette[color].main)}`
+            // } : {}),
+            // borderRadius: 4,
+            // borderColor: theme.palette[color].light,
+            // boxShadow: `0 0 0 0.2rem ${hexToRgbA(theme.palette[color].light, 0.5) }`,
         },
     },
 }));
 
-const Container = styled(Block)`
-    ${(props) => props.errors && props.childprops && props.errors[props.childprops.id] && css`
-        {
-            /* background-color: ivory; */
-            /* border: none; */
-            border: 2px solid red;
-            
-            /* border-radius: 5px;   */
-        },
-    `}
-    ${(props) => css`
-            #right-icon{
-                background-image: ${props.showDropDownList ? "url('/svg/icon_vector_up.svg')" : "url('/svg/icon_vector_down.svg')"};
-            /* background-image: url('/svg/eye.svg'); */
-             {
-                
-            }
-        },
-    `}
-
-        /* box-sizing: border-box; */
-        
-        /* Auto layout */
-        /* display: flex;
-        flex-direction: row;
-        align-items: center;
-        padding: 6px 8px 6px 20px;
-        gap: 16px;
-
-        /* position: absolute; */
-        height: 30px;
-        left: 20px;
-        top: 20px; */
-
-        /* Light grey 2 */
-        /* background: #FAFAFA;
-
-        border: 1px solid #959595;
-        border-radius: 20px; */
-        /* width: 100%; */
-        /* @media (min-width: 620px) {
-            width: 600px;
-        } */
-        /* pointer-events: none; */
-
-    &:focus-within{
-        border: 1px solid #333333;
-        
-        > i {
-            background:url('/svg/Search_black.svg');
-        }
-        > input::placeholder{
-            color: #333333;
-        }
-    }
-
-    .error-msg {
-        display: none;
-    }
-
-    input:invalid {
-        
-        /* & {
-            background-color: ivory;
-            border: none;
-            outline: 2px solid red;
-            border-radius: 5px;
-        } */
-
-        /* error-msg {
-            background-color: red;
-            display: flex;
-        } */
-    }
-
-
-    #left-icon {
-        left:0;
-        padding:10px 10px;
-        background-image:url('/svg/Search_grey.svg');
-        /* color:#30A3F1; */
-    }
-
-    #right-icon {
-        /* left:0;   */
-        /* width: 20px;
-        height: 20px; */
-        padding:10px 20px;
-
-        /* color:#30A3F1; */
-    }
-
-    input {
-        
-        width: 100%;
-        height: 100%;
-        border: none;
-        background: #FAFAFA;
-        /* pointer-events: auto; */
-     }
-
-    
-`
-
-
 const StyledDropDownButton = (props) => {
-    const { errors, options, value, onChange, theme,apiRef, ...restProps } = props
+    const { id,name,error, color, options, value, onChange, variant,handleValidation, ...restProps } = props
     const [showDropDownList, setDropDownList] = useState(false)
     const [currValue, setCurrValue] = useState(null)
-    let error = false
-    // if(props.id)
-    //     props.id = "id"
-    const setError = (e) => {
-        error = true
-    }
 
     function myFunction(e) {
         if (!props.id) return
@@ -169,49 +78,66 @@ const StyledDropDownButton = (props) => {
 
     }
 
-    const getValue = (e) => {
-        if (e && e.target && e.target.value) {
-            setCurrValue(e.target.value)
-            setDropDownList(false)
-            if (onChange)
-                onChange(e.target.value)
-        }
+    // const getValue = (e) => {
+    //     if (e && e.target && e.target.value) {
+    //         setCurrValue(e.target.value)
+    //         setDropDownList(false)
+    //         if (onChange)
+    //             onChange(e.target.value)
+    //     }
 
-    }
+    // }
 
     const list = map(options, (option, index) => {
         return (
-            <MenuItem value={option}>{option}</MenuItem>
+            <MenuItem value={option.value}>{option.label}</MenuItem>
             // <StyledSelectOption hover value={option} type="select" onChange={getValue}></StyledSelectOption>
         )
     })
     return (
-        <Block>
-            <Select
-                // className="bg-violet-500 hover:bg-violet-600 active:bg-violet-700 focus:ring-violet-300 rounded-sm text-white pl-2"
-                // labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                displayEmpty
-                sx={{
-                    textDecorationColor: "white", 
-                    // ":focus": {
-                    //     outline: 'none',
-                    // }
-                }}
-                value={value}
-                input={<BootstrapInput theme={theme}/>}
-                // label="Age"
-                IconComponent={theme.direction === "rtl" ? KeyboardArrowUpIcon : KeyboardArrowDownIcon}
-                onChange={(e) => {
-                    onChange(e)
-                }}
-            >
-                {list}
-                {/* <MenuItem value={10}>10</MenuItem>
+        <Select
+            error={error}
+            variant={variant || 'filled'}
+            // color={error ? 'error' : (color || 'primary')}
+            // className="bg-violet-500 hover:bg-violet-600 active:bg-violet-700 focus:ring-violet-300 rounded-sm text-white pl-2"
+            // labelId="demo-simple-select-label"
+            id={id}
+            name={name}
+            // displayEmpty
+            sx={{
+                textDecorationColor: "white",
+                padding: '0.5px',
+                // ":focus": {
+                //     outline: 'none',
+                // }
+            }}
+            onChange={(e) => { 
+                // e.target.value
+                if (handleValidation) { 
+                    handleValidation(e,"number")
+                }
+                onChange(e)
+            }}
+            value={value}
+            // input={null}
+            IconComponent={KeyboardArrowDownIcon}
+            input={
+                <BootstrapInput color={color || 'primary'} theme={muiTheme}
+                    inputProps={{
+                        variant: variant || 'filled'
+                    }}
+                />}
+        // label="Age"
+        // IconComponent={muiTheme.direction === "rtl" ? KeyboardArrowUpIcon : KeyboardArrowDownIcon}
+        // onChange={(e) => {
+        //     onChange(e)
+        // }}
+        >
+            {list}
+            {/* <MenuItem value={10}>10</MenuItem>
                 <MenuItem value={20}>20</MenuItem>
                 <MenuItem value={30}>30</MenuItem> */}
-            </Select>
-        </Block>
+        </Select>
         // <Block {...restProps}   
 
         // // className="bg-[#6f42c1] border-4 border-white focus:border-[#ba9ceb]  hover:bg-[#3e4676]"

@@ -60,46 +60,97 @@ export const muiTheme = createTheme({
         // },
         MuiOutlinedInput: {
             styleOverrides: {
-                root: {
-                    borderColor: '#FFFFFF',
-                    '&:hover fieldset': {
-                        // background: '#000000',
-                        border: '1px solid red'
-                    },
+                root: ({ ownerState, theme }) => {
+
+                    return {
+                        ...(ownerState.color == "error" && {
+                            border: `1px solid ${theme.palette[ownerState.color]?.dark}`,
+                        }),
+                        borderColor: '#FFFFFF',
+                        '&:hover fieldset': {
+                            // background: '#000000',
+                            border: '1px solid red'
+                        },
+                        padding: '3px',
+                        // border: '1px solid red'
+                    }
+                    // input: ({ ownerState, theme }) => { 
+                    //     // ownerState.size = ""
+                    //     // let padding = '16.5px,14px';
+                    //     // return {
+                    //     //     padding: '5px',
+                    //     // }
+                    // }
                 }
-                // input: ({ ownerState, theme }) => { 
-                //     // ownerState.size = ""
-                //     // let padding = '16.5px,14px';
-                //     // return {
-                //     //     padding: '5px',
-                //     // }
-                // }
             }
         },
         // MuiInput: {
         //     styleOverrides: {
         //         root: ({ ownerState, theme }) => {
         //             return {
-        //                 border: '1px solid red',
-        //                 // // backgroundColor: "green",
-        //                 // "&.Mui-focused": {
-        //                 //     boxShadow: `0 0 0 0.2rem ${hexToRgbA(theme.palette[ownerState.color].light, 0.5)}`
-        //                 // }
+        //                 '&:hover': {
+        //                     // background: '#000000',
+        //                     border: '1px solid yellow'
+        //                 },
+        //                 border: '1px solid green',
+        //                 ...(ownerState.color == "error" && {
+        //                     border: `1px solid ${theme.palette[ownerState.color]?.dark}`,
+        //                 }),
+        //                 // border: '1px solid #FFFFFF',
+        //                 // backgroundColor: "green",
+        //                 "&.Mui-focused": {
+        //                     boxShadow: `0 0 0 0.2rem ${hexToRgbA(theme.palette[ownerState.color].light, 0.5)}`
+        //                 }
         //             }
+
         //         },
         //     }
         // },
         MuiInputBase: {
             styleOverrides: {
                 root: ({ ownerState, theme }) => {
+
                     return {
-                        border: '1px solid #FFFFFF',
+                        // border: '1px solid green',
+                        // ...(ownerState.color == "error" && {
+                        // border: `5px solid ${hexToRgbA(theme.palette[ownerState.color]?.dark)}`,
+                        // }),
+                        // '&:hover': {
+                        //     // background: '#000000',
+                        //     border: '1px solid yellow'
+                        // },
+                        // border: '1px solid #FFFFFF',
                         // backgroundColor: "green",
+                        // '& .MuiSelect-outlined': {
+
+                        //     border: '10px solid red',
+                        //     // borderColor: theme.palette[ownerState.color]?.main,
+                        // },
+
                         "&.Mui-focused": {
+                            // '&.MuiInputBase-input': {
+                            //     // '&.MuiInputBase-formControl': {
+                            //         border: '3px solid red',
+                            //         borderColor: theme.palette[ownerState.color].main,
+                            //     // },
+                            // },
+
+
                             boxShadow: `0 0 0 0.2rem ${hexToRgbA(theme.palette[ownerState.color].light, 0.5)}`
                         }
                     }
+
                 },
+                
+                // formControl: ({ ownerState, theme }) => {
+                //     return {
+                //         "&.Mui-focused": {
+                //             border: '3px solid red',
+                //             borderColor: theme.palette[ownerState.color].main,
+                //         }
+                        
+                //     }
+                // }
             }
         },
         MuiTextField: {
@@ -123,9 +174,9 @@ export const muiTheme = createTheme({
 
                             })
                         },
-                        '&.Mui-focused': {
-                            boxShadow: `0 0 0 2rem ${hexToRgbA(theme.palette[ownerState.color].light, 0.5)}`
-                        },
+                        // '&.Mui-focused': {
+                        //     boxShadow: `0 0 0 2rem ${hexToRgbA(theme.palette[ownerState.color].light, 0.5)}`
+                        // },
                     }
                 },
 
@@ -205,7 +256,7 @@ export const muiTheme = createTheme({
             },
             styleOverrides: {
                 root: ({ ownerState, theme }) => {
-
+                    ownerState.itemProp
                     // console.log("ownerState", ownerState, theme)
                     // theme.palette.primary.main
                     return {
@@ -229,7 +280,8 @@ export const muiTheme = createTheme({
                         },
                         '&:hover': {
                             ...(ownerState.variant == "text" && {
-                                background: theme.palette[ownerState.color]?.dark,
+                                background: 'transparent',
+                                // background: theme.palette[ownerState.color]?.dark,
                                 color: 'white',
                             }),
                             ...(ownerState.variant == "contained" && {
@@ -265,17 +317,17 @@ export const muiTheme = createTheme({
                 // disableRipple: true
             },
             styleOverrides: {
-                root: ({ ownerState, theme }) => { 
+                root: ({ ownerState, theme }) => {
                     return {
                         borderRadius: 0,
                         padding: 0,
                         appearance: 'auto',
                         '& svg': {
-                            
-                            borderRadius:'2px',
+
+                            borderRadius: '2px',
                             padding: '0px',
                             margin: 0,
-                            color: '#dee2e6',                   
+                            color: '#dee2e6',
                         },
                         '&.Mui-checked': {
                             "&.Mui-focusVisible": {
@@ -292,7 +344,7 @@ export const muiTheme = createTheme({
                             '& > svg': {
                                 boxShadow: `0 0 0 0.2rem ${hexToRgbA(theme.palette[ownerState.color].light, 0.5)}`
                             }
-                          
+
                         },
                         //notes checkbox no focus props: https://stackoverflow.com/questions/59374131/material-ui-global-checkbox-focus-styling-not-locally
                         "&.focused": {
@@ -307,12 +359,12 @@ export const muiTheme = createTheme({
                         }
                     }
                 }
-                
+
             }
         },
         MuiRadio: {
             styleOverrides: {
-                root: ({ ownerState,theme}) => {
+                root: ({ ownerState, theme }) => {
                     return {
                         '& svg': {
 
@@ -432,15 +484,36 @@ export const muiTheme = createTheme({
                 //         border: "1px solid red"
                 //     }
                 // },
-                outlined: {
-                    // padding: '0',
-                    // paddingLeft: '5px',
+                // root: ({ theme, ownerState }) => {
+                //     return {
+                //         '& .MuiInputBase-input': {
+                //             border: '10px solid red',
+                //             // borderColor: theme.palette[ownerState.color]?.main,
+                //         }
 
+                //     }
+                // },
+                // outlined: {
+                //     // padding: '0',
+                //     // paddingLeft: '5px',
+                //     border: '10px solid red',
+                // },
+                icon: ({ theme, ownerState }) => {
+                    return {
+                        // display: 'none'
+                        color: ownerState?.variant == "filled" ? 'white' : 'black'
+                    }
                 },
-                icon: {
-                    // display: 'none'
-                    color: 'white'
-                }
+                // select: ({ theme, ownerState }) => { 
+                //     return {
+                //         border: '10px solid red',
+                //         '& .MuiInputBase-input': {
+                //             border: '10px solid red',
+                //             // borderColor: theme.palette[ownerState.color]?.main,
+                //         }
+
+                //     }
+                // }
             }
         },
         MuiPagination: {
