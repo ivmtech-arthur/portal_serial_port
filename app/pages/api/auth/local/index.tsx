@@ -15,7 +15,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const data = LoginUserSchema.parse(body);
 
     const user = await prisma.user.findUnique({
-      where: { userID: data.identifier },
+      where: { username: data.identifier },
       include: {
         profile: true,
         userSession: true,

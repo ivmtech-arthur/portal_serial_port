@@ -509,7 +509,7 @@ const ExpandableRowTable = (props) => {
           name: "more", mobileCollapse: true, mobileDisplay: false, columnIndex: columnsFromParent.length
         })
       }
-      result.push(<CustomMoreButton />)
+      result.push(<CustomMoreButton handleClickEdit={handleClickEdit} handleClickDelete={handleClickDelete} />)
     }
 
     return result

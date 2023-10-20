@@ -7,7 +7,7 @@ import { CustomRequest } from "./handler";
 // interface populateValue : String 
 
 async function PUT(req: CustomRequest) {
-
+    console.log("req.query", req)
     try {
         const { collection, id } = req.query
         const { data } = req.body
@@ -54,9 +54,9 @@ async function GET(req: CustomRequest) {
 
 async function POST(req: CustomRequest) {
     try {
-        const { collection, id } = req.query
+        const { collection } = req.query
         const { data } = req.body
-        if (typeof collection === 'string' && typeof id === 'string') {
+        if (typeof collection === 'string') {
             const result = await schemaMap[collection].create({
                 data
             });

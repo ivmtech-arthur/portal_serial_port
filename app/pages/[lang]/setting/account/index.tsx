@@ -53,7 +53,7 @@ const AccountList = (props) => {
                     columnsFromParent={columnMap}
                 />
             </Block>
-            <Popup type="local" propsToPopup={{ editState: editState, physioData: props.physioData, subscriptionData: props.subscriptionData, profile: profile, serverErrorMessage: serverErrorMessage }} />
+            {/* <Popup type="local" propsToPopup={{ editState: editState, physioData: props.physioData, subscriptionData: props.subscriptionData, profile: profile, serverErrorMessage: serverErrorMessage }} /> */}
         </Block>
     )
 }

@@ -48,7 +48,7 @@ const LoginForm = (props) => {
   }
 
   const handleLogin = () => {
-    console.log("handleLogin",props)
+    console.log("handleLogin", props)
     if (Object.keys(errors).length == 0) {
     } else {
     }
@@ -61,11 +61,12 @@ const LoginForm = (props) => {
       },
     }).then((res) => {
       const { data } = res
-      console.log("res is",res)
+      console.log("res is", res)
       if (data) {
-        const userType = get(data, 'user.userType.userTypeName')
-        const userRole = get(data, 'user.userRole.userRoleName')
-        const id = get(data, 'user.userID')
+        let result = data.result
+        const userType = get(result, 'user.userType.userTypeName')
+        const userRole = get(result, 'user.userRole.userRoleName')
+        const id = get(result, 'user.userID')
         let opt = {
           path: '/',
           domain: '',
@@ -77,12 +78,12 @@ const LoginForm = (props) => {
 
         // cookies.set('userToken', get(data, 'jwt', false), opt)
         // cookies.set('role', useType, opt)
-        Cookies.set('userToken', get(data, 'jwt', false), opt)
-        // Cookies.set('userRole', userRole, opt)
-        Cookies.set('userType',userType,opt)
+        Cookies.set('userToken', get(result, 'jwt', false), opt)
+        Cookies.set('userRole', userRole, opt)
+        Cookies.set('userType', userType, opt)
         // Cookies.
         // cookies.set('userToken', "test", opt)
-        
+
         // cookies.set('role', "xd", opt)
         // console.log("handleLogin cookies", props, Object.keys(cookies), cookies)
 
@@ -92,13 +93,13 @@ const LoginForm = (props) => {
         })
         dispatch({
           type: 'setUserProfile',
-          payload: { profile: get(data, 'user') },
+          payload: { profile: get(result, 'user') },
         })
         dispatch({
           type: 'setRole',
           payload: { role: userRole },
         })
-        // router.push(`/${lang}/pallet-config`)
+        router.push(`/${lang}/machine-management`)
         // if (useType == 'Doctor')
         //   router.push(`/${lang}/pallet-config`)
         // else

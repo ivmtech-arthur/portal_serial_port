@@ -17,12 +17,17 @@ import BasicTextField from 'components/TextField/basicTextField'
 import { RegisterUserInput } from 'lib/validations/user.schema'
 import { FormControl, Grid, InputLabel, MenuItem, Select, SelectChangeEvent } from '@mui/material'
 import StyledDropDownButton from 'components/TextField/styledDropDownButton'
+import Popup from 'components/Popup'
+import { CustomRequest, internalAPICallHandler } from 'lib/api/handler'
+import axios from 'axios'
+import { withCookies } from 'react-cookie'
+import { useRouter } from 'next/router'
 
 
 
 
 
-const getFieldList = (fieldConfig, handleChangeFormData, errors, placeholderMap, handleValidation, fields, userData,mode) => {
+const getFieldList = (fieldConfig, handleChangeFormData, errors, placeholderMap, handleValidation, fields, userData, mode) => {
     var result = []
     for (const key in fieldConfig) {
         switch (fieldConfig[key].type) {
@@ -44,7 +49,7 @@ const getFieldList = (fieldConfig, handleChangeFormData, errors, placeholderMap,
                             name={key}
                             {...(key == "password" || key == "passwordConfirm" ? {
                                 type: "password"
-                            } : {}) }
+                            } : {})}
                         />
                     </Grid>
 
@@ -53,7 +58,7 @@ const getFieldList = (fieldConfig, handleChangeFormData, errors, placeholderMap,
             case "textArea":
                 result.push(
                     <Grid item xs={12} md={6}>
-                        <InputLabel className="h5"  shrink htmlFor="bootstrap-input">
+                        <InputLabel className="h5" shrink htmlFor="bootstrap-input">
                             {placeholderMap[`${key}Placeholder`]}
                         </InputLabel>
                         <BasicTextField
@@ -69,32 +74,34 @@ const getFieldList = (fieldConfig, handleChangeFormData, errors, placeholderMap,
                 )
                 break;
             case "select":
-                const optionList = fieldConfig[key].options.map((option) => {
-                    return (
-                        <MenuItem value={option}>{option}</MenuItem>
-                    )
-                })
+                const options = fieldConfig[key].options
+                console.log("options", fields, options, key, options.find(option => option.value === fields[key]))
+                // const optionList = fieldConfig[key].options.map((option) => {
+                //     return (
+                //         <MenuItem value={option}>{option}</MenuItem>
+                //     )
+                // })
                 result.push(
                     <Grid item xs={12} md={6}>
                         <InputLabel className="h5" shrink htmlFor="bootstrap-input">
                             {placeholderMap[`${key}Placeholder`]}
                         </InputLabel>
                         <FormControl fullWidth>
-                           
+
                             <StyledDropDownButton
                                 variant="outlined"
                                 id={key}
                                 name={key}
                                 error={errors[key]}
-                                value={fields[key]}
-                                options={fieldConfig[key].options}
+                                value={options.find(option => option.value === fields[key])?.value}
+                                options={options}
                                 handleValidation={handleValidation}
                                 onChange={(e: SelectChangeEvent) => {
                                     // e.target.value = parseInt(e.target.value)
                                     console.log("handleChange",)
-                                    handleChangeFormData(key,parseInt(e.target.value))
+                                    handleChangeFormData(key, parseInt(e.target.value))
                                 }}
-                                // onChange={(e) => { handleChange(e) }}
+                            // onChange={(e) => { handleChange(e) }}
                             />
                             {/* <Select
                                 // placeholder={placeholderMap[`${key}Placeholder`]}
@@ -130,28 +137,30 @@ const getFieldList = (fieldConfig, handleChangeFormData, errors, placeholderMap,
 }
 
 const AccountForm = (props) => {
-    const { getInitFields, handleOnSubmit, handleValidation, errors, parentCallback, fields, userTypeData, userRoleData,mode,userData } = props
-    
+    const { getInitFields, handleOnSubmit, handleValidation, errors, parentCallback, fields, userTypeData, userRoleData, mode, userData } = props
+
     console.log("account form", props)
 
     const initFields: RegisterUserInput = mode == "add" ? {
         name: "",
         nameEn: "",
         userID: "",
+        username: "",
         password: "",
         passwordConfirm: "",
         userType: 1,
         userRole: 1,
     } : {
-            name: userData.name,
-            nameEn: userData.nameEn,
-            userID: userData.userID,
-            password: "",
-            passwordConfirm: "",
-            userType: userData.userType,
-            userRole: userData.userRole,
+        name: userData.name,
+        nameEn: userData.nameEn,
+        userID: userData.userID,
+        username: userData.username,
+        password: "",
+        passwordConfirm: "",
+        userType: userData.userType.userTypeID,
+        userRole: userData.userRole.userRoleID,
     }
-    
+
     const fieldConfig = {
         name: {
             type: "textField",
@@ -162,6 +171,9 @@ const AccountForm = (props) => {
         userID: {
             type: "textField",
         },
+        username: {
+            type: "textField",
+        },
         password: {
             type: "textField",
         },
@@ -170,7 +182,7 @@ const AccountForm = (props) => {
         },
         userType: {
             type: "select",
-            options: userTypeData.map((data) => { 
+            options: userTypeData.map((data) => {
                 return {
                     value: data.userTypeID,
                     label: data.userTypeName,
@@ -187,21 +199,101 @@ const AccountForm = (props) => {
             }),
         },
     }
-    
+
     const {
         state: {
             site: { lang },
         },
+        dispatch
     } = useStore()
+    const { cookies } = props
+    const token = cookies.get("userToken")
     const generalString = get(general, lang)
     const userString = get(userContent, lang)
     const forgetPasswordString = get(forgetPassword, lang)
+    const router = useRouter()
     const [email, setEmail] = useState("")
     const [formData, setFormData] = useState({})
+    const [updateFields, setUpdateFields] = useState({})
 
     const handleChangeFormData = (field, value) => {
         formData[field] = value
         setFormData({ ...formData })
+    }
+
+    const handleUpdate = (fields) => {
+        var needUpdate = false
+        var updateField = {}
+        for (const field in fields) {
+            console.log("comparing field", initFields[field], fields[field], fields, initFields)
+            if (initFields[field] != fields[field]) {
+                needUpdate = true
+                updateField[field] = fields[field]
+            }
+        }
+        console.log("handleUpdate", fields, initFields)
+        if (needUpdate) {
+            setUpdateFields({ ...updateField })
+            dispatch({
+                type: 'showPopup',
+                payload: {
+                    popup: true,
+                    popupType: 'confirmProceed',
+                    isGlobal: false,
+                },
+            })
+        }
+    }
+
+    const handleSubmit = async () => {
+        // fields
+        if (mode == "edit") {
+            console.log()
+            var data: any = { data: updateFields };
+            var req: CustomRequest = {
+                query: {
+                    where: {
+                        userID: "SuperAdmin"
+                    }
+                },
+                body: {
+                    updateFields
+                },
+                method: "PUT"
+            }
+            await axios.put(`/api/prisma/user/${fields.userID}`, data, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }).then((data) => {
+                console.log("success!!")
+                router.reload();
+            })
+            // await internalAPICallHandler(req)
+        } else {
+            // const data = { data: fields }
+            await axios.post(`/api/auth/register`, fields, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }).then((data) => {
+                console.log("success!!")
+                router.push(`${lang}/setting/account`);
+            })
+            // var req2: CustomRequest = {
+            //     // query: {
+            //     //     where: {
+            //     //         userID: "SuperAdmin"
+            //     //     }
+            //     // },
+            //     body: {
+            //         updateFields
+            //     },
+            //     method: "POST"
+            // }
+            // await internalAPICallHandler(req2)
+        }
+
     }
 
     useEffect(() => {
@@ -209,7 +301,7 @@ const AccountForm = (props) => {
             getInitFields(initFields)
     }, [])
 
-    const fieldList = getFieldList(fieldConfig, handleChangeFormData, errors, userString, handleValidation, fields, userData,mode)
+    const fieldList = getFieldList(fieldConfig, handleChangeFormData, errors, userString, handleValidation, fields, userData, mode)
 
     return (
         <Block
@@ -219,14 +311,20 @@ const AccountForm = (props) => {
             <Grid container spacing={2}>
                 {fieldList}
             </Grid>
-           
+
             <BasicButton className="mt-10" onClick={(e) => {
-                handleOnSubmit(e, () => { },mode == "edit" ? "edit" : "register")
+                handleOnSubmit(e, (fields) => {
+                    if (mode == "edit")
+                        handleUpdate(fields)
+                    else {
+                        handleSubmit()
+                    }
+                }, mode == "edit" && fields.password == "" ? "edit" : "register")
             }}>{generalString.confirm}</BasicButton>
 
-
+            <Popup type="local" propsToPopup={{ proceedFunc: () => { handleSubmit() }, title: userString.accountFormPopupTitle, message: userString.accountFormPopupMessage }} />
         </Block>
     )
 }
 
-export default AccountForm
+export default withCookies(AccountForm)

@@ -9,6 +9,7 @@ import Button5 from '../Button/Button5'
 import Button6 from 'components/Button/Button6'
 import Button4 from 'components/Button/Button4'
 import BasicButton from 'components/Button/BasicButton'
+import SvgIconUnionGrey from 'public/svg/icon_union_grey.svg'
 import { KeyboardArrowLeft } from '@mui/icons-material'
 const StyledHeaderContainer = styled(Block)``
 
@@ -23,6 +24,7 @@ const Header = (props) => {
   } = useStore()
   const [selectedLang, setSelectLang] = useState(lang)
   useEffect(() => {
+    console.log("setSelectlang",lang)
     const urlLang = get(window, 'location.href', '').match(/\/(tc|en)/)
     if (get(urlLang, '[1]') && selectedLang !== get(urlLang, '[1]')) {
       dispatch({
@@ -44,7 +46,7 @@ const Header = (props) => {
   return (
     <>
       <StyledHeaderContainer
-        className={`top-0 z-50 ${headerTheme == 'white' ? 'bg-green' :'bg-transparent'}` } 
+        className={`top-0 ${headerTheme == 'white' ? 'bg-green' :'bg-transparent'} flex items-center` } 
         // id="header"
         // // position={"fixed"}
         // top="0"
@@ -54,9 +56,9 @@ const Header = (props) => {
       >
         {/* <Button
         ></Button> */}
-        <BasicButton variant="text" onClick={() => { 
+        <BasicButton variant="text" className="md:hidden xs:block z-0" onClick={() => { 
           router.back()
-        }}><KeyboardArrowLeft/></BasicButton>
+        }}><KeyboardArrowLeft /></BasicButton>
         <Button5
           onClick={() => {
             setSelectLang(generalString.switchLangCode)

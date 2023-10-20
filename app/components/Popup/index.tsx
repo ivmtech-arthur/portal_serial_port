@@ -3,6 +3,7 @@ import Logout from './Logout'
 import Block from 'components/Common/Element/Block'
 import { useStore } from 'store'
 import { useRouter } from 'next/router'
+import ConfirmProceed from './confirmProceed'
 const Popup = (props) => {
   const {
     type,
@@ -42,6 +43,11 @@ const Popup = (props) => {
   }
 
   switch (popupType) {
+    case 'confirmProceed':
+      popupComponent = (
+        <ConfirmProceed isOpen={true} closePopup={closePopup} {...propsToPopup} />
+      )
+      break;
     case 'logout':
       popupComponent = (
         <Logout isOpen={true} closePopup={closePopup} {...propsToPopup} />
@@ -76,10 +82,10 @@ const Popup = (props) => {
           bottom={0}
           zIndex="1500"
         >
-          <Block position='relative' >
-            <Block position='absolute' top='50%' left='50%' transform="-50%, -50%" >
+          <Block >
+            {/* <Block position='absolute' top='50%' left='50%' transform="-50%, -50%" > */}
               {popupComponent}
-            </Block>
+            {/* </Block> */}
           </Block>
 
         </Block>

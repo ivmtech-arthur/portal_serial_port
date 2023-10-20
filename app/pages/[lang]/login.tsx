@@ -12,6 +12,19 @@ import Popup from 'components/Popup'
 import { preprocessServerSideProps } from 'lib/serverside-prepro'
 // import io from 'socket.io-client'
 let socket
+
+const sendEmail = (dispatch) => {
+    dispatch({
+        type: 'showPopup',
+        payload: {
+            popup: true,
+            popupType: 'messageEmailSent',
+            isGlobal: false,
+        },
+    })
+}
+// const [input, setInput] = useState('')
+
 const Login = (props) => {
     const { handleOnSubmit, handleValidation, errors, fields } = props
     const [authStage, setAuthStage] = useState(0)
@@ -23,17 +36,7 @@ const Login = (props) => {
         dispatch,
     } = useStore()
     const generalString = get(general, lang)
-    const sendEmail = () => {
-        dispatch({
-            type: 'showPopup',
-            payload: {
-                popup: true,
-                popupType: 'messageEmailSent',
-                isGlobal: false,
-            },
-        })
-    }
-    const [input, setInput] = useState('')
+
     // useEffect(() => socketInitializer(), [])
 
   const socketInitializer = async () => {
@@ -50,10 +53,10 @@ const Login = (props) => {
     //   })
   }
 
-  const onChangeHandler = (e) => {
-    setInput(e.target.value)
-    // socket.emit('input-change', e.target.value)
-  }
+//   const onChangeHandler = (e) => {
+//     setInput(e.target.value)
+//     // socket.emit('input-change', e.target.value)
+//   }
 
     return (
         <Block  height='100vh' position='relative'>
@@ -71,7 +74,7 @@ const Login = (props) => {
                     {authStage == 1 && <FormHandler formType="ForgetPassword"
                         parentCallback={{
                             goBack: () => { setAuthStage(0) },
-                            sendEmail: () => { sendEmail() }
+                            sendEmail: () => { sendEmail(dispatch) }
                         }}
 
                     />}
@@ -81,11 +84,11 @@ const Login = (props) => {
                         }} />}
                     <Button7 href="/" position='absolute' top='100%' left='50%' transform="-50%, -50%" width='max-content'>{generalString.tnc}</Button7>
                 </Block>
-                <input
+                {/* <input
       placeholder="Type something"
       value={input}
       onChange={onChangeHandler}
-    />
+    /> */}
             </Block>
             {/* <Button7 href="/"  position='absolute' top='80%' left='50%' transform="-50%, -50%" display={{ md: 'none', _: 'block' }}>{generalString.tnc}</Button7> */}
             <Popup type="local" propsToPopup={{ onClosePopupCallback: () => { setAuthStage(2) } }} />

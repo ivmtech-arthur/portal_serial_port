@@ -41,7 +41,7 @@ const AccountDetail = (props) => {
 
     return (
         <Block>
-            <StyledH1 className={`text-white ${lang == 'en' ? 'font-jost' : 'font-notoSansTC'}`} color="white"
+            <StyledH1 className={`text-green ${lang == 'en' ? 'font-jost' : 'font-notoSansTC'}`} color="white"
             // fontFamily={lang == "tc" ? "notoSansTc" : "jost"}
             >
                 {pageName}
@@ -50,7 +50,7 @@ const AccountDetail = (props) => {
             <Block boxShadow='0px 10px 30px rgba(0, 0, 0, 0.1)' bg='white' borderRadius='32px' mb='30px'>
                 <FormHandler formType="AccountForm" userTypeData={userTypeData} userRoleData={userRoleData} mode="edit" userData={userData[0]} />
             </Block>
-            <Popup type="local" />
+            {/* <Popup type="local" /> */}
         </Block>
     )
 }

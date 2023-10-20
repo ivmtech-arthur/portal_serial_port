@@ -4,89 +4,72 @@ generator client {
 
 datasource db {
   provider = "sqlserver"
-//   url=env("DATABASE_URL")
-//   url= "sqlserver://${env(DB_HOST)}:${env(DB_PORT)};database=${env(DB_NAME)};user=${env(DB_USER)};password=${env(DB_PASSWORD)};encrypt=${env(DB_ENCRYPT)};trustServerCertificate=${env(DB_TRUST_CERT)}" 
-//   url = "sqlserver://${env(DB_HOST)};database=iVendingDB_AICabinet;user=sa;password=Ivm.98123316;encrypt=true;trustServerCertificate=true" // uses connection pooling
-  url = "sqlserver://aws.ivmtech.com:21433;database=iVendingDB_AICabinet;user=sa;password=Ivm.98123316;encrypt=true;trustServerCertificate=true;connection_limit=5" // uses connection pooling
-//   directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+  url      = "sqlserver://aws.ivmtech.com:21433;database=iVendingDB_AICabinet;user=sa;password=Ivm.98123316;encrypt=true;trustServerCertificate=true;connection_limit=5"
 }
 
-// model Post {
-//   ID        Int      @ID @default(autoincrement())
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
-//   title     String   @db.VarChar(255)
-//   content   String?
-//   published Boolean  @default(false)
-// //   author    User     @relation(fields: [authorID], references: [ID])
-//   authorID  Int      @unique
-// }
-
 model Profile {
-  profileID String  @id @unique
-  desc    String?
+  profileID String   @id @unique
+  desc      String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  user   User    @relation(fields: [userID], references: [userID])
-  userID String @unique
-
+  userID    String   @unique
+  user      User     @relation(fields: [userID], references: [userID])
 }
 
 model Machine {
-    machineID     String  @id @unique
-    // ID        Int      @ID @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  serverToken String
-  location String
-  owner User @relation(fields: [ownerID], references: [userID])
-  ownerID String @unique
-  status String
-  remark String?
-  config String @db.VarChar(8000)   
-  machinePalletDetail MachinePalletDetail[]
+  machineID             String                  @id @unique
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+  serverToken           String
+  location              String
+  ownerID               String                  @unique
+  status                String
+  config                String                  @db.VarChar(8000)
+  remark                String?
+  owner                 User                    @relation(fields: [ownerID], references: [userID])
+  machinePalletDetail   MachinePalletDetail?
   machineProductSummary MachineProductSummary[]
 }
 
 model MasterProduct {
-  productID String @id @unique
-isActive Boolean @default(true)
-  suspend Boolean @default(false)
-  productName String?
-  productNameEn String?
-  desc String?
-  descEn String?
-  price Decimal
-  unitPrice Decimal
-  unit String?
-  currency String
-  remark String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  machinePalletDetails MachinePalletDetail[]
+  productID             String                  @id @unique
+  isActive              Boolean                 @default(true)
+  suspend               Boolean                 @default(false)
+  productName           String?
+  productNameEn         String?
+  desc                  String?
+  descEn                String?
+  price                 Decimal
+  unitPrice             Decimal
+  unit                  String?
+  currency              String
+  remark                String
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+  machinePalletDetails  MachinePalletDetail?
   machineProductSummary MachineProductSummary[]
 }
 
 model MachinePalletDetail {
-  palletDetailID String @id @unique
-  machine Machine @relation(fields: [machineID], references: [machineID])
-  machineID String @unique
-  palletID Int
-  status String
-  description String
-  masterProduct MasterProduct @relation(fields: [productID], references: [productID])
-  productID String @unique
-  inventory Int
-  price Decimal
-  weight Decimal
+  palletDetailID String        @id @unique
+  machineID      String        @unique
+  palletID       Int
+  status         String
+  description    String
+  productID      String        @unique
+  inventory      Int
+  price          Decimal
+  weight         Decimal
+  machine        Machine       @relation(fields: [machineID], references: [machineID])
+  masterProduct  MasterProduct @relation(fields: [productID], references: [productID])
 }
 
 model MachineProductSummary {
-  summaryID String @id @unique
-  machine Machine @relation(fields: [machineID], references: [machineID])
-  machineID String
+  summaryID     String        @id @unique
+  machineID     String
+  productID     String
+  machine       Machine       @relation(fields: [machineID], references: [machineID])
   masterProduct MasterProduct @relation(fields: [productID], references: [productID])
-  productID String 
 }
 
 model Transaction {
@@ -94,57 +77,40 @@ model Transaction {
 }
 
 model UserSession {
-    user    User  @relation(fields: [userID], references: [userID])
-    userID String @unique
-    token String 
-    // expiredDate DateTime @default(now)
-    expiredDate DateTime // Default value is 1 year from now. 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  userID      String   @unique
+  token       String
+  expiredDate DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userID], references: [userID])
 }
 
 model User {
-    userID  String   @unique @id
-
-
-  password String
-  userTypeID Int 
-  userType UserType @relation(fields: [userTypeID],references: [userTypeID])
-  userRoleID Int 
-  userRole UserRole @relation(fields: [userRoleID],references: [userRoleID])
-  // userType String @default(dbgenerated("CREATE FUNCTION fnConstant() RETURNS INT AS BEGIN RETURN 2 END"))
-  // userType String @default(dbgenerated("mycol VARCHAR(10) NOT NULL CHECK (mycol IN('Useful', 'Useless', 'Unknown'))"))
-//   email   String   @unique
-  name    String
-  nameEn  String
+  userID        String       @id @unique
+  username      String       @unique
+  password      String
+  name          String
+  nameEn        String
   authenticated Boolean
-//   posts   Post[]
-userSession UserSession?
-machine Machine?
-   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  profile Profile?
-//   machine  Machine?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  userRoleID    Int
+  userTypeID    Int
+  machine       Machine?
+  profile       Profile?
+  userRole      UserRole     @relation(fields: [userRoleID], references: [userRoleID])
+  userType      UserType     @relation(fields: [userTypeID], references: [userTypeID])
+  userSession   UserSession?
 }
 
 model UserType {
-  users User[]
-  userTypeID Int @id @unique @default(autoincrement())
+  userTypeID   Int    @id @unique @default(autoincrement())
   userTypeName String
+  users        User[]
 }
 
 model UserRole {
-  users User[]
-    userRoleID Int @id @unique @default(autoincrement())
-    userRoleName String
+  userRoleID   Int    @id @unique @default(autoincrement())
+  userRoleName String
+  users        User[]
 }
-
-// enum UserRole {
-//   CLIENT
-// }
-
-// enum UserType {
-//   SUPERADMIN
-//   ADMIN
-//   USER
-// }

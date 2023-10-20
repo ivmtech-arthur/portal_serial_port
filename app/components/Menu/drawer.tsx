@@ -35,7 +35,7 @@ import { justifyContent } from 'styled-system';
 import { useRouter } from 'next/router';
 import { Collapse } from '@mui/material';
 import * as Icon from "react-feather";
-const drawerWidth = 280;
+
 
 const useStyles = makeStyles({
     root: {
@@ -97,15 +97,13 @@ function ResponsiveDrawer(props) {
         dispatch,
     } = useStore()
     const router = useRouter()
-    const { window } = props;
-    const [mobileOpen, setMobileOpen] = useState(false);
+    const { window, drawerWidth, mobileOpen, setMobileOpen, handleDrawerToggle } = props;
+
     // console.log("drawer", menuContent, lang)
     const menu = get(menuContent, lang)
 
 
-    const handleDrawerToggle = () => {
-        setMobileOpen(!mobileOpen);
-    };
+ 
 
 
 
@@ -126,32 +124,9 @@ function ResponsiveDrawer(props) {
 
     return (
         // <Block float="left" width="250px">
-        
-        <Block className="md:280px">
-            <AppBar
-            className="fixed md:w-[calc(100%-280px)] bg-[#203A45] shadow"
-            sx={{
-                width: { md: `calc(100% - ${drawerWidth}px)` },
-                ml: { md: `${drawerWidth}px` },
-                backgroundColor: 'transparent',
-                boxShadow: 'none'
-            }}
-        >
-            <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
 
-                <IconButton
-                    // sx={{}}
-                    color="inherit"
-                    aria-label="open drawer"
-                    edge="start"
-                    onClick={handleDrawerToggle}
-                    sx={{ mr: 2, visibility: { md: 'hidden' },color:"white" }}
-                >
-                    <MenuIcon />
-                </IconButton>
-                <Header />
-            </Toolbar>
-        </AppBar>
+        <Block className="md:w-[280px]" zIndex="5" position="static">
+            
             <Box
                 sx={{ width: { md: drawerWidth }, }}
                 aria-label="mailbox folders"
@@ -166,8 +141,9 @@ function ResponsiveDrawer(props) {
                     }}
                     // anchor={'lef'}
                     sx={{
+
                         display: { xs: 'block', md: 'none' },
-                        '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth, backgroundColor: 'white', },
+                        '& .MuiDrawer-paper': { zIndex: 0, boxSizing: 'border-box', width: drawerWidth, backgroundColor: 'white', },
                     }}
                 >
                     <Box
@@ -185,22 +161,24 @@ function ResponsiveDrawer(props) {
                 <Drawer
                     variant="permanent"
                     sx={{
-
+                        // zIndex: 100,
                         display: { xs: 'none', md: 'block' },
-                        '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth, backgroundColor: 'white', top: 'auto', boxShadow: '0 0 2rem 0 rgba(0, 0, 0, 0.05)' },
+                        '& .MuiDrawer-paper': { zIndex: 0, boxSizing: 'border-box', width: drawerWidth, backgroundColor: 'white', top: 'auto', boxShadow: '0 0 2rem 0 rgba(0, 0, 0, 0.05)' },
                     }}
                     open
                 >
                     <Box
-                        mx='auto'
-                        my='20px'
-                        width='220px' height='200px'
+                        className="bg-white"
+                        px='0px'
+                        // mx='27px'
+                        // my='20px'
+                        width='270px' height='200px'
                     >
-                        <Block position='fixed' borderBottom="1px solid white" height='200px' width='220px' >
+                        {/* <Block position='fixed' borderBottom="1px solid white" height='200px' width='220px' >
                             <Block
                                 mx='auto'
                                 backgroundImage="url(/image/logo.jpg)" backgroundPosition='100% 100%' width='160px' height='160px'></Block>
-                        </Block>
+                        </Block> */}
 
                     </Box>
                     {drawer}
@@ -212,12 +190,12 @@ function ResponsiveDrawer(props) {
     );
 }
 
-ResponsiveDrawer.propTypes = {
-    /**
-     * Injected by the documentation to work in an iframe.
-     * You won't need it on your project.
-     */
-    window: PropTypes.func,
-};
+// ResponsiveDrawer.propTypes = {
+//     /**
+//      * Injected by the documentation to work in an iframe.
+//      * You won't need it on your project.
+//      */
+//     window: PropTypes.func,
+// };
 
 export default ResponsiveDrawer;

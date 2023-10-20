@@ -24,6 +24,7 @@ const BasicTextField = (props: any) => {
     //     }))) { 
     //     isIconButton = false;
     // }
+    const [currValue, setCurrValue] = useState(value)
     const onClickEvent = (e) => {
         if (props.onClick)
             props.onClick(e)
@@ -43,7 +44,7 @@ const BasicTextField = (props: any) => {
                 <TextField
                     id={id}
                     type={type}
-                    value={value}
+                    value={currValue}
                     {...restProps}
                     error={error}
                     size={size || 'small'}
@@ -54,6 +55,7 @@ const BasicTextField = (props: any) => {
                     className={`${rounded ? " rounded-full" : ""}`}
                     onClick={(e) => { onClickEvent(e) }}
                     onChange={(e) => {
+                        setCurrValue(e.target.value)
                         if (handleValidation)
                             handleValidation(e)
                     }}

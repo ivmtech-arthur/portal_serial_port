@@ -70,8 +70,8 @@ const BootstrapInput = styled(InputBase)(({ theme, color, inputProps }) => ({
 const StyledDropDownButton = (props) => {
     const { id,name,error, color, options, value, onChange, variant,handleValidation, ...restProps } = props
     const [showDropDownList, setDropDownList] = useState(false)
-    const [currValue, setCurrValue] = useState(null)
-
+    const [currValue, setCurrValue] = useState(value)
+    console.log("value",value)
     function myFunction(e) {
         if (!props.id) return
         setDropDownList(!showDropDownList)
@@ -112,13 +112,14 @@ const StyledDropDownButton = (props) => {
                 // }
             }}
             onChange={(e) => { 
+                setCurrValue(e.target.value)
                 // e.target.value
                 if (handleValidation) { 
                     handleValidation(e,"number")
                 }
                 onChange(e)
             }}
-            value={value}
+            value={`${value}`}
             // input={null}
             IconComponent={KeyboardArrowDownIcon}
             input={

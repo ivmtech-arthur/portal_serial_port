@@ -7,7 +7,7 @@ import Block from 'components/Common/Element/Block'
 import EditForm from "./EditForm";
 import map from 'lodash/map'
 import AccountForm from "./accountForm";
-import { ChangeUserDataInput, RegisterUserInput, RegisterUserSchema } from "lib/validations/user.schema";
+import { ChangeUserDataInput, ChangeUserDataSchema, RegisterUserInput, RegisterUserSchema } from "lib/validations/user.schema";
 import { ZodError } from "zod";
 function FormHandler(props) {
     const { formType, parentCallback, ...restProps } = props
@@ -17,7 +17,7 @@ function FormHandler(props) {
 
     async function handleOnSubmit(e, callback,action) {
         try {
-            console.log("handleOnSubmit",fields,e)
+            console.log("handleOnSubmit",fields,e,action)
             e.preventDefault()
             var body;
             var data;
@@ -28,9 +28,12 @@ function FormHandler(props) {
                     break;
                 case "edit":
                     body = fields as ChangeUserDataInput;
-                    data = RegisterUserSchema.parse(body);
+                    data = ChangeUserDataSchema.parse(body);
                     break;
             }
+
+            if (callback)
+                callback(fields)
 
             const formData = {};
             switch (formType) {
@@ -41,7 +44,7 @@ function FormHandler(props) {
             }
         } catch (e) {
             if (e instanceof ZodError) {
-                // console.log("error handleOnSubmit", fields, e.name, e.message, e.cause, e.issues)
+                console.log("error handleOnSubmit", fields, e.name, e.message, e.cause, e.issues)
                 const errors = e.errors.reduce((result, error, index) => { 
                     result[error.path[0]] = error.message
                     return result
