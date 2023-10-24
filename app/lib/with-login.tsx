@@ -27,6 +27,7 @@ const withLogin = (
       ctx.props = {
         token,
         role,
+        user,
         authenticated: true,
         permissions,
         // profile,

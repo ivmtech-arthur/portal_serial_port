@@ -24,9 +24,11 @@
         "@mui/x-date-pickers": "^5.0.11",
         "@prisma/client": "^5.4.1",
         "@types/react-cookies": "^0.1.1",
+        "add": "^2.0.6",
         "axios": "^1.1.2",
         "babel-plugin-macros": "^3.1.0",
         "babel-plugin-styled-components": "^2.0.7",
+        "babel-plugin-superjson-next": "^0.4.5",
         "bcryptjs": "^2.4.3",
         "bizcharts": "^4.1.22",
         "cookies": "^0.8.0",
@@ -64,6 +66,7 @@
         "styled-components": "^5.3.6",
         "styled-jsx": "^5.0.7",
         "styled-system": "^5.1.5",
+        "superjson": "^1.13.3",
         "zod": "^3.22.4"
     },
     "devDependencies": {

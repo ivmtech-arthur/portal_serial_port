@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client'
 import { prisma } from './prisma'
 import { ClientFetcher } from 'lib/fetcher'
+// import { serialize } from 'superjson'
 
 const fakeLogin = () => {
   return ClientFetcher.get('/api/oauth/token', {
@@ -10,7 +11,7 @@ const fakeLogin = () => {
       provider: 'microsoft',
     },
   })
-  
+
 }
 
 const getUser = async (token) => {
@@ -23,13 +24,15 @@ const getUser = async (token) => {
       }
     },
     include: {
-      profile: true
-    }
+      profile: true,
+      
+    },
     // include: {
     //   user: true,
     // }
   })
-  
+  delete result.password
+  //notes: can use json.parse(json.stringify()) instead xd
   return result;
   // return await ClientFetcher.get('/api/users/me', {
   //   headers: {

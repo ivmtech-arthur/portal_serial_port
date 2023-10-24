@@ -3,56 +3,36 @@ import { FormControl, Grid, InputLabel, MenuItem, Select, TextField } from "@mui
 import BasicButton from "components/Button/BasicButton";
 import { useEffect, useState } from "react";
 import { Box } from "react-feather";
+import general from 'data/general';
+import { useStore } from 'store'
+import { get } from 'lodash';
+import BasicTextField from 'components/TextField/basicTextField';
 
 
 function SearchForm(props) {
-    const { criterias, selectedCriteria, onChange } = props
-    const [tempsearchs, setTempsearchs] = useState({})
-    // console.log("searchForm", criterias, selectedCriteria, onChange)
-
-
-
-    // var selectGroup = []
-    // for (var index in criterias) {
-    //     const tempIndex = index
-    //     // criterias[index]
-    //     const sublist = criterias[index].map((item, index2) => {
-    //         return (<MenuItem value={item}>{item}</MenuItem>)
-    //     })
-    //     selectGroup.push(
-    //         <Grid item xs={6}>
-    //             <FormControl className="p-2" fullWidth>
-    //                 <InputLabel id={index}>{index}</InputLabel>
-    //                 <Select value={selectedCriteria ? selectedCriteria[index] : ""} labelId={index} key={index} label={index} onChange={(e) => {
-    //                     tempsearchs[e.target.value] = tempIndex
-    //                     setTempsearchs({ ...tempsearchs })
-    //                     // onChange(e.target.value, tempIndex)
-    //                 }} >
-    //                     {sublist}
-
-    //                 </Select>
-    //             </FormControl>
-
-    //         </Grid>
-
-    //     )
-    // }
+    const { searchText, setSearchText, onChange } = props
+    const [tempsearchs, setTempsearchs] = useState(searchText)
+    const {
+        state: {
+            site: { lang },
+        },
+    } = useStore()
+    const generalString = get(general, lang)
 
     return (
-
-        // <Grid container spacing={2}>
-        <Box className="flex-1">
-            <TextField label="search here"></TextField>
-            {/* <Select value={selectedCriteria ? selectedCriteria[index] : ""} labelId="demo-simple-select-label" key={"2"} label={"xdd"} onChange={(e) => {
-                    onChange(e.target.value, index)
-                }} > */}
-
-            {/* </Select> */}
-
+        <Block className="flex flex-col p-4">
+            <BasicTextField placeholder="search here" value={searchText || tempsearchs} onChange={(e) => setTempsearchs(e.target.value)}></BasicTextField>
+            <BasicButton
+                className="my-2"
+                onClick={() => {
+                setTempsearchs("")
+                setSearchText("")
+            }}>{generalString.cancel}</BasicButton>
             <BasicButton onClick={() => {
                 onChange(tempsearchs)
-            }}>Confirm</BasicButton>
-        </Box>
+            }}>{generalString.confirm}</BasicButton>
+            </Block>
+        // </Box>
            
         // </Grid>
 

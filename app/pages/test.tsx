@@ -4,12 +4,25 @@ import ExpandableRowTable from "components/Table/expandableTable"
 import CustomTable3 from "components/Table/newTable"
 import { Add, MoneyOff } from "@mui/icons-material"
 import * as Icon from "react-feather";
-import { FormControl, Input, InputLabel, MenuItem, Select, TextField, TextareaAutosize } from "@mui/material"
+import { Alert, Button, FormControl, Input, InputLabel, MenuItem, Select, Snackbar, TextField, TextareaAutosize } from "@mui/material"
 import BasicTextField from "components/TextField/basicTextField"
 import CustomCheckBox from "components/Button/CheckBox"
 import CustomRadioGroup from "components/Button/RadioGroup"
+import { useState } from "react"
 export default function Test() { 
-    
+    const [open, setOpen] = useState(false);
+
+    const handleClick = () => {
+        setOpen(true);
+    };
+
+    const handleClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+
+        setOpen(false);
+    };
     return (
         <>
         {/* <ExpandableRowTable/> */}
@@ -55,8 +68,20 @@ export default function Test() {
             }} maxRows={Infinity} multiline InputProps={{ endAdornment: <Add /> }} />
             <CustomCheckBox label="test"/>
              {/* <InputLabel htmlFor="name" shrink='true'>Name</InputLabel> */}
-            <CustomRadioGroup options={[1,2,3]} />
-            <Input color="primary" id="outlined-basic" placeholder="outlined" InputLabelProps={{ shrink: true, style: { padding: '1px' } }} />
+            <CustomRadioGroup options={[1, 2, 3]} />
+            <Button variant="outlined" onClick={handleClick}>
+                Open success snackbar
+            </Button>
+            <Snackbar open={open} autoHideDuration={6000} onClose={handleClose} anchorOrigin={{ vertical:'top', horizontal:'right' }}>
+                <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
+                    This is a success message!
+                </Alert>
+            </Snackbar>
+            <Alert severity="error">This is an error message!</Alert>
+            <Alert severity="warning">This is a warning message!</Alert>
+            <Alert severity="info">This is an information message!</Alert>
+            <Alert severity="success">This is a success message!</Alert>
+            {/* <Input color="primary" id="outlined-basic" placeholder="outlined" InputLabelProps={{ shrink: true, style: { padding: '1px' } }} /> */}
         </>
     )
 } 

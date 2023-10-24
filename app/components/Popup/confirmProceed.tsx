@@ -17,10 +17,11 @@ import StyledBody2 from '../Common/Element/body2'
 import { withCookies } from 'react-cookie'
 import StyledBody1 from 'components/Common/Element/body1'
 import StyledH5 from 'components/Common/Element/H5'
+import BasicButton from 'components/Button/BasicButton'
 
 const ConfirmProceed = (props) => {
-    const { cookies, isOpen, closePopup, proceedFunc, title, message } = props
-    console.log("ConfirmProceed",props)
+    const { cookies, isOpen, closePopup, proceedFunc, title, message, mode,popupData } = props
+    console.log("ConfirmProceed", props)
     const router = useRouter()
     const {
         state: {
@@ -45,21 +46,24 @@ const ConfirmProceed = (props) => {
     return (
         <Block
             className="rounded-md bg-white bg-clip-padding md:"
-            // width={{ md: '860px', _: '320px' }} height='450px' bg='white' borderRadius='32px'
+        // width={{ md: '860px', _: '320px' }} height='450px' bg='white' borderRadius='32px'
         >
             <Block className="popupContainer" display='flex' flexDirection='column' alignItems='center' justifyContent='center' height='100%'>
                 {/* <SvgIconLogout /> */}
                 <StyledH5
                     className="items-start p-4 border-b-[1px] border-[#dee2e6]"
-                    // textAlign='center'
-                    // color='purple2'
+                // textAlign='center'
+                // color='purple2'
                 >{title}</StyledH5>
                 <StyledBody1
-                className="body1 text-center m-4 relative flex-auto p-4"
+                    className="body1 text-center m-4 relative flex-auto p-4"
                 >{message}</StyledBody1>
                 <Block className="flex flex-wrap items-center justify-end p-3 border-t-[1] border-[#dee2e6]">
-                    <Button1 px="5px" onClick={() => { handleCancel() }}>{generalString.cancel}</Button1>
-                    <Button1 px="5px" onClick={() => { proceedFunc() }}>{generalString.confirm}</Button1>
+                    <BasicButton className="mx-1" onClick={() => { handleCancel() }}>{generalString.cancel}</BasicButton>
+                    <BasicButton color={mode == "delete" ? "error" : "primary"} className="mx-1" onClick={() => {
+                        proceedFunc(popupData);
+                        closePopup()
+                    }}>{generalString.confirm}</BasicButton>
                 </Block>
             </Block>
 

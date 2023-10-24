@@ -22,15 +22,15 @@ interface InjectStates {
   }
 }
 
-function App({ Component, pageProps, router }: AppProps) {
+function App({ Component, pageProps, router }: AppProps<any>) {
   //notes: case when store refresh need inject state
   const config = dotenv.config();
   dotenvExpand.expand(config);
   const injectStates: InjectStates = {}
-  if (pageProps) {
+  if (pageProps?.user || pageProps?.profile) {
     injectStates.user = {
       authenticated: true,
-      userProfile: pageProps,
+      userProfile: pageProps?.user || pageProps?.profile,
     }
   }
 

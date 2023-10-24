@@ -9,7 +9,10 @@ export const userContent = {
         passwordPlaceholder: 'Password',
         passwordConfirmPlaceholder: 'Confirm Password',
         accountFomrPopupTitle: 'Confirm',
-        accountFormPopupMessage: 'Are you sure to update user?'
+        accountFormPopupMessage: 'Are you sure to update user?',
+        deleteFromPopupTitle: 'Action Cannot Reverted',
+        deleteUserPopupMessage: 'Are you sure to delete user?',
+        deleteUserSnackbar: 'Deleted User',
     },
     tc: {
         userIDPlaceholder: 'User ID tc',
@@ -21,6 +24,9 @@ export const userContent = {
         passwordPlaceholder: 'Password tc',
         passwordConfirmPlaceholder: 'Confirm Password tc',
         accountFomrPopupTitle: 'Confirm tc',
-        accountFormPopupMessage: 'Are you sure to update user tc?'
+        accountFormPopupMessage: 'Are you sure to update user tc?',
+        deleteFromPopupTitle: 'Action Cannot Reverted tc',
+        deleteUserPopupMessage: 'Are you sure to delete user tc?',
+        deleteUserSnackbar: 'Deleted User tc',
     }
 }

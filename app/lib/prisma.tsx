@@ -277,7 +277,7 @@ export function handleClause(collection, id?, populate?, queryParams?) {
       break;
 
   }
-  return { whereClause: { where: whereInput }, includeClause: { include: includeInput }, ...queryParamsObject }
+  return { singleWhereClause: { where: whereInput }, includeClause: { include: includeInput }, ...queryParamsObject }
 }
 
 export async function isAuthorised(token: string) {

@@ -1,25 +1,42 @@
 import { CustomCtx, preprocessServerSideProps } from 'lib/serverside-prepro'
 import Block from 'components/Common/Element/Block'
 import { useStore } from 'store'
-import find from 'lodash/find'
 import get from 'lodash/get'
 import getConfig from 'next/config'
 import Popup from 'components/Popup'
-import { useState } from 'react'
+import { SetStateAction, useState, Dispatch, useCallback } from 'react'
 import { useRouter } from 'next/router'
-import { IconButton, Icon } from "@mui/material";
 import { withCookies } from 'react-cookie'
-import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import { CustomRequest, internalAPICallHandler } from 'lib/api/handler'
 import ExpandableRowTable from 'components/Table/expandableTable'
 import StyledH1 from 'components/Common/Element/H1'
 import { mapDataByCol } from 'lib/helper'
+import { userContent } from 'data/user'
+import axios from 'axios'
+import BasicSnackBar, { SnackBarProps } from 'components/snackbar'
 const { publicRuntimeConfig } = getConfig()
 const { API_URL, APP_URL } = publicRuntimeConfig
 
+// const handleDelete = async (id, token, router, setSnackbarProps: Dispatch<SetStateAction<SnackBarProps>>) => {
+//     await axios.delete(`/api/prisma/user/${id}`, {
+//         headers: {
+//             Authorization: `Bearer ${token}`,
+//         },
+//     }).then((data) => {
+//         console.log("success!!")
+//         setSnackbarProps({
+//             open: true,
+//             message: "",
+//             severity: "success"
+//         })
+//     }).catch((e) => {
+
+//     })
+// }
+
 
 const AccountList = (props) => {
-    const { cookies, profile,data,columnMap, collection } = props
+    const { cookies, profile, data, columnMap, collection } = props
     const token = cookies.get("userToken")
     const role = cookies.get("userRole")
 
@@ -30,10 +47,47 @@ const AccountList = (props) => {
         },
         dispatch,
     } = useStore()
-    console.log("accountList props", props, pageName, lang, data, columnMap, role )
-    const [editState, setEditState] = useState({})
-    const [serverErrorMessage, setServerErrorMessage] = useState(null)
+
+    console.log("accountList props", props, pageName, lang, data, columnMap, role)
+    const [snackBarProps, setSnackbarProps] = useState<SnackBarProps>({
+        open: false,
+        handleClose: () => {
+        },
+        message: "",
+        severity: 'success'
+    })
+    const userString = get(userContent, lang)
     const router = useRouter()
+
+    const handleDelete = useCallback(
+        async (id) => {
+        await axios.delete(`/api/prisma/user/${id}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        }).then((data) => {
+            console.log("success!!")
+            var tempSnackBarProps = snackBarProps
+            tempSnackBarProps.open = true
+            tempSnackBarProps.severity = "success"
+            tempSnackBarProps.handleClose = () => {
+                router.reload()
+            }
+            tempSnackBarProps.message = userString.deleteUserSnackbar + id
+            setSnackbarProps({ ...tempSnackBarProps })
+        }).catch((e) => {
+            var tempSnackBarProps = snackBarProps
+            tempSnackBarProps.open = true
+            tempSnackBarProps.severity = "error"
+            tempSnackBarProps.message = `${e}`
+            tempSnackBarProps.handleClose = () => {
+                tempSnackBarProps.open = false
+                setSnackbarProps({ ...tempSnackBarProps })
+             }
+            setSnackbarProps({ ...tempSnackBarProps })
+        })
+    },[])
+
 
     return (
         <Block>
@@ -45,11 +99,17 @@ const AccountList = (props) => {
 
             <Block boxShadow='0px 10px 30px rgba(0, 0, 0, 0.1)' borderRadius='32px' mb='30px'>
                 <ExpandableRowTable
-                    dataObjList={mapDataByCol(data, columnMap, role,false)}
-                    mobileDataObjList={mapDataByCol(data, columnMap, role,true)}
+                    dataObjList={mapDataByCol(data, columnMap, role, false)}
+                    mobileDataObjList={mapDataByCol(data, columnMap, role, true)}
                     columnsFromParent={columnMap}
+                    title={userString.deleteFromPopupTitle}
+                    message={userString.deleteUserPopupMessage}
+                    handleDelete={(data) => {
+                        handleDelete(data)
+                    }}
                 />
             </Block>
+            <BasicSnackBar {...snackBarProps} />
             {/* <Popup type="local" propsToPopup={{ editState: editState, physioData: props.physioData, subscriptionData: props.subscriptionData, profile: profile, serverErrorMessage: serverErrorMessage }} /> */}
         </Block>
     )
@@ -62,7 +122,7 @@ export async function getServerSideProps(ctx: CustomCtx) {
 
     console.log("ctx is", ctx.params)
     const { pageName } = ctx.query
-    const { profile, token, siteConfig } = ctx?.props || {}
+    const { profile, token, siteConfig, user } = ctx?.props || {}
     const { slug, lang } = ctx.params
     const collection = 'user'
     const userType = profile?.userType
@@ -134,6 +194,7 @@ export async function getServerSideProps(ctx: CustomCtx) {
             // contentData,
             columnMap,
             data: data,
+            user,
             // physioData,
             // subscriptionData,
             headerTheme: 'white',

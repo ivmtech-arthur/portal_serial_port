@@ -1,43 +1,18 @@
 import MUIDataTable, { MUIDataTableOptions, MUIDataTableToolbar, MUIDataTableProps, MUIDataTableColumn, MUIDataTableColumnDef } from "mui-datatables";
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Theme, ButtonGroup, Drawer, TextField } from "@mui/material";
-import { Fragment, useState } from 'react';
+import { Fragment, useCallback, useState } from 'react';
 import Box from '@mui/material/Box';
 import { useEffect, useRef } from 'react';
 import Block from 'components/Common/Element/Block'
-// import { DataGrid } from '@mui/x-data-grid';
 import {
   createTheme,
   ThemeProvider,
   styled as muiStyled,
 } from '@mui/material/styles'
 
-import {
-  DataGrid,
-  gridPageCountSelector,
-  gridPageSelector,
-  useGridApiContext,
-  useGridSelector,
-  GridToolbarContainer,
-  GridToolbarFilterButton,
-  GridLinkOperator,
-  GridFooter,
-  GridPagination,
-  GridCallbackDetails
-} from '@mui/x-data-grid';
-import { styled } from '@mui/material/styles';
 import Pagination from '@mui/material/Pagination';
-import PaginationItem from '@mui/material/PaginationItem';
-import SvgIconVectorUp from '/public/svg/icon_vector_up.svg'
-import SvgIconVectorDown from '/public/svg/icon_vector_down.svg'
 import { Button, Collapse, IconButton, MenuItem, Select, SelectChangeEvent, SvgIcon, TableFooter, TablePagination, Typography } from '@mui/material';
-import { makeStyles } from "@mui/styles";
-import { GridFilterPanel } from '@mui/x-data-grid';
-import StyledTextFieldSearch from '../TextField/styledTextFieldSearch';
-import type { } from '@mui/x-data-grid/themeAugmentation';
-import StyledTextSelectField from 'components/TextField/styledTextSelectField';
 import FirstPageIcon from "@mui/icons-material/FirstPage";
-import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft";
-import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
 import LastPageIcon from "@mui/icons-material/LastPage";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
@@ -47,16 +22,11 @@ import { Add, Delete, Download, Edit, Filter, FilterList, More, MoreHoriz, MoreV
 import { muiTheme } from "styles/mui";
 import { DownloadCloud } from "react-feather";
 import FilterForm from "./filterForm";
-
-import SvgIconDeleteGrey from 'public/svg/icon_delete_grey.svg'
-import SvgIconDeleteBlack from 'public/svg/icon_delete_black.svg'
-import SvgIconEditGrey from 'public/svg/icon_edit_grey.svg'
-import SvgIconEditBlack from 'public/svg/icon_edit_black.svg'
-import SvgIconMore from 'public/svg/icon_more_arrow_black.svg'
 import SearchForm from "./searchForm";
 import { CSVLink, CSVDownload } from "react-csv";
 import { useRouter } from "next/router";
 import { useStore } from "store/contexts";
+import Popup from "components/Popup";
 
 function CustomToolbar(props) {
   const router = useRouter()
@@ -64,11 +34,9 @@ function CustomToolbar(props) {
     state: {
       site: { lang, pageName },
     },
-    dispatch,
   } = useStore()
   const { } = props
   return (<>
-    {/* <Button variant="outlined">test</Button> */}
     <BasicButton variant="text" tooltip="Add Record" onClick={() => {
       console.log("path", window.location.href, router.asPath)
       router.push({ pathname: `${router.asPath}/add`, query: { pageName: pageName } }, `${router.asPath}/add`)
@@ -76,17 +44,9 @@ function CustomToolbar(props) {
   </>)
 }
 
-
-function CustomDownloadIcon(props) {
-  // const ref = props.tableRef();
-  console.log("toolbar", props)
-  return (
-    <IconButton><KeyboardArrowDownIcon /></IconButton>
-  )
-}
-
 function MobileToolbar(props) {
   const { setDrawerOpen, setDrawerAction, data } = props
+  const router = useRouter();
   const buttons = [
     <BasicButton size="large" key="search" onClick={() => {
       setDrawerOpen(true)
@@ -99,19 +59,17 @@ function MobileToolbar(props) {
       setDrawerAction("filter")
     }} key="filter"><FilterList /></BasicButton>,
     <BasicButton size="large" key="download"><DownloadCloud /></BasicButton>,
-    <BasicButton key="add"><Add /></BasicButton>,
+    <BasicButton key="add" onClick={() => {
+      router.push(`${router.asPath}/add`)
+    }}><Add /></BasicButton>,
   ];
 
   const [open, setOpen] = useState(false)
   return (
     <Box
       sx={{
-        // width: "100px",
-
-        // trnasform: 'translate(100%,100%)',
         transformOrigin: '0 100% 0',
         scale: '1.3',
-        // transform
         zIndex: 9999,
         right: 20,
         bottom: 50,
@@ -126,9 +84,7 @@ function MobileToolbar(props) {
     >
       <Collapse in={open} >
         <ButtonGroup
-          // sx={{
-          //   transformOrigin: '100% 100% 0',
-          // }}
+
           orientation="vertical"
           aria-label="vertical contained button group"
           variant="contained"
@@ -261,7 +217,6 @@ function CustomPagination(props) {
           {muiTheme.direction === "rtl" ? <FirstPageIcon /> : <LastPageIcon />}
         </IconButton>
       </Block>
-      {/* <TablePagination/> */}
 
     </Block>
 
@@ -298,14 +253,12 @@ const CustomEditButton = (props) => {
       onClick={(event) => {
         setHover(false)
         event.stopPropagation()
-        console.log("handleClickEdit",data)
+        console.log("handleClickEdit", data)
         handleClickEdit(data)
       }}
-      // sx={{ mr: 2, visibility: { md: 'hidden' } }}
       onMouseEnter={() => { setHover(true) }}
       onMouseLeave={() => { setHover(false) }}
     >
-      {/* {hover ? <SvgIconEditBlack /> : <SvgIconEditGrey />} */}
       {<Edit />}
     </BasicButton>
   )
@@ -313,7 +266,7 @@ const CustomEditButton = (props) => {
 
 const CustomDeleteButton = (props) => {
   const [hover, setHover] = useState(false)
-  const { params, handleClickDelete } = props
+  const { data, handleClickDelete } = props
   return (<BasicButton
     color="primary"
     aria-label="open drawer"
@@ -321,7 +274,7 @@ const CustomDeleteButton = (props) => {
     onClick={(event) => {
       setHover(false)
       event.stopPropagation();
-      handleClickDelete(params)
+      handleClickDelete(data)
     }}
     // sx={{ mr: 2, visibility: { md: 'hidden' } }}
     onMouseEnter={() => { setHover(true) }}
@@ -332,60 +285,19 @@ const CustomDeleteButton = (props) => {
 }
 
 const CustomMoreButton = (props) => {
-  const { handleClickDelete, handleClickEdit, params } = props
+  const { handleClickDelete, handleClickEdit, data } = props
   const [showMore, setShowMore] = useState(false)
   return (
 
-    // <Block className="relative">
-    //   <Collapse
-    //     sx={{ position: "absolute" }}
-    //     className="absolute"
-    //     in={showMore}
-    //   // bg='lightGrey1' borderRadius='16px' zIndex='10' position='absolute' right='10%' pl='15px' alignItems='center'
-    //   >
-    //     <ButtonGroup
-    //       orientation="vertical"
-    //       aria-label="vertical contained button group"
-    //       variant="contained"
-    //     >
-    //       <CustomDeleteButton params={params} handleClickDelete={handleClickDelete} />
-    //       <CustomEditButton params={params} handleClickEdit={handleClickEdit} />
-    //     </ButtonGroup>
-
-
-
-    //   </Collapse>
-    //   <IconButton
-    //     color="primary"
-    //     aria-label="open drawer"
-    //     edge="start"
-    //     onClick={(event) => {
-    //       event.stopPropagation();
-    //       setShowMore(!showMore)
-    //     }}
-    //   >
-    //     {/* <SvgIconDeleteGrey /> */}
-    //     {<SvgIconMore />}
-    //   </IconButton>
-    // </Block>
     <Block
       className="h-[inherit] w-[inherit] relative md:hidden"
     >
       <Box
         sx={{
-          // width: "100px",
-          // scale: '1.3',
-          // transformOrigin: '100% 100% 0',
-          // transform
           zIndex: 9999,
           right: 0,
-          // bottom: 0,
           top: 0,
-          // top: '50%',
-          // left: '50%',
-          // transform: 'translate(-50%, -50%)',
           position: 'absolute',
-          // position: 'relative',
           display: 'flex',
           '& > *': {
             marginX: 1,
@@ -394,26 +306,13 @@ const CustomMoreButton = (props) => {
       >
         <Collapse in={showMore}>
           <ButtonGroup
-            // sx={{
-            //   transformOrigin: '100% 100% 0',
-            // }}
-            sx={{
-              // position: "absolute",
-              // bottom: '30px'
-            }}
-            // orientation="vertical"
-            // aria-label="vertical contained button group"
             variant="contained"
           >
-            <CustomDeleteButton params={params} handleClickDelete={handleClickDelete} />
-            <CustomEditButton params={params} handleClickEdit={handleClickEdit} />
+            <CustomDeleteButton data={data} handleClickDelete={(data) => { handleClickDelete(data[0]) }} />
+            <CustomEditButton data={data} handleClickEdit={(data) => { handleClickEdit(data[0]) }} />
           </ButtonGroup>
         </Collapse>
         <BasicButton
-          sx={{
-            // position: "absolute",
-          }}
-          // color="primary"
           aria-label="open drawer"
           edge="start"
           onClick={(event) => {
@@ -421,7 +320,6 @@ const CustomMoreButton = (props) => {
             setShowMore(!showMore)
           }}
         >
-          {/* <SvgIconDeleteGrey /> */}
           {<MoreHoriz />}
         </BasicButton>
       </Box>
@@ -432,47 +330,61 @@ const CustomMoreButton = (props) => {
 
 
 const ExpandableRowTable = (props) => {
-  const { columnsFromParent, dataObjList, mobileDataObjList } = props
+  const { columnsFromParent, dataObjList, mobileDataObjList, message, title, handleDelete } = props
   var columns = []
   columns = JSON.parse(JSON.stringify(columnsFromParent))
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [drawerAction, setDrawerAction] = useState("")
-  const tableRef = useRef(null);
   const router = useRouter()
   const [filterObj, setFilterObj] = useState({})
   const [searchText, setSearchText] = useState("")
+  const [popupData,setPopupData] = useState()
+  const {
+    state: {
+      site: { lang, pageName },
+      user: { userProfile }
+    },
+    dispatch,
+  } = useStore()
 
-  const handleClickEdit = (id) => {
-    router.push(`${router.asPath}/${id}`)
-  }
+  const handleClickEdit = useCallback(
+    (id) => {
+      router.push(`${router.asPath}/${id}`)
+    }, [])
 
-  const handleClickDelete = () => {
-
-  }
+  const handleClickDelete = useCallback((id) => {
+    setPopupData(id)
+    dispatch({
+      type: 'showPopup',
+      payload: {
+        popup: true,
+        popupType: 'confirmProceed',
+        isGlobal: false,
+      },
+    })
+    
+  }, [])
 
   console.log("ExpandableRowTable props", columns, dataObjList)
   const data = dataObjList.map((dataObj) => {
     var result = Object.assign([], dataObj.data)
-    // console.log("ExpandableRowTable loopxd", columns, dataObj)
+    if (userProfile?.userID == result[0]) { 
+      return result
+    }
     if (dataObj.edit) {
 
       if (!columns.some((column) => { return column.name == "edit" })) {
         columns.push({ name: "edit" })
       }
-      // if (result.length < columns.length) { 
-      //notes: assume all id field are always at first column
+      //notes: assume ID always at zero position
       result.push(<CustomEditButton data={result} handleClickEdit={(data) => { handleClickEdit(data[0]) }} />)
-      // }
-
     }
     if (dataObj.delete) {
       if (!columns.some((column) => { return column.name == "delete" })) {
         columns.push({ name: "delete" })
       }
+      result.push(<CustomDeleteButton handleClickDelete={(data) => { handleClickDelete(data[0]) }} />)
 
-      // if (result.length < columns.length) {
-      result.push(<CustomDeleteButton handleClickDelete={() => { handleClickDelete() }} />)
-      // }
 
     }
     return result
@@ -491,6 +403,20 @@ const ExpandableRowTable = (props) => {
     }))
   ]
 
+  const desktopColumn: MUIDataTableColumnDef[] = [
+    ...(columns.map((column) => {
+      let result: MUIDataTableColumnDef = {
+        name: column.name,
+        options: {
+          // setCellProps: () => ({ style: { minWidth: "100px", maxWidth: "800px",display:"flex",alignitems:'end', justifyContent: 'end',backgroundColor:'orange' }})
+          // customBodyRender: (data, type, row) => { return <Block className=" h-40">{data}</Block> }
+          // ...(filterObj[column.name] ? { filterList: [filterObj[column.name]] } : {}),
+        }
+      }
+      return result
+    }))
+  ]
+
   const mobileCollapseColumn = columns.filter((column) => {
     return column.mobileCollapse
   }).map((filterColumn) => {
@@ -502,119 +428,22 @@ const ExpandableRowTable = (props) => {
 
   const mobileData = mobileDataObjList.map((dataObj) => {
     var result = Object.assign([], dataObj.data)
+    if (userProfile?.userID == result[0]) {
+      return result
+    }
     if (dataObj.more) {
-      if (!columns.some((column) => { return column.name == "more" })) {
+      if (!mobileCollapseColumn.some((column) => { return column.name == "more" })) {
         // columns.push({name: "more"})
         mobileCollapseColumn.push({
           name: "more", mobileCollapse: true, mobileDisplay: false, columnIndex: columnsFromParent.length
         })
       }
-      result.push(<CustomMoreButton handleClickEdit={handleClickEdit} handleClickDelete={handleClickDelete} />)
+      result.push(<CustomMoreButton data={result} handleClickEdit={handleClickEdit} handleClickDelete={handleClickDelete} />)
     }
 
     return result
   })
 
-
-
-
-  // const [localPage,setLocalPage] = useState(0)
-  // const columns = [
-  //   {
-  //     name: "Name"
-  //   },
-  //   {
-  //     name: "Title"
-  //   },
-  //   {
-  //     name: "Location"
-  //   },
-  //   {
-  //     name: "Age"
-  //   },
-  //   {
-  //     name: "Salary"
-  //   }
-  // ];
-
-  // const mobileColumn: MUIDataTableColumnDef[] = [
-  //   {
-  //     name: "Name",
-  //     options: {
-  //       ...(filterObj["Name"] ? { filterList: [filterObj["Name"]] } : {}),
-  //     }
-  //   },
-
-
-  //   {
-  //     name: "Title",
-  //     options: {
-  //       ...(filterObj["Title"] ? { filterList: [filterObj["Title"]] } : {}),
-  //       display: false,
-  //     }
-  //   },
-  //   {
-  //     name: "Location",
-  //     options: {
-  //       ...(filterObj["Location"] ? { filterList: [filterObj["Location"]] } : {}),
-  //       display: false,
-  //     }
-  //   },
-  //   {
-  //     name: "Age",
-  //     options: {
-  //       ...(filterObj["Age"] ? { filterList: [filterObj["Age"]] } : {}),
-  //       display: false,
-  //     }
-  //   },
-  //   {
-  //     name: "Salary",
-  //     options: {
-  //       ...(filterObj["Salary"] ? { filterList: [filterObj["Salary"]] } : {}),
-  //       display: false,
-  //     }
-  //   },
-
-  // ]
-  // const data = [
-  //   ["Gabby George", "Business Analyst", "Minneapolis", 30, 100000],
-  //   ["Business Analyst", "Business Consultant", "Dallas", 55, 200000],
-  //   ["Jaden Collins", "Attorney", "Santa Ana", 27, 500000],
-  //   ["Franky Rees", "Business Analyst", "St. Petersburg", 22, 50000],
-  //   ["Aaren Rose", "Business Consultant", "Toledo", 28, 75000],
-  //   ["Blake Duncan", "Business Management Analyst", "San Diego", 65, 94000],
-  //   ["Frankie Parry", "Agency Legal Counsel", "Jacksonville", 71, 210000],
-  //   ["Lane Wilson", "Commercial Specialist", "Omaha", 19, 65000],
-  //   ["Robin Duncan", "Business Analyst", "Los Angeles", 20, 77000],
-  //   ["Mel Brooks", "Business Consultant", "Oklahoma City", 37, 135000],
-  //   ["Harper White", "Attorney", "Pittsburgh", 52, 420000],
-  //   ["Kris Humphrey", "Agency Legal Counsel", "Laredo", 30, 150000],
-  //   ["Frankie Long", "Industrial Analyst", "Austin", 31, 170000],
-  //   ["Brynn Robbins", "Business Analyst", "Norfolk", 22, 90000],
-  //   ["Justice Mann", "Business Consultant", "Chicago", 24, 133000],
-  //   ["Addison Navarro", "Business Management Analyst", "New York", 50, 295000],
-  //   ["Jesse Welch", "Agency Legal Counsel", "Seattle", 28, 200000],
-  //   ["Eli Mejia", "Commercial Specialist", "Long Beach", 65, 400000],
-  //   ["Gene Leblanc", "Industrial Analyst", "Hartford", 34, 110000],
-  //   ["Danny Leon", "Computer Scientist", "Newark", 60, 220000],
-  //   ["Lane Lee", "Corporate Counselor", "Cincinnati", 52, 180000],
-  //   ["Jesse Hall", "Business Analyst", "Baltimore", 44, 99000],
-  //   ["Danni Hudson", "Agency Legal Counsel", "Tampa", 37, 90000],
-  //   ["Terry Macdonald", "Commercial Specialist", "Miami", 39, 140000],
-  //   ["Justice Mccarthy", "Attorney", "Tucson", 26, 330000],
-  //   ["Silver Carey", "Computer Scientist", "Memphis", 47, 250000],
-  //   ["Franky Miles", "Industrial Analyst", "Buffalo", 49, 190000],
-  //   ["Glen Nixon", "Corporate Counselor", "Arlington", 44, 80000],
-  //   [
-  //     "Gabby Strickland",
-  //     "Business Process Consultant",
-  //     "Scottsdale",
-  //     26,
-  //     45000
-  //   ],
-  //   ["Mason Ray", "Computer Scientist", "San Francisco", 39, 142000]
-  // ];
-  console.log("mobile", mobileColumn, mobileData, mobileCollapseColumn)
   const criterias = createCritieras(columns, data)
 
   const options: MUIDataTableOptions = {
@@ -626,12 +455,12 @@ const ExpandableRowTable = (props) => {
       );
     },
 
-    selectableRows: "single",
+    selectableRows: "multiple",
     filterType: "dropdown",
     // responsive: "scrollMaxHeight",
     rowsPerPage: 5,
     expandableRows: false,
-    selectableRowsHideCheckboxes: true,
+    // selectableRowsHideCheckboxes: true,
     renderExpandableRow: (rowData, rowMeta) => {
       console.log(rowData, rowMeta);
       return (
@@ -644,10 +473,8 @@ const ExpandableRowTable = (props) => {
   };
 
   const mobileOptions: MUIDataTableOptions = {
-    filter: true,
-    // customToolbar: (data) => { return null },
+
     customFooter: (rowCount, page, rowPerPage, changeRowsPerPage, changePage) => {
-      // setLocalPage(page)
       return (
         <CustomPagination pageNum={Math.ceil(rowCount / rowPerPage)} page={page} rowCount={rowCount} rowPerPage={rowPerPage} changeRowsPerPage={changeRowsPerPage} changePage={changePage} />
       );
@@ -665,13 +492,15 @@ const ExpandableRowTable = (props) => {
       console.log("onFIlterChange", changedColumn, filterList);
     },
     // onTableChange
-    selectableRows: "single",
+    selectableRows: "multiple",
     filterType: "dropdown",
 
-    // responsive: "scrollMaxHeight",
+    responsive: 'standard',
     rowsPerPage: 5,
     expandableRows: true,
-    selectableRowsHideCheckboxes: true,
+    selectableRowsHeader: true,
+    rowHover: true,
+    // selectableRowsHideCheckboxes: true,
     renderExpandableRow: (rowData, rowMeta) => {
       console.log("rowData", mobileCollapseColumn, rowData, rowData.filter((rowItem, index) => {
         return mobileCollapseColumn.map((filteredColumn, index2) => {
@@ -679,7 +508,7 @@ const ExpandableRowTable = (props) => {
         }).includes(index)
       }))
       const tableHeaderList = mobileCollapseColumn.map((filteredColumn) => {
-        return <TableCell align="right">{filteredColumn.name}</TableCell>
+        return <TableCell align="center">{filteredColumn.name}</TableCell>
       })
       const tableCellList = rowData.filter((rowItem, index) => {
         return mobileCollapseColumn.map((filteredColumn, index2) => {
@@ -725,13 +554,23 @@ const ExpandableRowTable = (props) => {
 
       );
     },
+    fixedHeader: true,
+
     page: 1,
     searchText: searchText,
-    search: false,
+    // ilter
+    filter: false,
+    // search: false,
     customSearchRender: () => null,
 
     onRowSelectionChange: (currentRow, allRow, rows) => {
       console.log("")
+    },
+    onRowsDelete(rowsDeleted, newTableData) {
+      console.log("onRowsDelete", rowsDeleted.data, data, rowsDeleted.data.map((item) => { 
+        //notes assume ID always at zero position
+        return data[item.dataIndex][0]
+      }))
     },
     // print
     // selectToolbarPlacement: "above",
@@ -747,40 +586,28 @@ const ExpandableRowTable = (props) => {
 
           title={"ACME Employee list"}
           data={data}
-          columns={columns}
+          columns={desktopColumn}
           options={options}
         />
       </Block>
 
       <Block className="md:hidden">
         <MUIDataTable
-          components={{
-            TableToolbarSelect: () => { return null }
-            // TableToolbar: () => { return null}
-            // TableToolbarSelect: CustomDownloadIcon
-            // icons: {
-            //   TableToolbarSelect: CustomDownloadIcon
-            // }
-          }}
-          innerRef={tableRef}
           title={"ACME Employee list"}
           data={mobileData}
           columns={mobileColumn}
           options={mobileOptions}
         />
-        {/* <BasicButton onClick={() => { 
-          console.log("click,",tableRef)
-        }}>test</BasicButton>
-        <BasicButton onClick={() => {
-          console.log("click,", tableRef)
-        }}>test</BasicButton> */}
+
         <MobileToolbar setDrawerOpen={setDrawerOpen} setDrawerAction={setDrawerAction} />
         <Drawer
           anchor="bottom"
           open={drawerOpen}
           onClose={() => { setDrawerOpen(false) }}
         >
-          {drawerAction == "search" && <SearchForm />}
+          {drawerAction == "search" && <SearchForm value={searchText} setSearchText={setSearchText} onChange={(text) => {
+            setSearchText(text)
+          }} />}
           {drawerAction == "filter" && <FilterForm criterias={criterias} onChange={(tempFilter) => {
             var tempFilterObj = filterObj
             for (const field in tempFilter) {
@@ -796,6 +623,7 @@ const ExpandableRowTable = (props) => {
       </Block>
       {/* </Block> */}
 
+      <Popup type="local" propsToPopup={{ proceedFunc: (data) => { handleDelete(data) }, title: title, message: message, popupData: popupData, mode: "delete" }} />
     </ThemeProvider>
 
   );

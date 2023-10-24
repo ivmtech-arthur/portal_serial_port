@@ -12,9 +12,9 @@ async function PUT(req: CustomRequest) {
         const { collection, id } = req.query
         const { data } = req.body
         if (typeof collection === 'string' && typeof id === 'string') {
-            const { whereClause } = handleClause(collection, id);
+            const { singleWhereClause } = handleClause(collection, id);
             const result = await schemaMap[collection].update({
-                ...whereClause,
+                ...singleWhereClause,
                 data
             });
             // CustomNextApiResponse(res, result, 200, collection);
@@ -35,11 +35,13 @@ async function GET(req: CustomRequest) {
 
 
         if (typeof collection === 'string' && typeof id === 'string') {
-            const { whereClause, includeClause } = handleClause(collection, id, populate, queryParams);
-            console.log("whereClause", whereClause, includeClause)
+            const { singleWhereClause, includeClause, include, select } = handleClause(collection, id, populate, queryParams);
+            console.log("singleWhereClause", singleWhereClause, includeClause)
             const result = await schemaMap[collection].findUniqueOrThrow({
-                ...whereClause,
-                ...includeClause
+                ...singleWhereClause,
+                // ...includeClause
+                ...(select ? { select: select } : {}),
+                ...(include ? { include: include } : {}),
             })
             // CustomNextApiResponse(res, result, 200, collection);
             return result;
@@ -75,9 +77,9 @@ async function DELETE(req: CustomRequest) {
         const { collection, id } = req.query
         const { data } = req.body
         if (typeof collection === 'string' && typeof id === 'string') {
-            const { whereClause, includeClause } = handleClause(collection, id);
+            const { singleWhereClause, includeClause } = handleClause(collection, id);
             const result = await schemaMap[collection].delete({
-                ...whereClause,
+                ...singleWhereClause,
                 // include: includeClause
             });
             // CustomNextApiResponse(res, result, 200, collection);

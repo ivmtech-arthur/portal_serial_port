@@ -1,5 +1,5 @@
 import Block from 'components/Common/Element/Block'
-import React, { useRef, useEffect, useState } from 'react'
+import React, { useRef, useEffect, useState, HTMLInputTypeAttribute, ReactNode } from 'react'
 import {
     createTheme,
     ThemeProvider,
@@ -7,14 +7,36 @@ import {
 } from '@mui/material/styles'
 import { inherits } from 'util'
 import { hexToRgbA } from 'lib/helper'
-import { IconButton, InputAdornment, TextField, TextareaAutosize, Tooltip } from '@mui/material'
+import { IconButton, InputAdornment, InputBasePropsColorOverrides, InputBasePropsSizeOverrides, OutlinedInput, SxProps, TextField, TextareaAutosize, Tooltip } from '@mui/material'
 import { some } from 'lodash'
 import { muiTheme } from 'styles/mui'
 import StyledBody4 from 'components/Common/Element/body4'
 import { Visibility } from '@mui/icons-material'
 import BasicButton from 'components/Button/BasicButton'
+import Button, { ButtonPropsColorOverrides, ButtonPropsSizeOverrides, ButtonPropsVariantOverrides } from '@mui/material/Button'
+import { OverridableStringUnion } from '@mui/types'
 
-const BasicTextField = (props: any) => {
+type BasicTextFieldProps = {
+    id?: string,
+    type?: HTMLInputTypeAttribute,
+    value?: string,
+    textarea?: boolean,
+    onClick?: (e) => void,
+    color?: OverridableStringUnion<"primary" | "secondary" | "success" | "error" | "info" | "warning", InputBasePropsColorOverrides>
+    rounded?: boolean,
+    disabled?: boolean,
+    variant?: OverridableStringUnion<"standard" | "filled" | "outlined", ButtonPropsVariantOverrides>,
+    startIcon?: ReactNode,
+    endIcon?: ReactNode,
+    error?: boolean,
+    size?: OverridableStringUnion<"small" | "medium", InputBasePropsSizeOverrides>,
+    sx?: SxProps,
+    placeholder: string,
+    handleValidation: (e) => void,
+    [name: string] : any
+}
+
+const BasicTextField = (props: BasicTextFieldProps) => {
     const { id, type, value, textarea, onClick, color, rounded, disabled, variant, startIcon, endIcon, hover, size, sx, placeholder, error, handleValidation, ...restProps } = props
     // console.log("children", props.children, Array.isArray(props.children),some((props.chilren), (child) => { return typeof child == 'string' }))
     let isIconButton = true;
@@ -42,10 +64,10 @@ const BasicTextField = (props: any) => {
             }
             {!textarea &&
                 <TextField
+                    {...restProps}
                     id={id}
                     type={type}
                     value={currValue}
-                    {...restProps}
                     error={error}
                     size={size || 'small'}
                     sx={{ opacity: 1, zIndex: 999, width: "100%", ...(sx) }}
@@ -54,7 +76,7 @@ const BasicTextField = (props: any) => {
                     color={!error ? (color || "primary") : "error"}
                     className={`${rounded ? " rounded-full" : ""}`}
                     onClick={(e) => { onClickEvent(e) }}
-                    onChange={(e) => {
+                onChange={(e) => {
                         setCurrValue(e.target.value)
                         if (handleValidation)
                             handleValidation(e)

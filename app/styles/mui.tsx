@@ -407,6 +407,27 @@ export const muiTheme = createTheme({
             }
         },
         //table related
+        // MUIDataTableHeadCell: {
+        //     styleOverrides: {
+        //         toolButton: {}
+        //     }
+        // }
+        // MUIDataTableBodyCell: {
+        //     styleOverrides: {
+        //         root: {
+        //             // alignItems: 'center'
+        //             // justifyItems: 'center'
+        //             paddingRight
+        //         }
+        //     }
+        // },
+        MUIDataTableBodyRow: {
+            styleOverrides: {
+                root: {
+                    height: 'auto'
+                }
+            }
+        },
         MUIDataTableToolbar: {
             styleOverrides: {
                 root: {

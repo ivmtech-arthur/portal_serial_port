@@ -8,7 +8,7 @@ import { UserResultType } from "./type";
 
 async function GET<T extends CustomRequest, V extends string>(req: T, collectionName?: V): Promise<Array<Test<V>>>
 async function GET(req: CustomRequest, collectionName?: string) {
-    const { id, populate,collection, ...queryParams } = req.query
+    const { id, populate, collection, ...queryParams } = req.query
     try {
 
 
@@ -21,7 +21,7 @@ async function GET(req: CustomRequest, collectionName?: string) {
         }
         console.log("req.query", req.query, Object.entries(req.query), new URLSearchParams(filters), typeof collection)
         if (typeof collection === 'string') {
-            const { where, include,select } = handleClause(collection, id, populate, queryParams);
+            const { where, include, select } = handleClause(collection, id, populate, queryParams);
             console.log("whereClause", where, include)
             const result = await schemaMap[collection].findMany({
 
@@ -29,7 +29,7 @@ async function GET(req: CustomRequest, collectionName?: string) {
                 ...(select ? { select: select } : {}),
                 ...(include ? { include: include } : {}),
             })
-        console.log("result test",result)
+            console.log("result test", result)
             // type ThenArg<T> = T extends PromiseLike<infer U> ? U : T
             // type dynamicReturnType = ThenArg<ReturnType<typeof result>>
             // CustomNextApiResponse(res, result, 200, collection);
@@ -45,7 +45,7 @@ async function GET(req: CustomRequest, collectionName?: string) {
 }
 
 
-async function POST(req: CustomRequest) : Promise<Prisma.BatchPayload> {
+async function POST(req: CustomRequest): Promise<Prisma.BatchPayload> {
     const { collection } = req.query
     try {
 
@@ -96,7 +96,7 @@ async function DELETE(req: CustomRequest): Promise<Prisma.BatchPayload> {
                 where: where,
             })
             // CustomNextApiResponse(res, result, 200);
-            return
+            return result
         }
         // res.end()
     } catch (e) {
@@ -156,7 +156,7 @@ export async function multipleEntryhandler(req: CustomRequest) {
             return await POST(req);
             break
         case "PUT":
-           return await PUT(req);
+            return await PUT(req);
             break;
         case "DELETE":
             return await DELETE(req);

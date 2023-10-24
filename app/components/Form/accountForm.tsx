@@ -47,6 +47,7 @@ const getFieldList = (fieldConfig, handleChangeFormData, errors, placeholderMap,
                             error={errors[key]}
                             id={key}
                             name={key}
+                            disabled={(key == "userID" && mode == "edit") || mode == "view" }
                             {...(key == "password" || key == "passwordConfirm" ? {
                                 type: "password"
                             } : {})}
@@ -277,8 +278,8 @@ const AccountForm = (props) => {
                     Authorization: `Bearer ${token}`,
                 },
             }).then((data) => {
-                console.log("success!!")
-                router.push(`${lang}/setting/account`);
+                console.log("success!!", lang)
+                // router.push(`/${lang}/setting/account`);
             })
             // var req2: CustomRequest = {
             //     // query: {
