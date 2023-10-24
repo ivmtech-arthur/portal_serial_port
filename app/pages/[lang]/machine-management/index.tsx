@@ -25,104 +25,28 @@ import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import { CustomRequest, internalAPICallHandler } from 'lib/api/handler'
 import ExpandableRowTable from 'components/Table/expandableTable'
 import StyledH1 from 'components/Common/Element/H1'
+import { mapDataByCol } from 'lib/helper'
 const { publicRuntimeConfig } = getConfig()
 const { API_URL, APP_URL } = publicRuntimeConfig
 
-const CustomEditButton = (props) => {
-    const [hover, setHover] = useState(false)
-    const { params, handleClickEdit } = props
-    return (
-        <IconButton
-            color="primary"
-            aria-label="open drawer"
-            edge="start"
-            onClick={(event) => {
-                setHover(false)
-                event.stopPropagation()
-                handleClickEdit(params)
-            }}
-            // sx={{ mr: 2, visibility: { md: 'hidden' } }}
-            onMouseEnter={() => { setHover(true) }}
-            onMouseLeave={() => { setHover(false) }}
-        >
-            {hover ? <SvgIconEditBlack /> : <SvgIconEditGrey />}
-        </IconButton>
-    )
-}
-
-const CustomDeleteButton = (props) => {
-    const [hover, setHover] = useState(false)
-    const { params, handleClickDelete } = props
-    return (<IconButton
-        color="primary"
-        aria-label="open drawer"
-        edge="start"
-        onClick={(event) => {
-            setHover(false)
-            event.stopPropagation();
-            handleClickDelete(params)
-        }}
-        // sx={{ mr: 2, visibility: { md: 'hidden' } }}
-        onMouseEnter={() => { setHover(true) }}
-        onMouseLeave={() => { setHover(false) }}
-    >
-        {hover ? <SvgIconDeleteBlack /> : <SvgIconDeleteGrey />}
-    </IconButton>)
-}
-
-const CustomMoreButton = (props) => {
-    const { handleClickDelete, handleClickEdit, params } = props
-    const [showMore, setShowMore] = useState(false)
-    return (
-        <Block>
-            <Block display={showMore ? 'flex' : 'none'} bg='lightGrey1' borderRadius='16px' zIndex='10' position='absolute' right='10%' pl='15px' alignItems='center'>
-
-                <CustomDeleteButton params={params} handleClickDelete={handleClickDelete} />
-                <CustomEditButton params={params} handleClickEdit={handleClickEdit} />
-
-
-            </Block>
-            <IconButton
-                color="primary"
-                aria-label="open drawer"
-                edge="start"
-                onClick={(event) => {
-                    event.stopPropagation();
-                    setShowMore(true)
-                }}
-            >
-                <SvgIconDeleteGrey />
-                {<SvgIconMore />}
-            </IconButton>
-        </Block>
-
-    )
-}
-
 const MachineList = (props) => {
-    const { cookies, profile, collection } = props
+    const { cookies, profile, data, columnMap, collection } = props
     const token = cookies.get("userToken")
+    const role = cookies.get("userRole")
     const {
         state: {
-            site: { lang,pageName },
+            site: { lang, pageName },
             user: { userProfile }
         },
         dispatch,
     } = useStore()
-    console.log("MachineList props", props, pageName,lang)
+    console.log("MachineList props", props, pageName, lang)
     const listMachineString = get(listMachine, lang)
-    const [editState, setEditState] = useState({})
-    const [filter, setFilter] = useState([])
-    const [selectedField, setSelectedField] = useState('id')
-    const [record, setRecord] = useState({})
-    const [fieldValue, setFieldValue] = useState('test')
-    const [serverErrorMessage, setServerErrorMessage] = useState(null)
-    const router = useRouter()
 
     return (
         <Block>
             <StyledH1 className=" text-white font-jost" color="white"
-                // fontFamily={lang == "tc" ? "notoSansTc" : "jost"}
+            // fontFamily={lang == "tc" ? "notoSansTc" : "jost"}
             >
                 {pageName}
             </StyledH1>
@@ -141,28 +65,19 @@ const MachineList = (props) => {
                 fontSize={{ _: '30px', md: '48px' }}
                 lineHeight={{ _: '36px', md: '58px' }}
             >{profile && profile.username}</Block>
-            <Block width={{ md: '50%', _: '100%' }} pt={{ _: '20px' }}>
-                <StyledTextFieldSearch placeholder={listMachineString.placeholderSearch} id="search" name="search"
-                    onChange={(e) => {
-                        setFilter([
-                            {
-                                id: 1,
-                                columnField: selectedField,
-                                operatorValue: "contains",
-                                value: e.target.value
-                            },
-                        ])
-                    }} />
-            </Block>
-            
+
             <IconButton color="primary" aria-label="add to shopping cart">
                 {/* <AddShoppingCartIcon /> */}
             </IconButton>
 
             <Block boxShadow='0px 10p   x 30px rgba(0, 0, 0, 0.1)' borderRadius='32px' mb='30px'>
-             <ExpandableRowTable/>
+                <ExpandableRowTable
+                    dataObjList={mapDataByCol(data, columnMap, role, false)}
+                    mobileDataObjList={mapDataByCol(data, columnMap, role, true)}
+                    columnsFromParent={columnMap}
+                />
             </Block>
-            <Popup type="local" propsToPopup={{editState: editState, data: record, physioData: props.physioData, subscriptionData: props.subscriptionData, profile: profile, serverErrorMessage: serverErrorMessage }} />
+            <Popup type="local" propsToPopup={{ data: data }} />
         </Block>
     )
 }
@@ -178,6 +93,51 @@ export async function getServerSideProps(ctx: CustomCtx) {
     const { slug, lang } = ctx.params
     const collection = 'machine'
     const userType = profile?.userType
+
+    const columnMap = [
+        {
+            name: "userID",
+            mobileDisplay: true,
+            mobileCollapse: true,
+            objPath: "userID",
+        },
+        {
+            name: "name",
+            mobileCollapse: true,
+            objPath: "name",
+        },
+        {
+            name: "nameEn",
+            mobileCollapse: true,
+            objPath: "nameEn",
+        },
+        {
+            name: "authenticated",
+            mobileCollapse: true,
+            objPath: "authenticated",
+        },
+        {
+            name: "userRole",
+            mobileCollapse: false,
+            objPath: "userRole.userRoleName",
+        },
+        {
+            name: "userType",
+            mobileCollapse: false,
+            objPath: "userType.userTypeName",
+        },
+        {
+            name: "createdAt",
+            mobileCollapse: false,
+            objPath: "createdAt",
+        },
+        {
+            name: "updatedAt",
+            mobileCollapse: false,
+            objPath: "updatedAt",
+        },
+    ]
+
     var customRequest: CustomRequest = {
         query: {
             collection,
@@ -185,28 +145,22 @@ export async function getServerSideProps(ctx: CustomCtx) {
         },
         method: ctx.req.method,
     }
- 
-    
-    const data = await internalAPICallHandler(customRequest).then((data) => { 
+
+
+    const data = await internalAPICallHandler(customRequest).then((data) => {
         return data
-    }).catch((e) => { 
-        console.log("error getserversideProps",e)
+    }).catch((e) => {
+        console.log("error getserversideProps", e)
     })
 
     console.log("getServersideProps ctx", data)
-    
+
     return {
         props: {
-            // contentData,
             data,
-            // physioData,
-            // subscriptionData,
             headerTheme: 'white',
             headerPosition: 'fixed',
             collection,
-            // pageName: "Machine Management"
-            // profile,
-            // siteConfig
         },
     }
 }
