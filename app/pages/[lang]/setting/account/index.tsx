@@ -22,6 +22,7 @@ const AccountList = (props) => {
     const { cookies, profile,data,columnMap, collection } = props
     const token = cookies.get("userToken")
     const role = cookies.get("userRole")
+
     const {
         state: {
             site: { lang, pageName },
@@ -30,11 +31,7 @@ const AccountList = (props) => {
         dispatch,
     } = useStore()
     console.log("accountList props", props, pageName, lang, data, columnMap, role )
-    // const listaccountString = get(listAccount, lang)
     const [editState, setEditState] = useState({})
-    const [filter, setFilter] = useState([])
-    const [selectedField, setSelectedField] = useState('id')
-    const [record, setRecord] = useState({})
     const [serverErrorMessage, setServerErrorMessage] = useState(null)
     const router = useRouter()
 
@@ -119,13 +116,6 @@ export async function getServerSideProps(ctx: CustomCtx) {
                 userType: true,
                 userRole: true
             },
-            //notes: Please either use `include` or `select`, but not both at the same time.
-            // select: {
-            //     ...(columnMap.reduce((result, column, index) => { 
-            //         result[column.name] = true
-            //         return result
-            //     }, {}))
-            // }
         },
         method: ctx.req.method,
     }
