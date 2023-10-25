@@ -69,7 +69,7 @@ const Login = (props) => {
                 <Block position='relative' width='600px' maxWidth='80%'>
                     {authStage == 0 && <FormHandler formType="Login"
                         parentCallback={{
-                            forgetPassword: () => { setAuthStage(1) },
+                            forgetPassword: function() { setAuthStage(1) },
                         }} />}
                     {authStage == 1 && <FormHandler formType="ForgetPassword"
                         parentCallback={{

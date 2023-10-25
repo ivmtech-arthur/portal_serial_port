@@ -142,7 +142,7 @@ function ResponsiveDrawer(props) {
                     // anchor={'lef'}
                     sx={{
 
-                        display: { xs: 'block', md: 'none' },
+                        display: { xs: 'block', md: 'none' }, 
                         '& .MuiDrawer-paper': { zIndex: 0, boxSizing: 'border-box', width: drawerWidth, backgroundColor: 'white', },
                     }}
                 >

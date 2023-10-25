@@ -22,6 +22,7 @@ type BasicTextFieldProps = {
     value?: string,
     textarea?: boolean,
     onClick?: (e) => void,
+    onChange?: (e) => void,
     color?: OverridableStringUnion<"primary" | "secondary" | "success" | "error" | "info" | "warning", InputBasePropsColorOverrides>
     rounded?: boolean,
     disabled?: boolean,
@@ -31,13 +32,13 @@ type BasicTextFieldProps = {
     error?: boolean,
     size?: OverridableStringUnion<"small" | "medium", InputBasePropsSizeOverrides>,
     sx?: SxProps,
-    placeholder: string,
-    handleValidation: (e) => void,
+    placeholder?: string,
+    handleValidation?: (e) => void,
     [name: string] : any
 }
 
 const BasicTextField = (props: BasicTextFieldProps) => {
-    const { id, type, value, textarea, onClick, color, rounded, disabled, variant, startIcon, endIcon, hover, size, sx, placeholder, error, handleValidation, ...restProps } = props
+    const { id, type, value, textarea, onClick, color, rounded, disabled, variant, startIcon, endIcon, hover, size, sx, placeholder, error, handleValidation, onChange, ...restProps } = props
     // console.log("children", props.children, Array.isArray(props.children),some((props.chilren), (child) => { return typeof child == 'string' }))
     let isIconButton = true;
     // if (props.children && typeof props.children === "string"
@@ -79,7 +80,9 @@ const BasicTextField = (props: BasicTextFieldProps) => {
                 onChange={(e) => {
                         setCurrValue(e.target.value)
                         if (handleValidation)
-                            handleValidation(e)
+                        handleValidation(e)
+                    if (onChange)
+                        onChange(e)
                     }}
                     {...(type == "password" && {
                         InputProps: {

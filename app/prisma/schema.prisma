@@ -114,3 +114,8 @@ model UserRole {
   userRoleName String
   users        User[]
 }
+
+model SystemConstant {
+  constantID Int     @id(map: "SystemConstant_PK")
+  Json       String? @db.VarChar(Max)
+}

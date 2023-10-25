@@ -11,17 +11,18 @@ import general from '../../data/general'
 import { userContent } from 'data/user'
 import get from 'lodash/get'
 import { useStore } from 'store'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import BasicButton from 'components/Button/BasicButton'
 import BasicTextField from 'components/TextField/basicTextField'
 import { RegisterUserInput } from 'lib/validations/user.schema'
-import { FormControl, Grid, InputLabel, MenuItem, Select, SelectChangeEvent } from '@mui/material'
+import { AlertColor, FormControl, Grid, InputLabel, MenuItem, Select, SelectChangeEvent } from '@mui/material'
 import StyledDropDownButton from 'components/TextField/styledDropDownButton'
 import Popup from 'components/Popup'
 import { CustomRequest, internalAPICallHandler } from 'lib/api/handler'
 import axios from 'axios'
 import { withCookies } from 'react-cookie'
 import { useRouter } from 'next/router'
+import BasicSnackBar, { SnackBarProps } from 'components/snackbar'
 
 
 
@@ -138,7 +139,7 @@ const getFieldList = (fieldConfig, handleChangeFormData, errors, placeholderMap,
 }
 
 const AccountForm = (props) => {
-    const { getInitFields, handleOnSubmit, handleValidation, errors, parentCallback, fields, userTypeData, userRoleData, mode, userData } = props
+    const { getInitFields, handleOnSubmit, handleValidation, errors, parentCallback, fields, userTypeData, userRoleData, mode = "view", userData } = props
 
     console.log("account form", props)
 
@@ -216,13 +217,30 @@ const AccountForm = (props) => {
     const [email, setEmail] = useState("")
     const [formData, setFormData] = useState({})
     const [updateFields, setUpdateFields] = useState({})
+    const [snackBarProps, setSnackbarProps] = useState<SnackBarProps>({
+        open: false,
+        handleClose: () => {
+        },
+        message: "",
+        severity: 'success'
+    })
+    const handleSetHandleBarProps = useCallback((open: boolean, handleClose: () => void, message: String, severity: AlertColor) => {
+        setSnackbarProps({
+            open: open,
+            handleClose: handleClose,
+            message: message,
+            severity: severity
+        })
+    }, [])
 
     const handleChangeFormData = (field, value) => {
         formData[field] = value
         setFormData({ ...formData })
     }
 
-    const handleUpdate = (fields) => {
+
+
+    const handleUpdate = useCallback((fields) => {
         var needUpdate = false
         var updateField = {}
         for (const field in fields) {
@@ -244,9 +262,9 @@ const AccountForm = (props) => {
                 },
             })
         }
-    }
+    }, [])
 
-    const handleSubmit = async () => {
+    const handleSubmit = useCallback(async () => {
         // fields
         if (mode == "edit") {
             console.log()
@@ -268,7 +286,7 @@ const AccountForm = (props) => {
                 },
             }).then((data) => {
                 console.log("success!!")
-                router.reload();
+                handleSetHandleBarProps(true, () => { router.reload() }, userString.editUserSnackBar,"success")
             })
             // await internalAPICallHandler(req)
         } else {
@@ -279,6 +297,7 @@ const AccountForm = (props) => {
                 },
             }).then((data) => {
                 console.log("success!!", lang)
+                handleSetHandleBarProps(true, () => { router.push(`/${lang}/setting/account`); }, userString.createdUserSnackBar, "success")
                 // router.push(`/${lang}/setting/account`);
             })
             // var req2: CustomRequest = {
@@ -295,7 +314,7 @@ const AccountForm = (props) => {
             // await internalAPICallHandler(req2)
         }
 
-    }
+    }, [updateFields, fields])
 
     useEffect(() => {
         if (getInitFields)
@@ -313,16 +332,22 @@ const AccountForm = (props) => {
                 {fieldList}
             </Grid>
 
-            <BasicButton className="mt-10" onClick={(e) => {
-                handleOnSubmit(e, (fields) => {
-                    if (mode == "edit")
-                        handleUpdate(fields)
-                    else {
-                        handleSubmit()
-                    }
-                }, mode == "edit" && fields.password == "" ? "edit" : "register")
-            }}>{generalString.confirm}</BasicButton>
-
+            <Block className="flex justify-between">
+                <BasicButton className="mt-10 mr-3 w-32" onClick={(e) => {
+                    handleOnSubmit(e, (fields) => {
+                        if (mode == "edit")
+                            handleUpdate(fields)
+                        else {
+                            handleSubmit()
+                        }
+                    }, mode == "edit" && fields.password == "" ? "edit" : "register")
+                }}>{generalString.confirm}</BasicButton>
+                <BasicButton className="mt-10 ml-3 w-32" onClick={(e) => {
+                    router.back()
+                    // router.push('')
+                }}>{generalString.back}</BasicButton>
+            </Block>
+            <BasicSnackBar {...snackBarProps} />
             <Popup type="local" propsToPopup={{ proceedFunc: () => { handleSubmit() }, title: userString.accountFormPopupTitle, message: userString.accountFormPopupMessage }} />
         </Block>
     )

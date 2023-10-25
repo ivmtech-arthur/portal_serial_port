@@ -13,11 +13,11 @@ export const getMenu = (lang) => {
         },
         {
             title: lang == 'en' ? "Product List" : "商品列表",
-            url: 'product-list',
+            url: 'product-management/product-list',
         },
         {
             title: lang == 'en' ? "Create Product" : "建立商品",
-            url: "create-product",
+            url: "product-management/create-product",
         },
         {
             title: lang == 'en' ? 'Data Analysis' : "數據分析",

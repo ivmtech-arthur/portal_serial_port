@@ -79,7 +79,7 @@ export function hexToRgbA(hex: string, opacity = 1) {
 
 export function mapDataByCol(data: any[], columnMap: any[], userRole: string, isMobile: boolean) {
   console.log("columnMap", columnMap)
-  const action = ["edit","delete","more"]
+  const action = ["edit","delete","more","view"]
   return data.map((entries, index) => {
     return {
       data: [
@@ -90,7 +90,8 @@ export function mapDataByCol(data: any[], columnMap: any[], userRole: string, is
       ],
       ...(!isMobile ? {
         edit: userRole == "SuperAdmin" || userRole == "Admin",
-        delete: userRole == "SuperAdmin"
+        delete: userRole == "SuperAdmin",
+        view: userRole == "Client"
       } : {}),
       ...(isMobile ? {
         more: userRole == "SuperAdmin" || userRole == "Admin"

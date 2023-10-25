@@ -141,14 +141,14 @@ export const muiTheme = createTheme({
                     }
 
                 },
-                
+
                 // formControl: ({ ownerState, theme }) => {
                 //     return {
                 //         "&.Mui-focused": {
                 //             border: '3px solid red',
                 //             borderColor: theme.palette[ownerState.color].main,
                 //         }
-                        
+
                 //     }
                 // }
             }
@@ -421,6 +421,27 @@ export const muiTheme = createTheme({
         //         }
         //     }
         // },
+        MUIDataTableBodyCell: {
+            styleOverrides: {
+                stackedHeader: {
+                    fontWeight: "bold",
+                },
+                root: {
+                    
+                }
+            }
+        },
+        MUIDataTableHeadCell: {
+            styleOverrides: {
+                contentWrapper: {
+                    margin: 'auto',
+                    display: 'block',
+                },
+                data: {
+                    fontWeight: "bold",
+                }
+            }
+        },
         MUIDataTableBodyRow: {
             styleOverrides: {
                 root: {

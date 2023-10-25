@@ -7,7 +7,7 @@ import { css } from 'styled-components'
 import colors from './colors'
 
 const baseFontSize = 16
-const breakpointValues = [0, 430, 900, 1440]
+const breakpointValues = [0, 600, 1181, 1440]
 const breakpoints = map(
   breakpointValues,
   (breakpointValue) => `${breakpointValue}px`

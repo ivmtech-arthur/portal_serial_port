@@ -1,5 +1,7 @@
+import { CheckOutlined, ErrorOutline, ErrorOutlineOutlined, InfoOutlined, WarningOutlined } from "@mui/icons-material"
 import { Alert, AlertColor, Snackbar } from "@mui/material"
 import { SyntheticEvent } from "react"
+import { Check, Info } from "react-feather"
 
 export type SnackBarProps = {
     open: boolean,
@@ -10,9 +12,17 @@ export type SnackBarProps = {
 
 function BasicSnackBar(props: SnackBarProps) {
     const { open, handleClose, message, severity } = props
+
     return (
         <Snackbar open={open} autoHideDuration={6000} onClose={handleClose} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
-            <Alert onClose={handleClose} severity={severity} sx={{ width: '100%' }}>
+            <Alert onClose={handleClose} iconMapping={
+                {
+                    success: <CheckOutlined />,
+                    info: <InfoOutlined />,
+                    warning: <WarningOutlined />,
+                    error: <ErrorOutlineOutlined />
+                }
+            } severity={severity} sx={{ width: '100%' }}>
                 {message}
             </Alert>
         </Snackbar>

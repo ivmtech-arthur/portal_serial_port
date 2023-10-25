@@ -120,6 +120,7 @@ function Layout(props) {
 
   return (
     <>
+      <ThemeProvider theme={muiTheme}>
       <DesktopLayout>
         {/* {!blankLayout && (
           <Header
@@ -132,9 +133,9 @@ function Layout(props) {
         )} */}
 
         {/* {verticalMenu} */}
-        <ThemeProvider theme={muiTheme}>
+
           {children}
-        </ThemeProvider>
+    
      
 
         {/* {!hideFooter && !blankLayout && (
@@ -146,7 +147,8 @@ function Layout(props) {
         
        
       </DesktopLayout>
-      {loading && <Loading />}
+        {loading && <Loading />}
+      </ThemeProvider>
     </>
   )
 }

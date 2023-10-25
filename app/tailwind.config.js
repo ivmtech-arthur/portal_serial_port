@@ -19,10 +19,10 @@ module.exports = {
 
         screens: {
             'xs': '0px',
-            'sm': '430px',
+            'sm': '600px',
             // => @media (min-width: 640px) { ... }
 
-            'md': '900px',
+            'md': '1181px',
             // => @media (min-width: 768px) { ... }
 
             'lg': '1440px',
