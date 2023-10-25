@@ -11,6 +11,7 @@ import { NextPageContext } from "next";
 import dotenv from 'dotenv';
 import dotenvExpand from 'dotenv-expand';
 import { getMenu } from "data/menu";
+import axios from "axios";
 
 interface InjectStates {
   user?: {
@@ -34,11 +35,11 @@ function App({ Component, pageProps, router }: AppProps<any>) {
     }
   }
 
-  if (router.query.lang) { 
-    
+  if (router.query.lang) {
+
     var pageName = "";
     let urlList = router.asPath.split('/');
-    if (urlList.length > 1) { 
+    if (urlList.length > 1) {
       pageName = getMenu(router.query.lang).find((menu) => {
         // console.log("regex test", menu.regex?.test(urlList.slice(2).join('/')), menu.regex, urlList.slice(2).join('/'))
         return menu.url === urlList.slice(2).join('/') || menu.regex?.test(urlList.slice(2).join('/'))
@@ -49,7 +50,7 @@ function App({ Component, pageProps, router }: AppProps<any>) {
       pageName
     }
   }
-    
+
   // console.log(injectStates, 'injectStates', router.basePath)
   return (
     <>
@@ -73,6 +74,12 @@ App.getInitialProps = async (ctx: NextPageContext) => {
   const props = ctx.query;
   const config = dotenv.config();
   dotenvExpand.expand(config);
+  console.log("getInitProps")
+  await axios.post('/api/aws/init').then((res) => {
+    console.log("res", res)
+  }).catch((err) => {
+    console.log("err", err)
+  })
   return { props }
 
 }

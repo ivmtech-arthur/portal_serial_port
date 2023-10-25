@@ -20,10 +20,10 @@ export async function CreateS3Client() {
         // region: process.env.REGION,
     })
 
-    return s3
+    globalS3Client.s3 = s3;
 }
 
-globalS3Client.s3 = await CreateS3Client()
+// globalS3Client.s3 = await CreateS3Client()
 
 // export default globalS3Client
 

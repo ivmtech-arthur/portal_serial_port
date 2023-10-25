@@ -4,7 +4,7 @@ import { DeleteBucketCommand, DeleteBucketCommandInput, DeleteObjectCommand, Del
 import { CreateS3Client, globalS3Client } from "lib/aws";
 import multer from 'multer'
 // import { Express } from 'express'
-const client = await CreateS3Client()
+// const client = await CreateS3Client()
 
 async function uploadFileFromS3(file: Express.Multer.File, type: string) {
 
@@ -51,16 +51,17 @@ const handler = nextConnect()
         const file = req.file;
         const key = Date.now().toString() + '-' + file.originalname;
 
-        console.log("req", file, globalS3Client.s3)
-        const putParams = {
-            Bucket: process.env.S3_BUCKET_NAME,
-            Key: key,
-            Body: file.buffer,
-            ContentType: file.mimetype,
-            ACL: 'public-read',
-        };
+       
+        // const putParams = {
+        //     Bucket: process.env.S3_BUCKET_NAME,
+        //     Key: key,
+        //     Body: file.buffer,
+        //     ContentType: file.mimetype,
+        //     ACL: 'public-read',
+        // };
 
         try {
+            console.log("req", file, globalS3Client.s3)
             // await s3.send(new PutObjectCommand(putParams));
 
             // const signedUrl = await createRequestPresigner(s3);
