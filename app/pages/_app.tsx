@@ -75,11 +75,11 @@ App.getInitialProps = async (ctx: NextPageContext) => {
   const config = dotenv.config();
   dotenvExpand.expand(config);
   console.log("getInitProps")
-  await axios.post('/api/aws/init').then((res) => {
-    console.log("res", res)
-  }).catch((err) => {
-    console.log("err", err)
-  })
+  // await axios.post('/api/aws/init').then((res) => {
+  //   console.log("res", res)
+  // }).catch((err) => {
+  //   console.log("err", err)
+  // })
   return { props }
 
 }

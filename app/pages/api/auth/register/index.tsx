@@ -1,6 +1,6 @@
 
 import { generatePassword, getErrorResponse } from "lib/helper";
-import { prisma } from "lib/prisma";
+import { generateDisplayID, prisma } from "lib/prisma";
 import {
     RegisterUserInput,
     RegisterUserSchema,
@@ -10,6 +10,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { NextApiRequest, NextApiResponse } from "next";
 import { Prisma } from "@prisma/client";
+import CustomNextApiResponse from "lib/response";
 
 type ResponseData = {
     body: any
@@ -51,36 +52,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                         userTypeID: data.userType
                     }
                 },
-                userID: data.userID,
+                userDisplayID: await generateDisplayID("user"),
                 // photo: data.photo,
             },
         });
-        //   await prisma.user.create({
-        //       data: {
-        //           name: "",
-        //       }
-        //   })
-        res.status(200).json(
-            {
-                status: "success",
-                data: { user: { ...user, password: undefined } },
-            }
-
-            // {
-            //     status: 201,
-            //     headers: { "Content-Type": "application/json" },
-            // }
-        );
-        // return res.body(
-        //     JSON.stringify({
+        CustomNextApiResponse(res, { user: { ...user, password: undefined } }, 200)
+        // res.status(200).json(
+        //     {
         //         status: "success",
         //         data: { user: { ...user, password: undefined } },
-        //     }),
-        //     {
-        //         status: 201,
-        //         headers: { "Content-Type": "application/json" },
         //     }
+
         // );
+
         res.end();
     } catch (error: any) {
         if (error instanceof ZodError) {
@@ -90,13 +74,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         if (error.code === "P2002") {
             // return getErrorResponse(409, "user with that name already exists");
         }
-        res.status(400).json(error);
-        // return getErrorResponse(500, error.message);
         console.log("error:", error);
-        // next();
+        CustomNextApiResponse(res, error, 400)
+        // res.status(400).json(error);
+      
     }
-    // res.status(400).json({body:"xd"});
-    // next();
 }
 
 

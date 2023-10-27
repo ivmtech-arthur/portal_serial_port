@@ -1,5 +1,7 @@
 import { Prisma, PrismaClient, User } from "@prisma/client";
 import { DefaultArgs } from "@prisma/client/runtime/library";
+import { NextApiRequest } from "next";
+import { CustomServerResponse } from "./response";
 // import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
@@ -12,19 +14,88 @@ export const prisma =
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 
-export const schemaMap = {
-  "machine": prisma.machine,
-  "machinePalletDetail": prisma.machinePalletDetail,
-  "machineProductSummary": prisma.machineProductSummary,
-  "masterProduct": prisma.masterProduct,
-  "profile": prisma.profile,
-  "transaction": prisma.transaction,
-  "user": prisma.user,
-  "userSession": prisma.userSession,
-  "userRole": prisma.userRole,
-  "userType": prisma.userType,
-  // "": prisma
+const idLimit = 10;
+
+export const tableConfig = {
+  "machine": {
+    instance: prisma.machine,
+    prefix: "MAC",
+  },
+  "machinePalletDetail": {
+    instance: prisma.machinePalletDetail,
+    prefix: "MPD",
+  },
+  "machineProductSummary": {
+    instance: prisma.machineProductSummary,
+    prefix: "MPS",
+  },
+  "masterProduct": {
+    instance: prisma.masterProduct,
+    prefix: "PRD",
+  },
+  "profile": {
+    instance: prisma.profile,
+    prefix: "PRF",
+  },
+  "transaction": {
+    instance: prisma.transaction,
+    prefix: "TRN",
+  },
+  "user": {
+    instance: prisma.user,
+    prefix: "USR",
+  },
+  "userSession": {
+    instance: prisma.userSession,
+  },
+  "userRole": {
+    instance: prisma.userRole,
+  },
+  "userType": {
+    instance: prisma.userType,
+  },
+  "attachment": {
+    instance: prisma.attachment,
+    prefix: "ATT",
+  },
+  "autoIncrement": {
+    instance: prisma.autoIncrement,
+  },
+
+
 }
+
+function genSchemaMap() {
+  var result = {}
+  const keys = Object.keys(tableConfig)
+  Object.values(tableConfig).forEach((value, index) => {
+
+    result[keys[index]] = value.instance
+  })
+  // for (const collection in tableConfig) { 
+  //   result[collection] = tableConfig[collection].instance
+  // }
+
+  return result
+}
+
+export const schemaMap = genSchemaMap()
+
+// export const schemaMap = {
+//   "machine": prisma.machine,
+//   "machinePalletDetail": prisma.machinePalletDetail,
+//   "machineProductSummary": prisma.machineProductSummary,
+//   "masterProduct": prisma.masterProduct,
+//   "profile": prisma.profile,
+//   "transaction": prisma.transaction,
+//   "user": prisma.user,
+//   "userSession": prisma.userSession,
+//   "userRole": prisma.userRole,
+//   "userType": prisma.userType,
+//   "attachment": prisma.attachment,
+//   "autoIncrement": prisma.autoIncrement,
+//   // "": prisma
+// }
 
 type UserReponseType = Prisma.UserGetPayload<{
   include: {
@@ -39,13 +110,13 @@ type UserReponseType = Prisma.UserGetPayload<{
 type UserSessionReponseType = Prisma.UserSessionGetPayload<{
   include: {
     user: true,
-      // userSession: true,
-      // machine: {
-      //   include: {
-      //     [name: string]: true
-      //     // machinePalletDetail: true,
-      //   }
-      // };
+    // userSession: true,
+    // machine: {
+    //   include: {
+    //     [name: string]: true
+    //     // machinePalletDetail: true,
+    //   }
+    // };
   }
 }>
 
@@ -111,13 +182,13 @@ function getObjectFromKeyPath(keyPathObj: {}) {
   // kayPath: string, value: any
   let result = {}
   let listinstance = [];
-  console.log("getObjectFromKeyPath",keyPathObj)
+  console.log("getObjectFromKeyPath", keyPathObj)
   // console.log("result llop", value, keys, prop)
   for (var keyPath in keyPathObj) {
     let value = keyPathObj[keyPath]
     let keys = keyPath.match(/[^[\]]+/g);
     let prop = keys.pop();
-  
+
     if (/^[0-9]*$/.test(prop)) {
       let acc = result;
       for (let key of keys) {
@@ -129,19 +200,53 @@ function getObjectFromKeyPath(keyPathObj: {}) {
       // acc = []
     } else {
       let acc = result;
-      
+
       for (let key of keys) {
         acc = (acc[key] = acc[key] || {});
       }
       acc[prop] = keyPath.endsWith("[]")
         ? (acc[prop] || []).concat(value)
-        : value == "true" ? true : value ;
+        : value == "true" ? true : value;
     }
 
   }
 
 
   return result;
+}
+
+export async function getRecordFromDisplayID(displayID, collection) {
+  // schemaMap[collection].
+  let where = {}
+  where[`${collection}DisplayID`] = displayID
+  return await schemaMap[collection].findUnique({
+    where
+  })
+}
+
+
+export const generateDisplayID = async (collection: string) => {
+  const value = await getAutoIncrement(collection)
+
+  if (tableConfig[collection].prefix) {
+    return tableConfig[collection].prefix + (value + "").padStart(idLimit, "0");
+  }
+  else {
+    return ""
+  }
+
+}
+
+async function getAutoIncrement(collection: string) {
+  var result = 0;
+  let tempResult: any = await prisma.$queryRaw`SELECT IDENT_CURRENT(${collection}) as result;`
+  console.log("tempResult", tempResult)
+  try {
+    result = parseInt(tempResult[0].result)
+    return result
+  } catch (e) {
+    throw "Error getting Auto Increment Number:\n" + e
+  }
 }
 
 export function handleClause(collection, id?, populate?, queryParams?) {
@@ -152,16 +257,16 @@ export function handleClause(collection, id?, populate?, queryParams?) {
   var whereInput: any;
   var queryParamsObject: any;
 
-  if (populate && typeof populate === 'string') {
-    if (populate == "*") {
-      allPopulate = true;
+  // if (populate && typeof populate === 'string') {
+  //   if (populate == "*") {
+  //     allPopulate = true;
 
-    } else if (populate.split(',').length > 1) {
-      listPopulate = true;
-    } else {
-      singlePopulate = true;
-    }
-  }
+  //   } else if (populate.split(',').length > 1) {
+  //     listPopulate = true;
+  //   } else {
+  //     singlePopulate = true;
+  //   }
+  // }
 
   if (queryParams) {
     queryParamsObject = getObjectFromKeyPath(queryParams);
@@ -175,19 +280,19 @@ export function handleClause(collection, id?, populate?, queryParams?) {
       }
       whereInput = machineClause;
 
-      if (populate) {
-        var machineInclude: Prisma.MachineInclude = {
+      // if (populate) {
+      //   var machineInclude: Prisma.MachineInclude = {
 
-        };
+      //   };
 
-        includeInput = {
-          ...(allPopulate ? machineInclude : {}),
-          ...(listPopulate ? {
-            ...(createInclude(machineInclude, populate))
-          } : {}),
-          ...(singlePopulate ? { ...(createInclude(machineInclude, populate)) } : {})
-        }
-      }
+      //   includeInput = {
+      //     ...(allPopulate ? machineInclude : {}),
+      //     ...(listPopulate ? {
+      //       ...(createInclude(machineInclude, populate))
+      //     } : {}),
+      //     ...(singlePopulate ? { ...(createInclude(machineInclude, populate)) } : {})
+      //   }
+      // }
       break
     case "machinePalletDetail":
       var machinePalletDetailClause: Prisma.MachinePalletDetailWhereUniqueInput = {
@@ -203,19 +308,19 @@ export function handleClause(collection, id?, populate?, queryParams?) {
       }
       whereInput = machineProductSummaryClause;
 
-      if (populate) {
-        var machineProductSummaryInclude: Prisma.MachineProductSummaryInclude = {
+      // if (populate) {
+      //   var machineProductSummaryInclude: Prisma.MachineProductSummaryInclude = {
 
-        };
+      //   };
 
-        includeInput = {
-          ...(allPopulate ? machineProductSummaryInclude : {}),
-          ...(listPopulate ? {
-            ...(createInclude(machineProductSummaryInclude, populate))
-          } : {}),
-          ...(singlePopulate ? { ...(createInclude(machineProductSummaryInclude, populate)) } : {})
-        }
-      }
+      //   includeInput = {
+      //     ...(allPopulate ? machineProductSummaryInclude : {}),
+      //     ...(listPopulate ? {
+      //       ...(createInclude(machineProductSummaryInclude, populate))
+      //     } : {}),
+      //     ...(singlePopulate ? { ...(createInclude(machineProductSummaryInclude, populate)) } : {})
+      //   }
+      // }
       break
     case "masterProduct":
       var masterProductClause: Prisma.MasterProductWhereUniqueInput = {
@@ -224,19 +329,19 @@ export function handleClause(collection, id?, populate?, queryParams?) {
       whereInput = masterProductClause;
 
 
-      if (populate) {
-        var productInclude: Prisma.MasterProductInclude = {
+      // if (populate) {
+      //   var productInclude: Prisma.MasterProductInclude = {
 
-        };
+      //   };
 
-        includeInput = {
-          ...(allPopulate ? productInclude : {}),
-          ...(listPopulate ? {
-            ...(createInclude(productInclude, populate))
-          } : {}),
-          ...(singlePopulate ? { ...(createInclude(productInclude, populate)) } : {})
-        }
-      }
+      //   includeInput = {
+      //     ...(allPopulate ? productInclude : {}),
+      //     ...(listPopulate ? {
+      //       ...(createInclude(productInclude, populate))
+      //     } : {}),
+      //     ...(singlePopulate ? { ...(createInclude(productInclude, populate)) } : {})
+      //   }
+      // }
       break
     case "user":
       var userClause: Prisma.UserWhereUniqueInput = {
@@ -244,40 +349,44 @@ export function handleClause(collection, id?, populate?, queryParams?) {
       }
       whereInput = userClause
 
-      if (populate) {
-        var userInclude: Prisma.UserInclude = {
-          userSession: true,
-          machine: {
-            include: {
-              machinePalletDetail: {
-                include: {
-                  masterProduct: true
-                }
-              },
-              machineProductSummary: {
-                include: {
-                  masterProduct: true
-                }
-              }
-            }
-          },
-        };
+      // if (populate) {
+      //   var userInclude: Prisma.UserInclude = {
+      //     userSession: true,
+      //     machine: {
+      //       include: {
+      //         machinePalletDetail: {
+      //           include: {
+      //             masterProduct: true
+      //           }
+      //         },
+      //         machineProductSummary: {
+      //           include: {
+      //             masterProduct: true
+      //           }
+      //         }
+      //       }
+      //     },
+      //   };
 
 
-        includeInput = {
-          ...(allPopulate ? userInclude : {}),
-          ...(listPopulate ? {
-            ...(createInclude(userInclude, populate))
-          } : {}),
-          ...(singlePopulate ? { ...(createInclude(userInclude, populate)) } : {})
-        }
-      }
+      //   includeInput = {
+      //     ...(allPopulate ? userInclude : {}),
+      //     ...(listPopulate ? {
+      //       ...(createInclude(userInclude, populate))
+      //     } : {}),
+      //     ...(singlePopulate ? { ...(createInclude(userInclude, populate)) } : {})
+      //   }
+      // }
       break
     default:
       break;
 
   }
   return { singleWhereClause: { where: whereInput }, includeClause: { include: includeInput }, ...queryParamsObject }
+}
+
+export function handleIncrement(collection, data) {
+
 }
 
 export async function isAuthorised(token: string) {
@@ -290,7 +399,7 @@ export async function isAuthorised(token: string) {
       },
 
     });
-    console.log("token", token, result.token, result.token == token);
+    // console.log("token", token, result.token, result.token == token);
     if (result.expiredDate.getTime() <= new Date().getTime()) {
       throw ("Token Expired")
     }
@@ -298,6 +407,28 @@ export async function isAuthorised(token: string) {
   } catch (e) {
     console.log("error", e)
     throw (e);
+  }
+}
+
+export async function AuthorisedMiddleware(req: NextApiRequest) {
+  try {
+    const { authorization } = req.headers
+    if (authorization && authorization.includes("Bearer ")) {
+      let tokenAuthorized = false;
+      try {
+        tokenAuthorized = await isAuthorised(authorization.replace("Bearer ", ""));
+      } catch (e) {
+        throw ("Access Denied, Authorized fail")
+      }
+
+      if (tokenAuthorized) {
+        return
+      }
+    } else {
+      throw ("Access Denied, Bearer Token Not Found")
+    }
+  } catch (e) {
+    throw CustomServerResponse(e, 403)
   }
 }
 

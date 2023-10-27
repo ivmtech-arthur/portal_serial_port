@@ -2,26 +2,23 @@ import { z } from "zod";
 
 export const RegisterUserSchema = z
   .object({
+    userDisplayID: z.string().optional(),
     name: z
       .string({
         required_error: "Name is required",
       })
-          .min(1, "Full name is required"),
-      nameEn: z
+      .min(1, "Full name is required"),
+    nameEn: z
       .string({
         required_error: "Name is required",
       })
       .min(1, "Full name is required"),
-    userID: z
-      .string({
-        required_error: "userID is required",
-      })
-      .min(1, "userID is required"),
     username: z
       .string({
         required_error: "username is required",
       })
-      .min(1, "username is required"),
+      .min(1, "username is required")
+    .max(20, "username must be less than 20 characters"),
     //   .email("Email is invalid"),
     // photo: z.string().optional(),
     password: z
@@ -49,8 +46,9 @@ export const LoginUserSchema = z.object({
     .string({
       required_error: "Identifier is required",
     })
-    .min(1, "Identifier required"),
-    // .email("Email is invalid"),
+    .min(1, "Identifier required")
+    .max(20, "Identifier must be less than 20 characters"),
+  // .email("Email is invalid"),
   password: z
     .string({
       required_error: "Password is required",
@@ -70,11 +68,11 @@ export const ChangeUserDataSchema = z.object({
       required_error: "Name is required",
     })
     .min(1, "Full name is required"),
-  userID: z
+  username: z
     .string({
-      required_error: "userID is required",
+      required_error: "username is required",
     })
-    .min(1, "userID is required"),
+    .min(1, "username is required"),
   //   .email("Email is invalid"),
   // photo: z.string().optional(),
   // password: z
@@ -88,9 +86,9 @@ export const ChangeUserDataSchema = z.object({
   //   .string({
   //     // required_error: "Confirm your password",
   //   })
-    // .min(1, "Confirm your password"),
-  userType: z.number().default(3),
-  userRole: z.number().default(3),
+  // .min(1, "Confirm your password"),
+  userType: z.number().default(1),
+  userRole: z.number().default(1),
 })
 //   .refine((data) => data.password === data.passwordConfirm, {
 //   path: ["passwordConfirm"],

@@ -16,6 +16,7 @@ module.exports = {
         policy: 'Privacy policy',
         selectOne: '(select one only)',
         copyright: '©IVM Technology Limited. All Rights Reserved',
+        noFile: 'no file is chosen',
     },
     tc: {
         lang: 'tc',
@@ -34,5 +35,6 @@ module.exports = {
         policy: 'Privacy policy tc',
         selectOne: '(select one only) tc',
         copyright: '©IVM Technology Limited. All Rights Reserved tc',
+        noFile: 'no file is chosen tc',
     }
 }

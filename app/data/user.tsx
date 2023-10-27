@@ -1,6 +1,6 @@
 export const userContent = {
     en: {
-        userIDPlaceholder: 'User ID',
+        userDisplayIDPlaceholder: 'User ID',
         namePlaceholder: 'Name',
         nameEnPlaceholder: 'Name Eng',
         usernamePlaceholder: 'Username',
@@ -17,7 +17,7 @@ export const userContent = {
         deleteUserSnackbar: 'Deleted User',
     },
     tc: {
-        userIDPlaceholder: 'User ID tc',
+        userDisplayIDPlaceholder: 'User ID tc',
         namePlaceholder: 'Name tc',
         nameEnPlaceholder: 'Name Eng tc',
         usernamePlaceholder: 'Username tc',

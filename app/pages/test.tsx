@@ -76,7 +76,7 @@ export default function Test() {
                 </Select>
             </FormControl>
             <BasicTextField
-                type="textarea"
+                textarea
                 size="small" color="primary" id="outlined-basic" placeholder="outlined" variant="outlined" sx={{
                     padding: '10px'
                 }} />
@@ -100,11 +100,27 @@ export default function Test() {
                 }} type="file" id="file" />
             </Button>
             <Button variant="contained" onClick={async () => {
-                await axios.post('/api/aws/s3', { data: file }).then((result) => {
-                    console.log("result", result)
-                }).catch((err) => {
-                    console.log("error api", err)
-                })
+                console.log("file", file)
+                if (file instanceof File) {
+                    let fileBuffer = await file.arrayBuffer()
+                    let blob = new Blob([fileBuffer]);
+                    const data = new FormData()
+                    data.append("file", file);
+                    data.set("type", file.type.split('/')[0])
+                    data.set("collection", "test")
+                    await axios.post('/api/aws/s3', data,
+                        // {
+                        // headers: {
+                        //     'Content-Type': 'application/json',
+                        // },
+                        // }
+                    ).then((result) => {
+                        console.log("result", result)
+                    }).catch((err) => {
+                        console.log("error api", err)
+                    })
+                }
+
             }}>submit</Button>
             {/* <Snackbar open={open} autoHideDuration={6000} onClose={handleClose} anchorOrigin={{ vertical:'top', horizontal:'right' }}>
                 <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>

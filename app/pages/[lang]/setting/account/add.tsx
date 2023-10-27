@@ -1,22 +1,15 @@
 import { CustomCtx, preprocessServerSideProps } from 'lib/serverside-prepro'
 import Block from 'components/Common/Element/Block'
 import { useStore } from 'store'
-import find from 'lodash/find'
-import get from 'lodash/get'
 import getConfig from 'next/config'
 import Popup from 'components/Popup'
 import { useState } from 'react'
 import { useRouter } from 'next/router'
-import { IconButton, Icon } from "@mui/material";
 import { withCookies } from 'react-cookie'
-import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import { CustomRequest, internalAPICallHandler } from 'lib/api/handler'
-import ExpandableRowTable from 'components/Table/expandableTable'
 import StyledH1 from 'components/Common/Element/H1'
-import { mapDataByCol } from 'lib/helper'
 import FormHandler from 'components/Form'
 const { publicRuntimeConfig } = getConfig()
-const { API_URL, APP_URL } = publicRuntimeConfig
 
 
 const AccountAdd = (props) => {
@@ -30,19 +23,10 @@ const AccountAdd = (props) => {
         },
         dispatch,
     } = useStore()
-    console.log("accountList props", props, pageName, lang)
-    // const listaccountString = get(listAccount, lang)
-    const [editState, setEditState] = useState({})
-    const [filter, setFilter] = useState([])
-    const [selectedField, setSelectedField] = useState('id')
-    const [record, setRecord] = useState({})
-    const [serverErrorMessage, setServerErrorMessage] = useState(null)
-    const router = useRouter()
 
     return (
         <Block>
             <StyledH1 className={`text-white ${lang == 'en' ? 'font-jost' : 'font-notoSansTC'}`} color="white"
-            // fontFamily={lang == "tc" ? "notoSansTc" : "jost"}
             >
                 {pageName}
             </StyledH1>
@@ -60,10 +44,6 @@ export async function getServerSideProps(ctx: CustomCtx) {
     if (preProps.redirect)
         return preProps
 
-    console.log("ctx is", ctx.params)
-    const { pageName } = ctx.query
-    const { profile, token, siteConfig } = ctx?.props || {}
-    const { slug, lang } = ctx.params
     const collection = 'user'
 
     var getUserRole: CustomRequest = {
@@ -80,14 +60,11 @@ export async function getServerSideProps(ctx: CustomCtx) {
         method: ctx.req.method,
     }
 
-
-
     const userRoleData = await internalAPICallHandler(getUserRole).then((data) => {
         return JSON.parse(JSON.stringify(data.result))
     }).catch((e) => {
         console.log("error getserversideProps", e)
     })
-
 
     const userTypeData = await internalAPICallHandler(getUserType).then((data) => {
         return JSON.parse(JSON.stringify(data.result))

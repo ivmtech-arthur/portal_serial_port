@@ -3,8 +3,7 @@ import Block from 'components/Common/Element/Block'
 import { useStore } from 'store'
 import get from 'lodash/get'
 import getConfig from 'next/config'
-import Popup from 'components/Popup'
-import { SetStateAction, useState, Dispatch, useCallback } from 'react'
+import { useState, useCallback } from 'react'
 import { useRouter } from 'next/router'
 import { withCookies } from 'react-cookie'
 import { CustomRequest, internalAPICallHandler } from 'lib/api/handler'
@@ -15,24 +14,6 @@ import { userContent } from 'data/user'
 import axios from 'axios'
 import BasicSnackBar, { SnackBarProps } from 'components/snackbar'
 const { publicRuntimeConfig } = getConfig()
-const { API_URL, APP_URL } = publicRuntimeConfig
-
-// const handleDelete = async (id, token, router, setSnackbarProps: Dispatch<SetStateAction<SnackBarProps>>) => {
-//     await axios.delete(`/api/prisma/user/${id}`, {
-//         headers: {
-//             Authorization: `Bearer ${token}`,
-//         },
-//     }).then((data) => {
-//         console.log("success!!")
-//         setSnackbarProps({
-//             open: true,
-//             message: "",
-//             severity: "success"
-//         })
-//     }).catch((e) => {
-
-//     })
-// }
 
 
 const AccountList = (props) => {
@@ -48,7 +29,7 @@ const AccountList = (props) => {
         dispatch,
     } = useStore()
 
-    console.log("accountList props", props, pageName, lang, data, columnMap, role)
+    // console.log("accountList props", props, pageName, lang, data, columnMap, role)
     const [snackBarProps, setSnackbarProps] = useState<SnackBarProps>({
         open: false,
         handleClose: () => {
@@ -92,7 +73,6 @@ const AccountList = (props) => {
     return (
         <Block>
             <StyledH1 className={`text-white ${lang == 'en' ? 'font-jost' : 'font-notoSansTC'}`} color="white"
-            // fontFamily={lang == "tc" ? "notoSansTc" : "jost"}
             >
                 {pageName}
             </StyledH1>
@@ -102,15 +82,18 @@ const AccountList = (props) => {
                     dataObjList={mapDataByCol(data, columnMap, role, false)}
                     mobileDataObjList={mapDataByCol(data, columnMap, role, true)}
                     columnsFromParent={columnMap}
-                    title={userString.deleteFromPopupTitle}
+                    title={pageName}
+                    popupTitle={userString.deleteFromPopupTitle}
                     message={userString.deleteUserPopupMessage}
                     handleDelete={(data) => {
                         handleDelete(data)
                     }}
+                    handleClickAdd={() => { 
+                        router.push(`${router.asPath}/add`)
+                    }}
                 />
             </Block>
             <BasicSnackBar {...snackBarProps} />
-            {/* <Popup type="local" propsToPopup={{ editState: editState, physioData: props.physioData, subscriptionData: props.subscriptionData, profile: profile, serverErrorMessage: serverErrorMessage }} /> */}
         </Block>
     )
 }
@@ -120,7 +103,6 @@ export async function getServerSideProps(ctx: CustomCtx) {
     if (preProps.redirect)
         return preProps
 
-    console.log("ctx is", ctx.params)
     const { pageName } = ctx.query
     const { profile, token, siteConfig, user } = ctx?.props || {}
     const { slug, lang } = ctx.params
@@ -129,9 +111,14 @@ export async function getServerSideProps(ctx: CustomCtx) {
     const columnMap = [
         {
             name: "userID",
+            desktopIgnore: true,
+            objPath: "userID",
+        },
+        {
+            name: "userDisplayID",
             mobileDisplay: true,
             mobileCollapse: true,
-            objPath: "userID",
+            objPath: "userDisplayID",
         },
         {
             name: "name",
@@ -187,22 +174,12 @@ export async function getServerSideProps(ctx: CustomCtx) {
         console.log("error getserversideProps", e)
     })
 
-    console.log("getServersideProps ctx", data)
-
     return {
         props: {
-            // contentData,
             columnMap,
             data: data,
             user,
-            // physioData,
-            // subscriptionData,
-            headerTheme: 'white',
-            headerPosition: 'fixed',
             collection,
-            // pageName: "account Management"
-            // profile,
-            // siteConfig
         },
     }
 }

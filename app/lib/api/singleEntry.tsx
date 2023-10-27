@@ -1,5 +1,5 @@
 import { Machine, Prisma } from "@prisma/client";
-import { isAuthorised, prisma, schemaMap, handleClause } from "lib/prisma";
+import { isAuthorised, prisma, schemaMap, handleClause, tableConfig, generateDisplayID } from "lib/prisma";
 import CustomNextApiResponse from "lib/response";
 import { includes } from "lodash";
 import { NextApiResponse } from "next";
@@ -11,7 +11,7 @@ async function PUT(req: CustomRequest) {
     try {
         const { collection, id } = req.query
         const { data } = req.body
-        if (typeof collection === 'string' && typeof id === 'string') {
+        if (typeof collection === 'string') {
             const { singleWhereClause } = handleClause(collection, id);
             const result = await schemaMap[collection].update({
                 ...singleWhereClause,
@@ -34,7 +34,7 @@ async function GET(req: CustomRequest) {
         const { collection, id, populate, ...queryParams } = req.query
 
 
-        if (typeof collection === 'string' && typeof id === 'string') {
+        if (typeof collection === 'string') {
             const { singleWhereClause, includeClause, include, select } = handleClause(collection, id, populate, queryParams);
             console.log("singleWhereClause", singleWhereClause, includeClause)
             const result = await schemaMap[collection].findUniqueOrThrow({
@@ -58,7 +58,14 @@ async function POST(req: CustomRequest) {
     try {
         const { collection } = req.query
         const { data } = req.body
+        console.log("post xd", data)
         if (typeof collection === 'string') {
+            // const increment = await schemaMap["autoIncrement"].findFirst();
+            // if(increment.
+            if (tableConfig[collection].prefix) {
+                data[`${collection}DisplayID`] = await generateDisplayID(collection)
+            }
+
             const result = await schemaMap[collection].create({
                 data
             });
@@ -68,6 +75,7 @@ async function POST(req: CustomRequest) {
         // res.end()
     } catch (e) {
         console.log("error", e);
+        throw e;
         // CustomNextApiResponse(res, e, 400);
     }
 }
@@ -76,7 +84,7 @@ async function DELETE(req: CustomRequest) {
     try {
         const { collection, id } = req.query
         const { data } = req.body
-        if (typeof collection === 'string' && typeof id === 'string') {
+        if (typeof collection === 'string') {
             const { singleWhereClause, includeClause } = handleClause(collection, id);
             const result = await schemaMap[collection].delete({
                 ...singleWhereClause,

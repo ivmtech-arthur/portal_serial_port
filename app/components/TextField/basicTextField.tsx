@@ -7,7 +7,7 @@ import {
 } from '@mui/material/styles'
 import { inherits } from 'util'
 import { hexToRgbA } from 'lib/helper'
-import { IconButton, InputAdornment, InputBasePropsColorOverrides, InputBasePropsSizeOverrides, OutlinedInput, SxProps, TextField, TextareaAutosize, Tooltip } from '@mui/material'
+import { IconButton, InputAdornment, InputBaseComponentProps, InputBasePropsColorOverrides, InputBasePropsSizeOverrides, OutlinedInput, SxProps, TextField, TextareaAutosize, Tooltip } from '@mui/material'
 import { some } from 'lodash'
 import { muiTheme } from 'styles/mui'
 import StyledBody4 from 'components/Common/Element/body4'
@@ -15,6 +15,7 @@ import { Visibility } from '@mui/icons-material'
 import BasicButton from 'components/Button/BasicButton'
 import Button, { ButtonPropsColorOverrides, ButtonPropsSizeOverrides, ButtonPropsVariantOverrides } from '@mui/material/Button'
 import { OverridableStringUnion } from '@mui/types'
+import styled from 'styled-components'
 
 type BasicTextFieldProps = {
     id?: string,
@@ -29,16 +30,34 @@ type BasicTextFieldProps = {
     variant?: OverridableStringUnion<"standard" | "filled" | "outlined", ButtonPropsVariantOverrides>,
     startIcon?: ReactNode,
     endIcon?: ReactNode,
-    error?: boolean,
+    error?: any,
     size?: OverridableStringUnion<"small" | "medium", InputBasePropsSizeOverrides>,
     sx?: SxProps,
     placeholder?: string,
-    handleValidation?: (e) => void,
-    [name: string] : any
+    inputProps?: InputBaseComponentProps,
+    handleValidation?: (e, type: string) => void,
+    [name: string]: any
 }
 
+const CustomTextArea = styled(TextareaAutosize)(({ theme, color, value }) => ({
+    ":focus": {
+        boxShadow: `0 0 0 0.2rem ${hexToRgbA(theme.palette[color].light, 0.5)}`,
+        border: `2px solid ${hexToRgbA(theme.palette[color].main, 1)}`
+    },
+    '::placeholder': {
+        color: '#C4C4C4',
+        opacity: 1, /* Firefox */
+    },
+    ...(value ? {} : {
+
+
+    })
+}))
+
+
+
 const BasicTextField = (props: BasicTextFieldProps) => {
-    const { id, type, value, textarea, onClick, color, rounded, disabled, variant, startIcon, endIcon, hover, size, sx, placeholder, error, handleValidation, onChange, ...restProps } = props
+    const { id, type, value, textarea, onClick, color, rounded, disabled, variant, startIcon, endIcon, hover, size, sx, placeholder, error, handleValidation, onChange, className, inputProps, ...restProps } = props
     // console.log("children", props.children, Array.isArray(props.children),some((props.chilren), (child) => { return typeof child == 'string' }))
     let isIconButton = true;
     // if (props.children && typeof props.children === "string"
@@ -55,13 +74,18 @@ const BasicTextField = (props: BasicTextFieldProps) => {
     return (
         <ThemeProvider theme={muiTheme}>
             {
-                textarea && <TextareaAutosize
-                    style={{ resize: "vertical" }}
-                    color={color}
-                    className={`${rounded ? " rounded-full" : ""}`}
-                    onClick={(e) => { onClickEvent(e) }}
-                    placeholder={placeholder}
-                />
+                textarea &&
+                <Block className={` ${className}`}>
+                    <CustomTextArea
+                        theme={muiTheme}
+                        value={currValue}
+                        color={!error ? (color || "primary") : "error"}
+                        className={`${rounded ? " rounded-full" : "rounded-[3px]"} hover:border-[#333333] resize-y min-h-[19px] py-[11.5px] px-[17px] border-[#C4C4C4]`}
+                        onClick={(e) => { onClickEvent(e) }}
+                        placeholder={placeholder}
+                    />
+
+                </Block>
             }
             {!textarea &&
                 <TextField
@@ -77,12 +101,15 @@ const BasicTextField = (props: BasicTextFieldProps) => {
                     color={!error ? (color || "primary") : "error"}
                     className={`${rounded ? " rounded-full" : ""}`}
                     onClick={(e) => { onClickEvent(e) }}
-                onChange={(e) => {
+                    InputProps={{
+                        inputProps: inputProps
+                    }}
+                    onChange={(e) => {
                         setCurrValue(e.target.value)
                         if (handleValidation)
-                        handleValidation(e)
-                    if (onChange)
-                        onChange(e)
+                            handleValidation(e, type == "number" ? "number": "string")
+                        if (onChange)
+                            onChange(e)
                     }}
                     {...(type == "password" && {
                         InputProps: {

@@ -8,13 +8,12 @@ import Button7 from '../Button/Button7'
 import CustomCheckBox from '../Button/CheckBox'
 import forgetPassword from '../../data/auth/forgetPassword'
 import general from '../../data/general'
-import { userContent } from 'data/user'
 import get from 'lodash/get'
 import { useStore } from 'store'
 import { useCallback, useEffect, useState } from 'react'
 import BasicButton from 'components/Button/BasicButton'
 import BasicTextField from 'components/TextField/basicTextField'
-import { RegisterUserInput, ChangeUserDataInput } from 'lib/validations/user.schema'
+import { RegisterUserInput } from 'lib/validations/user.schema'
 import { AlertColor, FormControl, Grid, InputLabel, MenuItem, Select, SelectChangeEvent } from '@mui/material'
 import StyledDropDownButton from 'components/TextField/styledDropDownButton'
 import Popup from 'components/Popup'
@@ -23,12 +22,17 @@ import axios from 'axios'
 import { withCookies } from 'react-cookie'
 import { useRouter } from 'next/router'
 import BasicSnackBar, { SnackBarProps } from 'components/snackbar'
+import { Prisma } from '@prisma/client'
+import { CreateProductInput } from 'lib/validations/product.schema'
+import UploadButton from 'components/Button/UploadButton'
+import { Blob } from 'buffer'
+import { productContent } from 'data/product'
+import { clientGetDisplayID } from 'lib/helper'
 
 
 
 
-
-const getFieldList = (fieldConfig, handleChangeFormData, errors, placeholderMap, handleValidation, fields, userData, mode) => {
+const getFieldList = (fieldConfig, handleChangeFormData, errors, placeholderMap, handleValidation, fields, data, mode) => {
     var result = []
     for (const key in fieldConfig) {
         switch (fieldConfig[key].type) {
@@ -41,14 +45,14 @@ const getFieldList = (fieldConfig, handleChangeFormData, errors, placeholderMap,
                         <BasicTextField
                             onChange={(e) => { handleChangeFormData(key, e.target.value) }}
                             {...(mode == "edit" ? {
-                                value: userData[key]
+                                value: data[key]
                             } : {})}
                             placeholder={placeholderMap[`${key}Placeholder`]}
                             handleValidation={handleValidation}
                             error={errors[key]}
                             id={key}
                             name={key}
-                            disabled={(key == "userDisplayID" && mode == "edit") || mode == "view"}
+                            disabled={(key == "userID" && mode == "edit") || mode == "view" || fieldConfig[key].disabled}
                             {...(key == "password" || key == "passwordConfirm" ? {
                                 type: "password"
                             } : {})}
@@ -57,6 +61,39 @@ const getFieldList = (fieldConfig, handleChangeFormData, errors, placeholderMap,
 
                 )
                 break;
+            case "number":
+                result.push(
+                    <Grid item xs={12} md={6}>
+                        <InputLabel className="h5" shrink htmlFor="bootstrap-input">
+                            {placeholderMap[`${key}Placeholder`]}
+                        </InputLabel>
+                        <BasicTextField
+                            type="number"
+                            inputProps={{
+                                min: fieldConfig[key].min,
+                                step: fieldConfig[key].step,
+                            }}
+                            // oninput="validity.valid||(value='');"
+                            onChange={(e) => {
+                                handleChangeFormData(key, parseFloat(e.target.value))
+                            }}
+
+                            {...(mode != "add" ? {
+                                value: data[key]
+                            } : {
+                                value: 0
+                            })}
+                            placeholder={placeholderMap[`${key}Placeholder`]}
+                            handleValidation={handleValidation}
+                            error={errors[key]}
+                            id={key}
+                            name={key}
+                            disabled={mode == "view" || fieldConfig[key].disabled}
+                        />
+                    </Grid>
+
+                )
+                break
             case "textArea":
                 result.push(
                     <Grid item xs={12} md={6}>
@@ -64,25 +101,21 @@ const getFieldList = (fieldConfig, handleChangeFormData, errors, placeholderMap,
                             {placeholderMap[`${key}Placeholder`]}
                         </InputLabel>
                         <BasicTextField
-                            type="textarea"
+                            textarea
+                            className="grid"
                             onChange={(e) => { handleChangeFormData(key, e.target.value) }}
                             placeholder={placeholderMap[`${key}Placeholder`]}
                             handleValidation={handleValidation}
                             error={errors[key]}
                             id={key}
                             name={key}
+                            disabled={mode == "view" || fieldConfig[key].disabled}
                         />
                     </Grid>
                 )
                 break;
             case "select":
                 const options = fieldConfig[key].options
-                console.log("options", fields, options, key, options.find(option => option.value === fields[key]))
-                // const optionList = fieldConfig[key].options.map((option) => {
-                //     return (
-                //         <MenuItem value={option}>{option}</MenuItem>
-                //     )
-                // })
                 result.push(
                     <Grid item xs={12} md={6}>
                         <InputLabel className="h5" shrink htmlFor="bootstrap-input">
@@ -103,33 +136,31 @@ const getFieldList = (fieldConfig, handleChangeFormData, errors, placeholderMap,
                                     console.log("handleChange",)
                                     handleChangeFormData(key, parseInt(e.target.value))
                                 }}
-                            // onChange={(e) => { handleChange(e) }}
+                                disabled={mode == "view" || fieldConfig[key].disabled}
                             />
-                            {/* <Select
-                                // placeholder={placeholderMap[`${key}Placeholder`]}
-                                renderValue={(selected) => {
-                                    if (selected === 0) {
-                                        return <em>Placeholder</em>;
-                                    }
-
-                                // return selected.join(', ');
-                                }}
-                                // labelId="demo-simple-select-label"
-                                id={key}
-                                name={key}
-                                value={1}
-                            // label="Age"
-                            onChange={handleChange}
-                            >
-                                <MenuItem disabled value="">
-                                    <em>Placeholder</em>
-                                </MenuItem>
-                                {optionList}
-                            </Select> */}
                         </FormControl>
 
                     </Grid>
 
+                )
+                break;
+            case "upload":
+                result.push(
+                    <Grid item xs={12} md={6}>
+                        <UploadButton
+                            id={key}
+                            name={key}
+                            component="label"
+                            error={errors[key]}
+                            color="primary"
+                            variant="contained"
+                            handleValidation={handleValidation}
+                            onChange={(file: Blob) => {
+                                handleChangeFormData(key, file)
+                            }}>
+                            {placeholderMap[`${key}Placeholder`]}
+                        </UploadButton>
+                    </Grid>
                 )
                 break;
         }
@@ -138,68 +169,62 @@ const getFieldList = (fieldConfig, handleChangeFormData, errors, placeholderMap,
     return result
 }
 
-const AccountForm = (props) => {
-    const { getInitFields, handleOnSubmit, handleValidation, errors, parentCallback, fields, userTypeData, userRoleData, mode = "view", userData } = props
+const productForm = (props) => {
+    const { getInitFields, handleOnSubmit, handleValidation, errors, parentCallback, fields, userTypeData, userRoleData, mode = "view", productData } = props
 
-    console.log("account form", props)
+    console.log("product form", props)
 
-    const initFields: RegisterUserInput = mode == "add" ? {
-        name: "",
-        nameEn: "",
-        username: "",
-        password: "",
-        passwordConfirm: "",
-        userType: 1,
-        userRole: 1,
+    const initFields: CreateProductInput = mode == "add" ? {
+        productName: "",
+        productNameEn: "",
+        desc: "",
+        descEn: "",
+        price: 0,
+        unitPrice: 0,
+        remark: "",
+        attachment: {},
     } : {
-        name: userData.name,
-        nameEn: userData.nameEn,
-        userDisplayID: userData.userDisplayID,
-        username: userData.username,
-        password: "",
-        passwordConfirm: "",
-        userType: userData.userType.userTypeID,
-        userRole: userData.userRole.userRoleID,
+        productName: productData.productName,
+        productNameEn: productData.productNameEn,
+        desc: productData.desc,
+        descEn: productData.descEn,
+        price: productData.price,
+        unitPrice: productData.unitPrice,
+        remark: productData.remark,
+        attachment: productData.attachment,
     }
 
     const fieldConfig = {
         ...(mode != "add" && {
-            userDisplayID: {
+            productDisplayID: {
                 type: "textField",
             }
         }),
-        name: {
+        productName: {
             type: "textField",
         },
-        nameEn: {
+        productNameEn: {
             type: "textField",
         },
-        username: {
-            type: "textField",
+        desc: {
+            type: "textArea",
         },
-        password: {
-            type: "textField",
+        descEn: {
+            type: "textArea",
         },
-        passwordConfirm: {
-            type: "textField",
+        price: {
+            type: "number",
+            step: '0.01',
+            min: '0',
         },
-        userType: {
-            type: "select",
-            options: userTypeData.map((data) => {
-                return {
-                    value: data.userTypeID,
-                    label: data.userTypeName,
-                }
-            }),
+        unitPrice: {
+            type: "number",
         },
-        userRole: {
-            type: "select",
-            options: userRoleData.map((data) => {
-                return {
-                    value: data.userRoleID,
-                    label: data.userRoleName,
-                }
-            }),
+        remark: {
+            type: "textArea",
+        },
+        attachment: {
+            type: "upload",
         },
     }
 
@@ -212,7 +237,7 @@ const AccountForm = (props) => {
     const { cookies } = props
     const token = cookies.get("userToken")
     const generalString = get(general, lang)
-    const userString = get(userContent, lang)
+    const productString = get(productContent, lang)
     const forgetPasswordString = get(forgetPassword, lang)
     const router = useRouter()
     const [email, setEmail] = useState("")
@@ -264,27 +289,60 @@ const AccountForm = (props) => {
     }, [])
 
     const handleSubmit = useCallback(async () => {
+        console.log("fields", fields)
         // fields
         if (mode == "edit") {
-            console.log()
             var data: any = { data: updateFields };
-            await axios.put(`/api/prisma/user/${fields.userID}`, data, {
+            await axios.put(`/api/prisma/product/${fields.productID}`, data, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
             }).then((data) => {
                 console.log("success!!")
-                handleSetHandleBarProps(true, () => { router.reload() }, userString.editUserSnackBar, "success")
+                handleSetHandleBarProps(true, () => { router.reload() }, productString.editUserSnackBar, "success")
             })
+            // await internalAPICallHandler(req)
         } else if (mode == "add") {
-            await axios.post(`/api/auth/register`, fields, {
+            // const data = { data: fields }
+            let attachment: File = fields.attachment;
+            delete fields.attachment
+            let data: Prisma.MasterProductCreateInput = {
+                productDisplayID: await clientGetDisplayID(token, "msaterProduct"),
+                ...(attachment && {
+                    attachment: {
+                        create: {
+                            type: attachment.type.split('/')[0],
+                            name: attachment.name,
+                            attachmentDisplayID: await clientGetDisplayID(token, "msaterProduct"),
+                            tableName: "MasterProduct"
+                        }
+
+                    }
+                }),
+                ...fields
+            }
+            console.log("data", data)
+            await axios.post(`/api/prisma/masterProduct/0`, { data }, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
             }).then((data) => {
                 console.log("success!!", lang)
-                handleSetHandleBarProps(true, () => { router.push(`/${lang}/setting/account`); }, userString.createdUserSnackBar, "success")
+                handleSetHandleBarProps(true, () => { router.push(`/${lang}/setting/product`); }, productString.createdUserSnackBar, "success")
+                // router.push(`/${lang}/setting/product`);
             })
+            // var req2: CustomRequest = {
+            //     // query: {
+            //     //     where: {
+            //     //         userID: "SuperAdmin"
+            //     //     }
+            //     // },
+            //     body: {
+            //         updateFields
+            //     },
+            //     method: "POST"
+            // }
+            // await internalAPICallHandler(req2)
         }
 
     }, [updateFields, fields])
@@ -294,11 +352,12 @@ const AccountForm = (props) => {
             getInitFields(initFields)
     }, [])
 
-    const fieldList = getFieldList(fieldConfig, handleChangeFormData, errors, userString, handleValidation, fields, userData, mode)
+    const fieldList = getFieldList(fieldConfig, handleChangeFormData, errors, productString, handleValidation, fields, productData, mode)
 
     return (
         <Block
             className="flex flex-col items-center justify-around md:p-20 xs:p-5"
+        // display='flex' flexDirection='column' alignItems='center' justifyContent='space-around' px='180px' height='600px'
         >
             <Grid container spacing={2}>
                 {fieldList}
@@ -312,16 +371,17 @@ const AccountForm = (props) => {
                         else {
                             handleSubmit()
                         }
-                    }, mode == "edit" && fields.password == "" ? "editUser" : "register")
+                    }, mode == "edit" && fields.password == "" ? "edit" : "createProduct")
                 }}>{generalString.confirm}</BasicButton>
                 <BasicButton className="mt-10 ml-3 w-32" onClick={(e) => {
                     router.back()
+                    // router.push('')
                 }}>{generalString.back}</BasicButton>
             </Block>
             <BasicSnackBar {...snackBarProps} />
-            <Popup type="local" propsToPopup={{ proceedFunc: () => { handleSubmit() }, title: userString.accountFormPopupTitle, message: userString.accountFormPopupMessage }} />
+            <Popup type="local" propsToPopup={{ proceedFunc: () => { handleSubmit() }, title: productString.productFormPopupTitle, message: productString.productFormPopupMessage }} />
         </Block>
     )
 }
 
-export default withCookies(AccountForm)
+export default withCookies(productForm)

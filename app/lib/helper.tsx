@@ -1,3 +1,4 @@
+import axios from "axios";
 import { get } from "lodash";
 import { NextResponse } from "next/server";
 import { Cookies } from "react-cookie";
@@ -79,12 +80,12 @@ export function hexToRgbA(hex: string, opacity = 1) {
 
 export function mapDataByCol(data: any[], columnMap: any[], userRole: string, isMobile: boolean) {
   console.log("columnMap", columnMap)
-  const action = ["edit","delete","more","view"]
+  const action = ["edit", "delete", "more", "view"]
   return data.map((entries, index) => {
     return {
       data: [
-        ...(columnMap.filter((mapItem) => { return !action.includes(mapItem.name)}).map((mapItem, index) => {
-          
+        ...(columnMap.filter((mapItem) => { return !action.includes(mapItem.name) }).map((mapItem, index) => {
+
           return get(entries, mapItem.objPath)
         }))
       ],
@@ -94,8 +95,18 @@ export function mapDataByCol(data: any[], columnMap: any[], userRole: string, is
         view: userRole == "Client"
       } : {}),
       ...(isMobile ? {
-        more: userRole == "SuperAdmin" || userRole == "Admin"
+        more: userRole == "SuperAdmin" || userRole == "Admin",
+        test: true,
       } : {})
     }
   })
+}
+
+export async function clientGetDisplayID(token, collection) {
+  return await axios.get(`/api/query/genDisplayID/${collection}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      }
+    }).then(({ data }) => data.result),
 }

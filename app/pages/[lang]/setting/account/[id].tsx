@@ -15,6 +15,7 @@ import ExpandableRowTable from 'components/Table/expandableTable'
 import StyledH1 from 'components/Common/Element/H1'
 import { mapDataByCol } from 'lib/helper'
 import FormHandler from 'components/Form'
+import { getRecordFromDisplayID } from 'lib/prisma'
 const { publicRuntimeConfig } = getConfig()
 const { API_URL, APP_URL } = publicRuntimeConfig
 
@@ -30,8 +31,7 @@ const AccountDetail = (props) => {
         },
         dispatch,
     } = useStore()
-    console.log("accountList props", props, pageName, lang)
-    // const listaccountString = get(listAccount, lang)
+    // console.log("accountList props", props, pageName, lang)
     const [editState, setEditState] = useState({})
     const [filter, setFilter] = useState([])
     const [selectedField, setSelectedField] = useState('id')
@@ -42,7 +42,6 @@ const AccountDetail = (props) => {
     return (
         <Block>
             <StyledH1 className={`text-green ${lang == 'en' ? 'font-jost' : 'font-notoSansTC'}`} color="white"
-            // fontFamily={lang == "tc" ? "notoSansTc" : "jost"}
             >
                 {pageName}
             </StyledH1>
@@ -59,21 +58,23 @@ export async function getServerSideProps(ctx: CustomCtx) {
     const preProps = await preprocessServerSideProps(ctx)
     if (preProps.redirect)
         return preProps
-
-    console.log("ctx is", ctx.params)
+console.log("ctx is",ctx.props,ctx.params,ctx.query)
     const { pageName } = ctx.query
     const { profile, token, siteConfig } = ctx?.props || {}
     const { slug, lang,id } = ctx.params
     const collection = 'user'
-
+    // const a = await getRecordFromDisplayID(id,collection)
     var getUser: CustomRequest = {
         query: {
             collection: "user",
             where: {
-                userID: id
+                // userID: a.userID
+                userDisplayID: id
             },
             select: {
+                userDisplayID: true,
                 userID: true,
+                username: true,
                 name: true,
                 nameEn: true,
                 userType: true,

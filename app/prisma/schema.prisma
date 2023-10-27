@@ -8,95 +8,116 @@ datasource db {
 }
 
 model Profile {
-  profileID String   @id @unique
-  desc      String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  userID    String   @unique
-  user      User     @relation(fields: [userID], references: [userID])
+  profileID        Int      @id @unique @default(autoincrement())
+  profileDisplayID String   @unique @db.VarChar(20)
+  desc             String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  userID           Int      @unique
+  user             User     @relation(fields: [userID], references: [userID])
 }
 
+// notes: prevent id expose
 model Machine {
-  machineID             String                  @id @unique
+  machineID             Int                     @id @unique @default(autoincrement())
+  machineDisplayID      String                  @unique @db.VarChar(20)
   createdAt             DateTime                @default(now())
   updatedAt             DateTime                @updatedAt
-  serverToken           String
-  location              String
-  ownerID               String                  @unique
-  status                String
+  serverToken           String                  @db.VarChar(255)
+  location              String                  @db.VarChar(10)
+  ownerID               Int
+  status                String                  @db.VarChar(10)
   config                String                  @db.VarChar(8000)
-  remark                String?
+  remark                String?                 @db.VarChar(255)
+  palletNo              Int
   owner                 User                    @relation(fields: [ownerID], references: [userID])
-  machinePalletDetail   MachinePalletDetail?
+  machinePalletDetail   MachinePalletDetail[]
   machineProductSummary MachineProductSummary[]
+  Transaction           Transaction[]
 }
 
 model MasterProduct {
-  productID             String                  @id @unique
+  productID             Int                     @id @unique @default(autoincrement())
+  productDisplayID      String                  @unique @db.VarChar(20)
   isActive              Boolean                 @default(true)
   suspend               Boolean                 @default(false)
-  productName           String?
-  productNameEn         String?
-  desc                  String?
-  descEn                String?
+  productName           String                 @db.NVarChar(50)
+  productNameEn         String                 @db.VarChar(50)
+  desc                  String?                 @db.NVarChar(255)
+  descEn                String?                 @db.VarChar(255)
   price                 Decimal
   unitPrice             Decimal
-  unit                  String?
-  currency              String
-  remark                String
+  unit                  String?                 @db.NVarChar(10)
+  currency              String                  @db.NVarChar(10)
+  remark                String                  @db.NVarChar(255)
   createdAt             DateTime                @default(now())
   updatedAt             DateTime                @updatedAt
-  machinePalletDetails  MachinePalletDetail?
+  attachmentID          Int
+  machinePalletDetails  MachinePalletDetail[]
   machineProductSummary MachineProductSummary[]
+  Transaction           Transaction[]
+  attachment            Attachment?             @relation(fields: [attachmentID], references: [attachmentID])
 }
 
 model MachinePalletDetail {
-  palletDetailID String        @id @unique
-  machineID      String        @unique
-  palletID       Int
-  status         String
-  description    String
-  productID      String        @unique
-  inventory      Int
-  price          Decimal
-  weight         Decimal
-  machine        Machine       @relation(fields: [machineID], references: [machineID])
-  masterProduct  MasterProduct @relation(fields: [productID], references: [productID])
+  palletDetailID        Int           @id @unique @default(autoincrement())
+  palletDetailDisplayID String        @unique @db.VarChar(20)
+  machineID             Int
+  palletID              Int
+  status                String
+  description           String
+  productID             Int
+  inventory             Int
+  price                 Decimal
+  weight                Decimal
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+  machine               Machine       @relation(fields: [machineID], references: [machineID])
+  masterProduct         MasterProduct @relation(fields: [productID], references: [productID])
 }
 
 model MachineProductSummary {
-  summaryID     String        @id @unique
-  machineID     String
-  productID     String
-  machine       Machine       @relation(fields: [machineID], references: [machineID])
-  masterProduct MasterProduct @relation(fields: [productID], references: [productID])
+  summaryID        Int           @id @unique @default(autoincrement())
+  summaryDisplayID String        @unique @db.VarChar(20)
+  machineID        Int
+  productID        Int
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  machine          Machine       @relation(fields: [machineID], references: [machineID])
+  masterProduct    MasterProduct @relation(fields: [productID], references: [productID])
 }
 
 model Transaction {
-  transactionID String @id @unique
+  transactionID        Int           @id @unique @default(autoincrement())
+  transactionDisplayID String        @unique @db.VarChar(20)
+  machineID            Int
+  productID            Int
+  machine              Machine       @relation(fields: [machineID], references: [machineID])
+  masterProduct        MasterProduct @relation(fields: [productID], references: [productID])
 }
 
 model UserSession {
-  userID      String   @unique
+  userID      Int      @unique
   token       String
   expiredDate DateTime
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   user        User     @relation(fields: [userID], references: [userID])
-}
+} 
 
 model User {
-  userID        String       @id @unique
-  username      String       @unique
-  password      String
-  name          String
-  nameEn        String
+  userID        Int          @id(map: "User_PK") @unique @default(autoincrement())
+  userDisplayID String       @unique @db.VarChar(20)
+  username      String       @unique @db.VarChar(255)
+  password      String       @db.VarChar(255)
+  name          String       @db.NVarChar(20)
+  nameEn        String       @db.VarChar(20)
   authenticated Boolean
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
   userRoleID    Int
   userTypeID    Int
-  machine       Machine?
+  machine       Machine[]
   profile       Profile?
   userRole      UserRole     @relation(fields: [userRoleID], references: [userRoleID])
   userType      UserType     @relation(fields: [userTypeID], references: [userTypeID])
@@ -105,17 +126,49 @@ model User {
 
 model UserType {
   userTypeID   Int    @id @unique @default(autoincrement())
-  userTypeName String
+  userTypeName String @db.VarChar(20)
   users        User[]
 }
 
 model UserRole {
   userRoleID   Int    @id @unique @default(autoincrement())
-  userRoleName String
+  userRoleName String @db.VarChar(20)
   users        User[]
 }
 
 model SystemConstant {
   constantID Int     @id(map: "SystemConstant_PK")
   Json       String? @db.VarChar(Max)
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model Attachment {
+  attachmentID        Int             @id @unique @default(autoincrement())
+  attachmentDisplayID String          @unique @db.VarChar(10)
+  type                String          @db.VarChar(10)
+  name                String          @db.VarChar(50)
+  tableName           String          @db.VarChar(20)
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+  MasterProduct       MasterProduct[]
+}
+
+model AutoIncrement {
+  incrementId  Int @id @unique
+  machine      Int
+  palletDetail Int
+  summary      Int
+  transaction  Int
+  user         Int
+  attachment   Int
+}
+
+model sysdiagrams {
+  name         String @db.NVarChar(128)
+  principal_id Int
+  diagram_id   Int    @id(map: "PK__sysdiagr__C2B05B61401D00F1") @default(autoincrement())
+  version      Int?
+  definition   Bytes?
+
+  @@unique([principal_id, name], map: "UK_principal_name")
 }

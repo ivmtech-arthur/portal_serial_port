@@ -28,17 +28,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (!user || !(await compare(data.password, user.password))) {
       // return getErrorResponse(401, "Invalid email or password");
-
-      res.status(401).json({
+      CustomNextApiResponse(res, {
         "error": "Invalid email or password"
-      })
+      }, 401)
+      // res.status(401).json({
+      //   "error": "Invalid email or password"
+      // })
       return;
     }
 
     if (!user.authenticated) {
-      res.status(403).json({
+      CustomNextApiResponse(res, {
         "error": "user not Authorized"
-      })
+      }, 403)
+      // res.status(403).json({
+      //   "error": "user not Authorized"
+      // })
     }
 
     const JWT_EXPIRES_IN = getEnvVariable("JWT_EXPIRES_IN");
@@ -114,8 +119,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     //   // return getErrorResponse(400, "failed validations", error);
     // }
     console.log("error:", error);
-    CustomNextApiResponse(res, error, 400, "")
-    res.status(400).json(error);
+    CustomNextApiResponse(res, error, 400)
+    // res.status(400).json(error);
     // return getErrorResponse(500, error.message);
   }
 }

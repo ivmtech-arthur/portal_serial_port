@@ -5,6 +5,7 @@ import { singleEntryHandler } from "./singleEntry";
 
 export interface CustomRequest {
     query: {
+        id?: number,
         [name: string]: string | Object
     }
     body?: any,

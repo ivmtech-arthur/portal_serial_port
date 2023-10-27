@@ -6,29 +6,37 @@ import ResetPasswordForm from "./ResetPassword";
 import Block from 'components/Common/Element/Block'
 import EditForm from "./EditForm";
 import map from 'lodash/map'
+import { ZodError } from "zod";
+import ProductForm from "./productForm";
 import AccountForm from "./accountForm";
 import { ChangeUserDataInput, ChangeUserDataSchema, RegisterUserInput, RegisterUserSchema } from "lib/validations/user.schema";
-import { ZodError } from "zod";
+import { CreateProductInput, CreateProductSchema } from "lib/validations/product.schema";
+
+
 function FormHandler(props) {
     const { formType, parentCallback, ...restProps } = props
     const [fields, setFields] = useState({});
     const [errors, setErrors] = useState({});
     const [formValid, setFormValid] = useState(false);
 
-    async function handleOnSubmit(e, callback,action) {
+    async function handleOnSubmit(e, callback, action) {
         try {
-            console.log("handleOnSubmit",fields,e,action)
+            console.log("handleOnSubmit", fields, e, action)
             e.preventDefault()
             var body;
             var data;
-            switch (action) { 
+            switch (action) {
                 case "register":
                     body = fields as RegisterUserInput;
                     data = RegisterUserSchema.parse(body);
                     break;
-                case "edit":
+                case "editUser":
                     body = fields as ChangeUserDataInput;
                     data = ChangeUserDataSchema.parse(body);
+                    break;
+                case "createProduct":
+                    body = fields as CreateProductInput;
+                    data = CreateProductSchema.parse(body);
                     break;
             }
 
@@ -45,17 +53,17 @@ function FormHandler(props) {
         } catch (e) {
             if (e instanceof ZodError) {
                 console.log("error handleOnSubmit", fields, e.name, e.message, e.cause, e.issues)
-                const errors = e.errors.reduce((result, error, index) => { 
+                const errors = e.errors.reduce((result, error, index) => {
                     result[error.path[0]] = error.message
                     return result
                 }, {})
                 setErrors({ ...errors })
             }
         }
-        
-              
 
-       
+
+
+
         // map(fields, (value, name) => {
         //     if (!name) return false;
         //     checkValidation([name], value);
@@ -81,7 +89,7 @@ function FormHandler(props) {
     }
 
     async function handleValidation(e, valueType = "string") {
-        console.log("handleValidation",e,valueType)
+        console.log("handleValidationx", e, valueType)
         try {
             if (e.target) {
                 // const body = fields as RegisterUserInput;
@@ -91,28 +99,31 @@ function FormHandler(props) {
                     case "checkbox":
                         value = e.target.checked
                         break;
+                    case "file":
+                        value = e.target.files[0]
+                        break;
                     default:
                         value = e.target.value
                 }
                 const name = e.target.name;
 
-                assignValue(name, value,valueType);
+                assignValue(name, value, valueType);
             } else {
-                assignValue(e.name, e.value,valueType)
+                assignValue(e.name, e.value, valueType)
             }
-        } catch (e) { 
+        } catch (e) {
             //
             setFormValid(false);
-            if (e instanceof ZodError) { 
-                console.log("error handleValidation", fields, e.name,e.message,e.cause,e.issues)
+            if (e instanceof ZodError) {
+                console.log("error handleValidation", fields, e.name, e.message, e.cause, e.issues)
             }
         }
-     
+
 
     }
 
     function assignValue(name, value, valueType) {
-        
+        console.log("assignValue", name, value, valueType)
         if (value === "") {
             delete fields[name];
             // setErrors({ ...errors, [name]: 'Required' });
@@ -122,11 +133,11 @@ function FormHandler(props) {
 
         delete errors[name];
         var tempValue = value;
-        switch (valueType) { 
+        switch (valueType) {
             case "string":
                 break;
             case "number":
-                tempValue = parseInt(value)
+                tempValue = parseFloat(value)
                 break;
         }
         setFields({ ...fields, [name]: tempValue });
@@ -179,6 +190,7 @@ function FormHandler(props) {
             {formType == "ResetPassword" && <ResetPasswordForm handleOnSubmit={handleOnSubmit} handleValidation={handleValidation} errors={errors} parentCallback={parentCallback} {...restProps} />}
             {formType == "EditForm" && <EditForm getInitFields={getInitFields} handleOnSubmit={handleOnSubmit} handleValidation={handleValidation} errors={errors} parentCallback={parentCallback} fields={fields} {...restProps} />}
             {formType == "AccountForm" && <AccountForm getInitFields={getInitFields} handleOnSubmit={handleOnSubmit} handleValidation={handleValidation} errors={errors} parentCallback={parentCallback} fields={fields} {...restProps} />}
+            {formType == "ProductForm" && <ProductForm getInitFields={getInitFields} handleOnSubmit={handleOnSubmit} handleValidation={handleValidation} errors={errors} parentCallback={parentCallback} fields={fields} {...restProps} />}
         </Block>
     )
 }
