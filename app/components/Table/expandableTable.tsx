@@ -356,7 +356,7 @@ const CustomMoreButton = (props) => {
             variant="contained"
           >
             <CustomDeleteButton data={data} handleClickDelete={(data) => { handleClickDelete(data[0]) }} />
-            <CustomEditButton data={data} handleClickEdit={(data) => { handleClickEdit(data[0]) }} />
+            <CustomEditButton data={data} handleClickEdit={(data) => { handleClickEdit(data[0], data[1]) }} />
           </ButtonGroup>
         </Collapse>
         <BasicButton
@@ -396,12 +396,12 @@ const ExpandableRowTable = (props) => {
     dispatch,
   } = useStore()
 
-  const handleClickEdit = useCallback(
-    (id) => {
-      router.push(`${router.asPath}/${id}`)
-    }, [])
+  const handleClickEdit = (
+    (id, displayID) => {
+      router.push({ pathname: `${router.asPath}/${id}` }, `${router.asPath}/${displayID}`)
+    })
 
-  const handleClickDelete = useCallback((id) => {
+  const handleClickDelete = (id) => {
     setPopupData(id)
     dispatch({
       type: 'showPopup',
@@ -412,7 +412,7 @@ const ExpandableRowTable = (props) => {
       },
     })
 
-  }, [])
+  }
 
   useEffect(() => {
     setCanGetDesiredData(true)
@@ -420,7 +420,7 @@ const ExpandableRowTable = (props) => {
 
 
 
-  console.log("ExpandableRowTable props", columns, dataObjList)
+
   const initData = Object.assign([], dataObjList.map((dataObj) => {
     return Object.assign([], dataObj.data)
   }))
@@ -435,7 +435,7 @@ const ExpandableRowTable = (props) => {
         columns.push({ name: "edit" })
       }
       //notes: assume ID always at zero position
-      result.push(<CustomEditButton data={result} handleClickEdit={(data) => { handleClickEdit(data[0]) }} />)
+      result.push(<CustomEditButton data={result} handleClickEdit={(data) => { handleClickEdit(data[0], data[1]) }} />)
     }
     if (dataObj.delete) {
       if (!columns.some((column) => { return column.name == "delete" })) {
@@ -465,14 +465,22 @@ const ExpandableRowTable = (props) => {
   ]
 
   const desktopColumn: MUIDataTableColumnDef[] = [
-    ...(columns.map((column) => {
+    ...(columns
+      // .filter((column) => {
+      // return !column.desktopIgnore
+      // })
+      .map((filteredColumn) => {
       let result: MUIDataTableColumnDef = {
-        name: column.name,
+        name: filteredColumn.name,
         options: {
-          ...(column.name == "edit" || column.name == "delete" || column.name == "more" ? {
+          viewColumns: !filteredColumn.desktopIgnore,
+          filter: !filteredColumn.desktopIgnore,
+          searchable: !filteredColumn.desktopIgnore,
+          display: !filteredColumn.desktopIgnore,
+          ...(filteredColumn.name == "edit" || filteredColumn.name == "delete" || filteredColumn.name == "more" ? {
             download: false
           } : {}),
-          ...(column.download ? {} : { download: false })
+          ...(filteredColumn.download ? {} : { download: false })
           // setCellProps: () => ({ style: { minWidth: "100px", maxWidth: "800px",display:"flex",alignitems:'end', justifyContent: 'end',backgroundColor:'orange' }})
           // customBodyRender: (data, type, row) => { return <Block className=" h-40">{data}</Block> }
           // ...(filterObj[column.name] ? { filterList: [filterObj[column.name]] } : {}),
@@ -492,15 +500,15 @@ const ExpandableRowTable = (props) => {
       ...(filterColumn.name == "edit" || filterColumn.name == "delete" || filterColumn.name == "more" ? {
         download: false
       } : {}),
-        ...(Object.keys(filterColumn).includes("download") ? { download: filterColumn.download } : { download: true})
+      ...(Object.keys(filterColumn).includes("download") ? { download: filterColumn.download } : { download: true })
     }
   })
 
   const mobileData = mobileDataObjList.map((dataObj) => {
     var result = Object.assign([], dataObj.data)
-    if (userProfile?.userID == result[0]) {
-      return result
-    }
+    // if (userProfile?.userID == result[0]) {
+    //   return result
+    // }
     if (dataObj.more) {
       if (!mobileCollapseColumn.some((column) => { return column.name == "more" })) {
         // columns.push({name: "more"})
@@ -508,15 +516,17 @@ const ExpandableRowTable = (props) => {
           name: "more", mobileCollapse: true, mobileDisplay: false, columnIndex: columnsFromParent.length, download: false
         })
       }
+      //hardcode
+      // result.pop()
       result.push(<CustomMoreButton data={result} handleClickEdit={handleClickEdit} handleClickDelete={handleClickDelete} />)
     } else {
-      // result.push(<></>)
+      result.push(<>xd</>)
     }
 
     return result
   })
 
-
+  console.log("ExpandableRowTable props", columns, dataObjList, userProfile, mobileDataObjList, mobileData, mobileCollapseColumn)
 
 
 
@@ -582,7 +592,7 @@ const ExpandableRowTable = (props) => {
     rowHover: true,
     // selectableRowsHideCheckboxes: true,
     renderExpandableRow: (rowData, rowMeta) => {
-      console.log("rowData",columns,mobileColumn, mobileCollapseColumn, rowData, rowData.filter((rowItem, index) => {
+      console.log("rowData", mobileData, columns, mobileColumn, mobileCollapseColumn, rowData, rowData.filter((rowItem, index) => {
         return mobileCollapseColumn.map((filteredColumn, index2) => {
           return filteredColumn.columnIndex
         }).includes(index)
@@ -695,7 +705,7 @@ const ExpandableRowTable = (props) => {
             })
             if (cond) {
               return cond.download
-            } else { 
+            } else {
               return true
             }
             // return Object.keys(columns[index]).includes("download") ? columns[index].download :
@@ -735,7 +745,7 @@ const ExpandableRowTable = (props) => {
 
       <Block className="md:hidden">
         <MUIDataTable
-          title={"ACME Employee list"}
+          title={"ACME Employee listx"}
           data={mobileData}
           columns={mobileColumn}
           options={mobileOptions}
@@ -752,7 +762,7 @@ const ExpandableRowTable = (props) => {
           }} />}
           {drawerAction == "filter" && <FilterForm criterias={criterias} onChange={(tempFilter) => {
             var tempFilterObj = filterObj
-            
+
             for (const field in tempFilter) {
               var value = tempFilter[field]
               // console.log("onChange", tempFilterObj, value, field)
