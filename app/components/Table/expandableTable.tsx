@@ -2,7 +2,7 @@ import MUIDataTable, { MUIDataTableOptions, MUIDataTableToolbar, MUIDataTablePro
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Theme, ButtonGroup, Drawer, TextField } from "@mui/material";
 import { Fragment, useCallback, useState } from 'react';
 import Box from '@mui/material/Box';
-import { useEffect, useRef, ReactNode } from 'react';
+import { useEffect, useRef } from 'react';
 import Block from 'components/Common/Element/Block'
 import {
   createTheme,
@@ -44,53 +44,9 @@ function CustomToolbar(props) {
   </>)
 }
 
-const actions = ["edit", "delete", "more", "view"]
-
-// function CustomToolbarSelect(props) {
-//   const router = useRouter()
-//   const {
-//     state: {
-//       site: { lang, pageName },
-//     },
-//   } = useStore()
-//   const { } = props
-//   return (<>
-//     <BasicButton variant="text" tooltip="Add Record" onClick={() => {
-//       console.log("path", window.location.href, router.asPath)
-//       router.push({ pathname: `${router.asPath}/add`, query: { pageName: pageName } }, `${router.asPath}/add`)
-//     }}><Add /></BasicButton>
-//   </>)
-// }
-
 function MobileToolbar(props) {
-  const { setDrawerOpen, setDrawerAction, dataList, columns } = props
+  const { setDrawerOpen, setDrawerAction, data } = props
   const router = useRouter();
-
-  const [open, setOpen] = useState(false)
-
-  const handleDownload = useCallback(() => {
-    columns.filter((column) => { return !actions.includes(column.name) })
-    // data.filter((entry) => {
-    //   let a: ReactNode;
-    //   if (a instanceof ReactNode) { 
-
-    //   }
-    //   return 
-    // })
-    var columnString = columns.filter((column) => { return !actions.includes(column.name) }).map((filteredCol) => { return filteredCol.name }).join(',') + '\n'
-    var dataString = dataList.map((data) => {
-      var tempResult = data.join(',')
-      tempResult += "\n"
-      return tempResult
-    }).join("")
-    console.log("download data", dataList, columnString)
-    //  const csvList = 
-    // const dummyData = "rahul,delhi,accountsdept\n";
-    // const csvContent = `data:text/csv;charset=utf-8,${columnString}${dataString}`;
-    // const encodedURI = encodeURI(csvContent);
-    // window.open(encodedURI);
-  }, [dataList])
-
   const buttons = [
     <BasicButton size="large" key="search" onClick={() => {
       setDrawerOpen(true)
@@ -102,12 +58,13 @@ function MobileToolbar(props) {
       setDrawerOpen(true)
       setDrawerAction("filter")
     }} key="filter"><FilterList /></BasicButton>,
-    <BasicButton size="large" key="download" onClick={handleDownload}><DownloadCloud /></BasicButton>,
+    <BasicButton size="large" key="download"><DownloadCloud /></BasicButton>,
     <BasicButton key="add" onClick={() => {
       router.push(`${router.asPath}/add`)
     }}><Add /></BasicButton>,
   ];
 
+  const [open, setOpen] = useState(false)
   return (
     <Box
       sx={{
@@ -187,10 +144,6 @@ function CustomPagination(props) {
         width="60px"
         color={"secondary"}
         options={[
-          {
-            value: 1,
-            label: 1
-          },
           {
             value: 5,
             label: 5
@@ -356,7 +309,7 @@ const CustomMoreButton = (props) => {
             variant="contained"
           >
             <CustomDeleteButton data={data} handleClickDelete={(data) => { handleClickDelete(data[0]) }} />
-            <CustomEditButton data={data} handleClickEdit={(data) => { handleClickEdit(data[0], data[1]) }} />
+            <CustomEditButton data={data} handleClickEdit={(data) => { handleClickEdit(data[0]) }} />
           </ButtonGroup>
         </Collapse>
         <BasicButton
@@ -385,9 +338,7 @@ const ExpandableRowTable = (props) => {
   const router = useRouter()
   const [filterObj, setFilterObj] = useState({})
   const [searchText, setSearchText] = useState("")
-  const [popupData, setPopupData] = useState({})
-
-  const [canGetDesiredData, setCanGetDesiredData] = useState(true)
+  const [popupData, setPopupData] = useState()
   const {
     state: {
       site: { lang, pageName },
@@ -396,12 +347,12 @@ const ExpandableRowTable = (props) => {
     dispatch,
   } = useStore()
 
-  const handleClickEdit = (
-    (id, displayID) => {
-      router.push({ pathname: `${router.asPath}/${id}` }, `${router.asPath}/${displayID}`)
-    })
+  const handleClickEdit = useCallback(
+    (id) => {
+      router.push(`${router.asPath}/${id}`)
+    }, [])
 
-  const handleClickDelete = (id) => {
+  const handleClickDelete = useCallback((id) => {
     setPopupData(id)
     dispatch({
       type: 'showPopup',
@@ -412,18 +363,9 @@ const ExpandableRowTable = (props) => {
       },
     })
 
-  }
+  }, [])
 
-  useEffect(() => {
-    setCanGetDesiredData(true)
-  }, [filterObj, searchText])
-
-
-
-
-  const initData = Object.assign([], dataObjList.map((dataObj) => {
-    return Object.assign([], dataObj.data)
-  }))
+  console.log("ExpandableRowTable props", columns, dataObjList)
   const data = dataObjList.map((dataObj) => {
     var result = Object.assign([], dataObj.data)
     if (userProfile?.userID == result[0]) {
@@ -435,7 +377,7 @@ const ExpandableRowTable = (props) => {
         columns.push({ name: "edit" })
       }
       //notes: assume ID always at zero position
-      result.push(<CustomEditButton data={result} handleClickEdit={(data) => { handleClickEdit(data[0], data[1]) }} />)
+      result.push(<CustomEditButton data={result} handleClickEdit={(data) => { handleClickEdit(data[0]) }} />)
     }
     if (dataObj.delete) {
       if (!columns.some((column) => { return column.name == "delete" })) {
@@ -448,12 +390,9 @@ const ExpandableRowTable = (props) => {
     return result
   })
 
-  const [desiredData, setDesiredData] = useState(initData)
-  useEffect(() => {
-    console.log("desiredData", desiredData)
-  }, [desiredData])
+
   const mobileColumn: MUIDataTableColumnDef[] = [
-    ...(columnsFromParent.map((column) => {
+    ...(columns.map((column) => {
       return {
         name: column.name,
         options: {
@@ -465,22 +404,10 @@ const ExpandableRowTable = (props) => {
   ]
 
   const desktopColumn: MUIDataTableColumnDef[] = [
-    ...(columns
-      // .filter((column) => {
-      // return !column.desktopIgnore
-      // })
-      .map((filteredColumn) => {
+    ...(columns.map((column) => {
       let result: MUIDataTableColumnDef = {
-        name: filteredColumn.name,
+        name: column.name,
         options: {
-          viewColumns: !filteredColumn.desktopIgnore,
-          filter: !filteredColumn.desktopIgnore,
-          searchable: !filteredColumn.desktopIgnore,
-          display: !filteredColumn.desktopIgnore,
-          ...(filteredColumn.name == "edit" || filteredColumn.name == "delete" || filteredColumn.name == "more" ? {
-            download: false
-          } : {}),
-          ...(filteredColumn.download ? {} : { download: false })
           // setCellProps: () => ({ style: { minWidth: "100px", maxWidth: "800px",display:"flex",alignitems:'end', justifyContent: 'end',backgroundColor:'orange' }})
           // customBodyRender: (data, type, row) => { return <Block className=" h-40">{data}</Block> }
           // ...(filterObj[column.name] ? { filterList: [filterObj[column.name]] } : {}),
@@ -493,42 +420,29 @@ const ExpandableRowTable = (props) => {
   const mobileCollapseColumn = columns.filter((column) => {
     return column.mobileCollapse
   }).map((filterColumn) => {
-
     return {
       ...filterColumn,
-      columnIndex: columns.indexOf(filterColumn),
-      ...(filterColumn.name == "edit" || filterColumn.name == "delete" || filterColumn.name == "more" ? {
-        download: false
-      } : {}),
-      ...(Object.keys(filterColumn).includes("download") ? { download: filterColumn.download } : { download: true })
+      columnIndex: columns.indexOf(filterColumn)
     }
   })
 
   const mobileData = mobileDataObjList.map((dataObj) => {
     var result = Object.assign([], dataObj.data)
-    // if (userProfile?.userID == result[0]) {
-    //   return result
-    // }
+    if (userProfile?.userID == result[0]) {
+      return result
+    }
     if (dataObj.more) {
       if (!mobileCollapseColumn.some((column) => { return column.name == "more" })) {
         // columns.push({name: "more"})
         mobileCollapseColumn.push({
-          name: "more", mobileCollapse: true, mobileDisplay: false, columnIndex: columnsFromParent.length, download: false
+          name: "more", mobileCollapse: true, mobileDisplay: false, columnIndex: columnsFromParent.length
         })
       }
-      //hardcode
-      // result.pop()
       result.push(<CustomMoreButton data={result} handleClickEdit={handleClickEdit} handleClickDelete={handleClickDelete} />)
-    } else {
-      result.push(<>xd</>)
     }
 
     return result
   })
-
-  console.log("ExpandableRowTable props", columns, dataObjList, userProfile, mobileDataObjList, mobileData, mobileCollapseColumn)
-
-
 
   const criterias = createCritieras(columns, data)
 
@@ -555,11 +469,7 @@ const ExpandableRowTable = (props) => {
         </Block>
       );
     },
-    page: 1,
-    isRowSelectable: (dataIndex, selectedRows) => {
-      // console.log("isRowSelectable", dataIndex, data[dataIndex], !userProfile.userID || (userProfile.userID && data[dataIndex][0] != userProfile.userID))
-      return !userProfile.userID || (userProfile.userID && data[dataIndex][0] != userProfile.userID)
-    },
+    page: 1
   };
 
   const mobileOptions: MUIDataTableOptions = {
@@ -592,14 +502,13 @@ const ExpandableRowTable = (props) => {
     rowHover: true,
     // selectableRowsHideCheckboxes: true,
     renderExpandableRow: (rowData, rowMeta) => {
-      console.log("rowData", mobileData, columns, mobileColumn, mobileCollapseColumn, rowData, rowData.filter((rowItem, index) => {
+      console.log("rowData", mobileCollapseColumn, rowData, rowData.filter((rowItem, index) => {
         return mobileCollapseColumn.map((filteredColumn, index2) => {
           return filteredColumn.columnIndex
         }).includes(index)
       }))
       const tableHeaderList = mobileCollapseColumn.map((filteredColumn) => {
-        return <TableCell align="center">
-          <Block className="mx-3 font-semibold">{filteredColumn.name}</Block></TableCell>
+        return <TableCell align="center">{filteredColumn.name}</TableCell>
       })
       const tableCellList = rowData.filter((rowItem, index) => {
         return mobileCollapseColumn.map((filteredColumn, index2) => {
@@ -617,13 +526,13 @@ const ExpandableRowTable = (props) => {
       console.log("renderExpand", rowData, rowMeta,
         tableCellList, tableHeaderList);
       return (
-        <Fragment >
-          <tr className="overflow-auto">
+        <Fragment>
+          <tr>
             <td colSpan={6}>
               {/* <Block> */}
               <TableContainer component={Paper}>
                 <Table>
-                  <TableHead className="overflow-auto">
+                  <TableHead>
                     <TableRow>
                       {tableHeaderList}
                     </TableRow>
@@ -651,77 +560,17 @@ const ExpandableRowTable = (props) => {
     searchText: searchText,
     // ilter
     filter: false,
-    download: false,
-    search: false,
-    print: false,
-    viewColumns: false,
     // search: false,
     customSearchRender: () => null,
-    isRowSelectable: (dataIndex, selectedRows) => {
-      // console.log("isRowSelectable", dataIndex, data[dataIndex], !userProfile.userID || (userProfile.userID && data[dataIndex][0] != userProfile.userID))
-      return !userProfile.userID || (userProfile.userID && data[dataIndex][0] != userProfile.userID)
+
+    onRowSelectionChange: (currentRow, allRow, rows) => {
+      console.log("")
     },
-    onRowSelectionChange(currentRowsSelected, allRowsSelected, rowsSelected) {
-      // if()
-    },
-    // onRowSelectionChange: (currentRow, allRow, rows) => {
-    //   console.log("")
-    // },
     onRowsDelete(rowsDeleted, newTableData) {
       console.log("onRowsDelete", rowsDeleted.data, data, rowsDeleted.data.map((item) => {
         //notes assume ID always at zero position
         return data[item.dataIndex][0]
       }))
-
-      const tempPopupData = rowsDeleted.data.map((item) => {
-        return data[item.dataIndex][0]
-      })
-      setPopupData(tempPopupData)
-      dispatch({
-        type: 'showPopup',
-        payload: {
-          popup: true,
-          popupType: 'confirmProceed',
-          isGlobal: false,
-        },
-      })
-    },
-    customToolbarSelect(selectedRows, displayData, setSelectedRows) {
-      return <CustomToolbar />
-    },
-    onTableChange(action, tableState) {
-      console.log("action", action, tableState, canGetDesiredData)
-      if (canGetDesiredData) {
-
-        // tableState.displayData.pop()
-        console.log("action can", action, tableState, canGetDesiredData, tableState.displayData)
-        var resultDataList = []
-        // tableState.columns[0].download
-        var result = tableState.displayData.map((item) => {
-          return item.data.filter((value, index) => {
-            // return columns[index]
-            let cond = mobileCollapseColumn.find((collapseCol) => {
-              return collapseCol.columnIndex == index
-            })
-            if (cond) {
-              return cond.download
-            } else {
-              return true
-            }
-            // return Object.keys(columns[index]).includes("download") ? columns[index].download :
-            //   actions.includes(mobile[index]) ? false : true
-          })
-        })
-        setDesiredData(result)
-        // if (tableState.selectedRows.data.length > 0) {
-        //   setDesiredData(tableState.selectedRows.data)
-        // } else {
-        //   setDesiredData(tableState.displayData)
-        // }
-        setCanGetDesiredData(false)
-      }
-
-
     },
     // print
     // selectToolbarPlacement: "above",
@@ -730,11 +579,10 @@ const ExpandableRowTable = (props) => {
 
   return (
     <ThemeProvider theme={muiTheme}>
+      {/* <Block className="p-5 min-h-0"> */}
       <Block className="md:block xs:hidden">
         <MUIDataTable
-          components={{
-            // TableToolbarSelect
-          }}
+          // components={ }
 
           title={"ACME Employee list"}
           data={data}
@@ -745,13 +593,13 @@ const ExpandableRowTable = (props) => {
 
       <Block className="md:hidden">
         <MUIDataTable
-          title={"ACME Employee listx"}
+          title={"ACME Employee list"}
           data={mobileData}
           columns={mobileColumn}
           options={mobileOptions}
         />
 
-        <MobileToolbar setDrawerOpen={setDrawerOpen} setDrawerAction={setDrawerAction} dataList={desiredData} columns={mobileColumn} />
+        <MobileToolbar setDrawerOpen={setDrawerOpen} setDrawerAction={setDrawerAction} />
         <Drawer
           anchor="bottom"
           open={drawerOpen}
@@ -762,7 +610,6 @@ const ExpandableRowTable = (props) => {
           }} />}
           {drawerAction == "filter" && <FilterForm criterias={criterias} onChange={(tempFilter) => {
             var tempFilterObj = filterObj
-
             for (const field in tempFilter) {
               var value = tempFilter[field]
               // console.log("onChange", tempFilterObj, value, field)
@@ -774,6 +621,7 @@ const ExpandableRowTable = (props) => {
           }} selectedCriteria={filterObj} />}
         </Drawer>
       </Block>
+      {/* </Block> */}
 
       <Popup type="local" propsToPopup={{ proceedFunc: (data) => { handleDelete(data) }, title: title, message: message, popupData: popupData, mode: "delete" }} />
     </ThemeProvider>
