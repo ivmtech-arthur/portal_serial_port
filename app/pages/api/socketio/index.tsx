@@ -29,12 +29,12 @@ const SocketHandler = (req, res) => {
           },
           method: "GET"
         }
-        const result = await multipleEntryhandler(req);
-        jwt.verify(socket.handshake.query.token, 'SECRET_KEY', function (err, decoded) {
-          if (err) return next(new Error('Authentication error'));
-          socket.decoded = decoded;
-          next();
-        });
+        const result = await singleEntryHandler(req);
+        // jwt.verify(socket.handshake.query.token, 'SECRET_KEY', function (err, decoded) {
+        //   if (err) return next(new Error('Authentication error'));
+        //   socket.decoded = decoded;
+        //   next();
+        // });
       }
       else {
         next(new Error('Authentication error'));

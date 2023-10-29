@@ -385,8 +385,18 @@ export function handleClause(collection, id?, populate?, queryParams?) {
   return { singleWhereClause: { where: whereInput }, includeClause: { include: includeInput }, ...queryParamsObject }
 }
 
-export function handleIncrement(collection, data) {
+export async function handleDisplayID(collection: string, data) {
 
+  const displayID = await generateDisplayID(collection)
+  switch (collection) {
+    case "masterProduct":
+      let a: Prisma.MasterProductCreateInput = Object.assign({}, data)
+      a.productDisplayID = displayID
+      a.attachment.create.attachmentDisplayID = await generateDisplayID("attachment")
+      break;
+    case "":s
+      break
+  }
 }
 
 export async function isAuthorised(token: string) {

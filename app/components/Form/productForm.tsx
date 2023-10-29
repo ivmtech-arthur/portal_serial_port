@@ -307,13 +307,13 @@ const productForm = (props) => {
             let attachment: File = fields.attachment;
             delete fields.attachment
             let data: Prisma.MasterProductCreateInput = {
-                productDisplayID: await clientGetDisplayID(token, "msaterProduct"),
+                productDisplayID: await clientGetDisplayID(token, "masterProduct"),
                 ...(attachment && {
                     attachment: {
                         create: {
                             type: attachment.type.split('/')[0],
                             name: attachment.name,
-                            attachmentDisplayID: await clientGetDisplayID(token, "msaterProduct"),
+                            attachmentDisplayID: await clientGetDisplayID(token, "masterProduct"),
                             tableName: "MasterProduct"
                         }
 
