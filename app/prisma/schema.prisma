@@ -17,10 +17,14 @@ model Profile {
   user             User     @relation(fields: [userID], references: [userID])
 }
 
-// notes: prevent id expose
+model MachineType {
+  machineTypeID        Int       @id @unique @default(autoincrement())
+  machineTypeDisplayID String?    @unique @db.VarChar(20)
+  Machine              Machine[]
+}
+
 model Machine {
   machineID             Int                     @id @unique @default(autoincrement())
-  machineDisplayID      String                  @unique @db.VarChar(20)
   createdAt             DateTime                @default(now())
   updatedAt             DateTime                @updatedAt
   serverToken           String                  @db.VarChar(255)
@@ -30,33 +34,40 @@ model Machine {
   config                String                  @db.VarChar(8000)
   remark                String?                 @db.VarChar(255)
   palletNo              Int
+  machineTypeID         Int
+  machineType           MachineType             @relation(fields: [machineTypeID], references: [machineTypeID])
   owner                 User                    @relation(fields: [ownerID], references: [userID])
   machinePalletDetail   MachinePalletDetail[]
   machineProductSummary MachineProductSummary[]
   Transaction           Transaction[]
+  attachments           Attachment[]            @relation("AttachmentToMachine")
 }
 
 model MasterProduct {
   productID             Int                     @id @unique @default(autoincrement())
-  productDisplayID      String                  @unique @db.VarChar(20)
   isActive              Boolean                 @default(true)
   suspend               Boolean                 @default(false)
-  productName           String                 @db.NVarChar(50)
-  productNameEn         String                 @db.VarChar(50)
+  productName           String                  @db.NVarChar(50)
+  productNameEn         String                  @db.VarChar(50)
   desc                  String?                 @db.NVarChar(255)
   descEn                String?                 @db.VarChar(255)
-  price                 Decimal
-  unitPrice             Decimal
+  price                 Decimal                 @db.Decimal(32, 2)
+  unitPrice             Decimal                 @db.Decimal(32, 2)
   unit                  String?                 @db.NVarChar(10)
-  currency              String                  @db.NVarChar(10)
-  remark                String                  @db.NVarChar(255)
+  currency              String?                 @db.NVarChar(10)
+  remark                String?                 @db.NVarChar(255)
   createdAt             DateTime                @default(now())
   updatedAt             DateTime                @updatedAt
   attachmentID          Int
+  cost                  Decimal?                @db.Decimal(32, 2)
+  weight                Decimal                 @db.Decimal(32, 3)
+  abbreviation          String                  @default("PRD") @db.VarChar(3)
+  clientRefID           String?                 @unique @db.NVarChar(255)
+  productDisplayID      String?                 @unique @db.VarChar(21)
   machinePalletDetails  MachinePalletDetail[]
   machineProductSummary MachineProductSummary[]
+  attachment            Attachment              @relation(fields: [attachmentID], references: [attachmentID], onDelete: Cascade)
   Transaction           Transaction[]
-  attachment            Attachment?             @relation(fields: [attachmentID], references: [attachmentID])
 }
 
 model MachinePalletDetail {
@@ -72,8 +83,8 @@ model MachinePalletDetail {
   weight                Decimal
   createdAt             DateTime      @default(now())
   updatedAt             DateTime      @updatedAt
-  machine               Machine       @relation(fields: [machineID], references: [machineID])
-  masterProduct         MasterProduct @relation(fields: [productID], references: [productID])
+  machine               Machine       @relation(fields: [machineID], references: [machineID], onUpdate: NoAction)
+  masterProduct         MasterProduct @relation(fields: [productID], references: [productID], onUpdate: NoAction)
 }
 
 model MachineProductSummary {
@@ -83,8 +94,8 @@ model MachineProductSummary {
   productID        Int
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
-  machine          Machine       @relation(fields: [machineID], references: [machineID])
-  masterProduct    MasterProduct @relation(fields: [productID], references: [productID])
+  machine          Machine       @relation(fields: [machineID], references: [machineID], onUpdate: NoAction)
+  masterProduct    MasterProduct @relation(fields: [productID], references: [productID], onUpdate: NoAction)
 }
 
 model Transaction {
@@ -92,8 +103,8 @@ model Transaction {
   transactionDisplayID String        @unique @db.VarChar(20)
   machineID            Int
   productID            Int
-  machine              Machine       @relation(fields: [machineID], references: [machineID])
-  masterProduct        MasterProduct @relation(fields: [productID], references: [productID])
+  machine              Machine       @relation(fields: [machineID], references: [machineID], onUpdate: NoAction)
+  masterProduct        MasterProduct @relation(fields: [productID], references: [productID], onUpdate: NoAction)
 }
 
 model UserSession {
@@ -103,11 +114,10 @@ model UserSession {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   user        User     @relation(fields: [userID], references: [userID])
-} 
+}
 
 model User {
   userID        Int          @id(map: "User_PK") @unique @default(autoincrement())
-  userDisplayID String       @unique @db.VarChar(20)
   username      String       @unique @db.VarChar(255)
   password      String       @db.VarChar(255)
   name          String       @db.NVarChar(20)
@@ -117,6 +127,7 @@ model User {
   updatedAt     DateTime     @updatedAt
   userRoleID    Int
   userTypeID    Int
+  userDisplayID String?      @unique @db.VarChar(21)
   machine       Machine[]
   profile       Profile?
   userRole      UserRole     @relation(fields: [userRoleID], references: [userRoleID])
@@ -144,13 +155,14 @@ model SystemConstant {
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model Attachment {
   attachmentID        Int             @id @unique @default(autoincrement())
-  attachmentDisplayID String          @unique @db.VarChar(10)
   type                String          @db.VarChar(10)
   name                String          @db.VarChar(50)
   tableName           String          @db.VarChar(20)
   createdAt           DateTime        @default(now())
   updatedAt           DateTime        @updatedAt
+  attachmentDisplayID String?         @unique @db.VarChar(21)
   MasterProduct       MasterProduct[]
+  Machine             Machine[]       @relation("AttachmentToMachine")
 }
 
 model AutoIncrement {
@@ -161,6 +173,13 @@ model AutoIncrement {
   transaction  Int
   user         Int
   attachment   Int
+}
+
+model Abbreviation {
+  abbreviationID   Int    @id @unique @default(autoincrement())
+  abbreviationType String @db.VarChar(10)
+  word             String @db.VarChar(255)
+  abbreviationName String @unique @db.VarChar(5)
 }
 
 model sysdiagrams {

@@ -52,7 +52,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                         userTypeID: data.userType
                     }
                 },
-                userDisplayID: await generateDisplayID("user"),
+                // userDisplayID: await generateDisplayID("user"),
                 // photo: data.photo,
             },
         });

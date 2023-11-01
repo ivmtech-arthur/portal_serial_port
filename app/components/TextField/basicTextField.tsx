@@ -1,5 +1,5 @@
 import Block from 'components/Common/Element/Block'
-import React, { useRef, useEffect, useState, HTMLInputTypeAttribute, ReactNode } from 'react'
+import React, { useRef, useEffect, useState, HTMLInputTypeAttribute, ReactNode, useCallback } from 'react'
 import {
     createTheme,
     ThemeProvider,
@@ -39,7 +39,7 @@ type BasicTextFieldProps = {
     [name: string]: any
 }
 
-const CustomTextArea = styled(TextareaAutosize)(({ theme, color, value }) => ({
+const CustomTextArea = styled(TextareaAutosize)(({ theme, color, value, type }) => ({
     ":focus": {
         boxShadow: `0 0 0 0.2rem ${hexToRgbA(theme.palette[color].light, 0.5)}`,
         border: `2px solid ${hexToRgbA(theme.palette[color].main, 1)}`
@@ -57,7 +57,7 @@ const CustomTextArea = styled(TextareaAutosize)(({ theme, color, value }) => ({
 
 
 const BasicTextField = (props: BasicTextFieldProps) => {
-    const { id, type, value, textarea, onClick, color, rounded, disabled, variant, startIcon, endIcon, hover, size, sx, placeholder, error, handleValidation, onChange, className, inputProps, ...restProps } = props
+    const { id, type, value, textarea, onClick, color, rounded, disabled, variant, startIcon, endIcon, hover, size, sx, placeholder, error, handleValidation, onChange, className, inputProps, uppercase, ...restProps } = props
     // console.log("children", props.children, Array.isArray(props.children),some((props.chilren), (child) => { return typeof child == 'string' }))
     let isIconButton = true;
     // if (props.children && typeof props.children === "string"
@@ -71,14 +71,32 @@ const BasicTextField = (props: BasicTextFieldProps) => {
         if (props.onClick)
             props.onClick(e)
     }
+
+    const handleOnChange = (e) => {
+        if (uppercase) {
+            setCurrValue(e.target.value.toUpperCase())
+        } else {
+            setCurrValue(e.target.value)
+        }
+
+        if (handleValidation)
+            handleValidation(e, type == "number" ? "number" : "string")
+        if (onChange)
+            onChange(e)
+    }
     return (
         <ThemeProvider theme={muiTheme}>
             {
                 textarea &&
                 <Block className={` ${className}`}>
                     <CustomTextArea
+                        {...restProps}
                         theme={muiTheme}
                         value={currValue}
+                        id={id}
+                        onChange={(e) => {
+                            handleOnChange(e)
+                        }}
                         color={!error ? (color || "primary") : "error"}
                         className={`${rounded ? " rounded-full" : "rounded-[3px]"} hover:border-[#333333] resize-y min-h-[19px] py-[11.5px] px-[17px] border-[#C4C4C4]`}
                         onClick={(e) => { onClickEvent(e) }}
@@ -99,17 +117,13 @@ const BasicTextField = (props: BasicTextFieldProps) => {
                     disabled={disabled}
                     variant={variant || 'outlined'}
                     color={!error ? (color || "primary") : "error"}
-                    className={`${rounded ? " rounded-full" : ""}`}
+                    className={`${rounded ? " rounded-full" : ""} ${className}`}
                     onClick={(e) => { onClickEvent(e) }}
                     InputProps={{
                         inputProps: inputProps
                     }}
                     onChange={(e) => {
-                        setCurrValue(e.target.value)
-                        if (handleValidation)
-                            handleValidation(e, type == "number" ? "number": "string")
-                        if (onChange)
-                            onChange(e)
+                        handleOnChange(e)
                     }}
                     {...(type == "password" && {
                         InputProps: {

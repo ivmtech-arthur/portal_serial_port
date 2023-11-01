@@ -12,7 +12,7 @@ export interface CustomRequest {
     method: any
 }
 
-export interface CustomResponse { 
+export interface CustomResponse {
     result?: any,
     status?: number,
     message?: string,
@@ -20,18 +20,20 @@ export interface CustomResponse {
 }
 
 export async function internalAPICallHandler(req: CustomRequest) {
-    console.log("internalAPICALlhandler",req)
+    console.log("internalAPICALlhandler", req)
     return new Promise<CustomResponse>(async (resolve, reject) => {
-        const { id } = req.query;
-        if (!id) {
-            const result = await multipleEntryhandler(req);
-            resolve(CustomServerResponse(result, 200));
-        } else { 
+        const { id, isUnique } = req.query;
+        const { where } = req.query
+        if (id || isUnique) {
             const result = await singleEntryHandler(req);
+            resolve(CustomServerResponse(result, 200));
+
+        } else {
+            const result = await multipleEntryhandler(req);
             resolve(CustomServerResponse(result, 200));
         }
         try {
-            
+
         } catch (e) {
             reject(CustomServerResponse(e, 400))
         }

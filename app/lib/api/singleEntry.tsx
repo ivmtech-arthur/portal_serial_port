@@ -4,19 +4,28 @@ import CustomNextApiResponse from "lib/response";
 import { includes } from "lodash";
 import { NextApiResponse } from "next";
 import { CustomRequest } from "./handler";
+import { serialize } from "superjson";
+// import superjson from "lib/superjson";
 // interface populateValue : String 
 
 async function PUT(req: CustomRequest) {
     console.log("req.query", req)
     try {
         const { collection, id } = req.query
-        const { data } = req.body
+        const { data, ...bodyParams } = req.body
         if (typeof collection === 'string') {
-            const { singleWhereClause } = handleClause(collection, id);
+            const { singleWhereClause, include, select } = handleClause(collection, id, bodyParams);
+
             const result = await schemaMap[collection].update({
                 ...singleWhereClause,
+                // include: {
+
+                // },
+                ...(select ? { select: select } : {}),
+                ...(include ? { include: include } : {}),
                 data
             });
+            result
             // CustomNextApiResponse(res, result, 200, collection);
             return result;
         }
@@ -30,12 +39,12 @@ async function PUT(req: CustomRequest) {
 
 async function GET(req: CustomRequest) {
     try {
-        console.log("req.query", req.query)
-        const { collection, id, populate, ...queryParams } = req.query
+        // console.log("req.query", req.query)
+        const { collection, id, ...queryParams } = req.query
 
 
         if (typeof collection === 'string') {
-            const { singleWhereClause, includeClause, include, select } = handleClause(collection, id, populate, queryParams);
+            const { singleWhereClause, includeClause, include, select } = handleClause(collection, id, queryParams);
             console.log("singleWhereClause", singleWhereClause, includeClause)
             const result = await schemaMap[collection].findUniqueOrThrow({
                 ...singleWhereClause,
@@ -44,7 +53,8 @@ async function GET(req: CustomRequest) {
                 ...(include ? { include: include } : {}),
             })
             // CustomNextApiResponse(res, result, 200, collection);
-            return result;
+            console.log("req.query", req.query, result)
+            return serialize(result);
         }
         // res.end()
     } catch (e) {
@@ -57,16 +67,14 @@ async function GET(req: CustomRequest) {
 async function POST(req: CustomRequest) {
     try {
         const { collection } = req.query
-        const { data } = req.body
+        const { data, ...bodyParams } = req.body
         console.log("post xd", data)
         if (typeof collection === 'string') {
-            // const increment = await schemaMap["autoIncrement"].findFirst();
-            // if(increment.
-            if (tableConfig[collection].prefix) {
-                data[`${collection}DisplayID`] = await generateDisplayID(collection)
-            }
-
+            const { include, select } = handleClause(collection, null, bodyParams);
             const result = await schemaMap[collection].create({
+
+                ...(select ? { select: select } : {}),
+                ...(include ? { include: include } : {}),
                 data
             });
             // CustomNextApiResponse(res, result, 200, collection);
@@ -83,11 +91,13 @@ async function POST(req: CustomRequest) {
 async function DELETE(req: CustomRequest) {
     try {
         const { collection, id } = req.query
-        const { data } = req.body
+        const { data, ...bodyParams } = req.body
         if (typeof collection === 'string') {
-            const { singleWhereClause, includeClause } = handleClause(collection, id);
+            const { singleWhereClause, includeClause, select, include } = handleClause(collection, id, bodyParams);
             const result = await schemaMap[collection].delete({
                 ...singleWhereClause,
+                ...(select ? { select: select } : {}),
+                ...(include ? { include: include } : {}),
                 // include: includeClause
             });
             // CustomNextApiResponse(res, result, 200, collection);

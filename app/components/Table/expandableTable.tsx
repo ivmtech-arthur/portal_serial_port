@@ -87,10 +87,10 @@ function MobileToolbar(props) {
     }).join("")
     console.log("download data", dataList, columnString)
     //  const csvList = 
-    // const dummyData = "rahul,delhi,accountsdept\n";
-    // const csvContent = `data:text/csv;charset=utf-8,${columnString}${dataString}`;
-    // const encodedURI = encodeURI(csvContent);
-    // window.open(encodedURI);
+    const dummyData = "rahul,delhi,accountsdept\n";
+    const csvContent = `data:text/csv;charset=utf-8,${columnString}${dataString}`;
+    const encodedURI = encodeURI(csvContent);
+    window.open(encodedURI);
   }, [dataList])
 
   const buttons = [
@@ -372,7 +372,7 @@ const CustomMoreButton = (props) => {
           <ButtonGroup
             variant="contained"
           >
-            <CustomDeleteButton data={data} handleClickDelete={(data) => { handleClickDelete(data[0]) }} />
+            <CustomDeleteButton data={data} handleClickDelete={(data) => { handleClickDelete(data) }} />
             <CustomEditButton data={data} handleClickEdit={(data) => { handleClickEdit(data[0], data[1]) }} />
           </ButtonGroup>
         </Collapse>
@@ -419,8 +419,8 @@ const ExpandableRowTable = (props) => {
       router.push({ pathname: `${router.asPath}/${id}` }, `${router.asPath}/${displayID}`)
     })
 
-  const handleClickDelete = (id) => {
-    setPopupData(id)
+  const handleClickDelete = (data) => {
+    setPopupData(data)
     dispatch({
       type: 'showPopup',
       payload: {
@@ -459,7 +459,7 @@ const ExpandableRowTable = (props) => {
       if (!columns.some((column) => { return column.name == "delete" })) {
         columns.push({ name: "delete" })
       }
-      result.push(<CustomDeleteButton handleClickDelete={(data) => { handleClickDelete(data[0]) }} />)
+      result.push(<CustomDeleteButton handleClickDelete={(data) => { handleClickDelete(data) }} />)
 
 
     }

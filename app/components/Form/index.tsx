@@ -10,7 +10,8 @@ import { ZodError } from "zod";
 import ProductForm from "./productForm";
 import AccountForm from "./accountForm";
 import { ChangeUserDataInput, ChangeUserDataSchema, RegisterUserInput, RegisterUserSchema } from "lib/validations/user.schema";
-import { CreateProductInput, CreateProductSchema } from "lib/validations/product.schema";
+import { ChangeProductInput, ChangeProductSchema, CreateProductInput, CreateProductSchema } from "lib/validations/product.schema";
+import MachineForm from "./machineForm";
 
 
 function FormHandler(props) {
@@ -37,6 +38,10 @@ function FormHandler(props) {
                 case "createProduct":
                     body = fields as CreateProductInput;
                     data = CreateProductSchema.parse(body);
+                    break;
+                case "changeProduct":
+                    body = fields as ChangeProductInput;
+                    data = ChangeProductSchema.parse(body);
                     break;
             }
 
@@ -89,7 +94,7 @@ function FormHandler(props) {
     }
 
     async function handleValidation(e, valueType = "string") {
-        console.log("handleValidationx", e, valueType)
+        console.log("handleValidationx", e, valueType, e.target.value, fields)
         try {
             if (e.target) {
                 // const body = fields as RegisterUserInput;
@@ -123,7 +128,7 @@ function FormHandler(props) {
     }
 
     function assignValue(name, value, valueType) {
-        console.log("assignValue", name, value, valueType)
+        console.log("assignValue", name, value, valueType, fields)
         if (value === "") {
             delete fields[name];
             // setErrors({ ...errors, [name]: 'Required' });
@@ -191,6 +196,7 @@ function FormHandler(props) {
             {formType == "EditForm" && <EditForm getInitFields={getInitFields} handleOnSubmit={handleOnSubmit} handleValidation={handleValidation} errors={errors} parentCallback={parentCallback} fields={fields} {...restProps} />}
             {formType == "AccountForm" && <AccountForm getInitFields={getInitFields} handleOnSubmit={handleOnSubmit} handleValidation={handleValidation} errors={errors} parentCallback={parentCallback} fields={fields} {...restProps} />}
             {formType == "ProductForm" && <ProductForm getInitFields={getInitFields} handleOnSubmit={handleOnSubmit} handleValidation={handleValidation} errors={errors} parentCallback={parentCallback} fields={fields} {...restProps} />}
+            {formType == "MachineForm" && <MachineForm getInitFields={getInitFields} handleOnSubmit={handleOnSubmit} handleValidation={handleValidation} errors={errors} parentCallback={parentCallback} fields={fields} {...restProps} />}
         </Block>
     )
 }

@@ -3,6 +3,7 @@ import * as Icon from "react-feather";
 export const getMenu = (lang) => { 
 
     const menu = [
+        // menu item  do not change its order!
         {
             title: lang == 'en' ? 'Machine Management' : "設備管理",
             url: 'machine-management',
@@ -56,6 +57,11 @@ export const getMenu = (lang) => {
             url: '/',
         },
         {
+            title: lang == 'en' ? 'Machine Type' : "設備種類",
+            url: 'machine-management/machine-Type',
+        },
+        //end menu item
+        {
             title: lang == 'en' ? 'Account Add' : "新增帳戶",
             url: 'setting/account/add',
         },
@@ -63,6 +69,32 @@ export const getMenu = (lang) => {
             title: lang == 'en' ? 'Account Change' : "Change帳戶",
             url: 'setting/account/[id]',
             regex: /setting\/account\/([^(?!add)*]+)/
+        },
+        {
+            title: lang == 'en' ? 'Add Product' : "Add Product Tc",
+            url: 'product-management/product-list/create-product',
+        },
+        {
+            title: lang == 'en' ? 'Change Product' : "Change Product Tc",
+            url: 'product-management/product-list/[id]',
+            regex: /product-management\/product-list\/([^(?!create-product)*]+)/
+        },
+        {
+            title: lang == 'en' ? 'Account Add' : "新增設備",
+            url: 'machine-management/add',
+        },
+        {
+            title: lang == 'en' ? 'Account Change' : "Change設備",
+            url: 'machine-management/[id]',
+            regex: /machine-management\/([^(?!add)*]+)/
+        },
+        {
+            title: lang == 'en' ? 'Add Machine Type' : "新增設備種類",
+            url: 'machine-management/machine-Type/add',
+        },
+        {
+            title: lang == 'en' ? 'Change Machine Type' : "Change新增設備種類",
+            url: /machine-management\/machine-Type\/([^(?!add)*]+)/,
         },
         // {}
     ]
@@ -75,6 +107,12 @@ export const menuContent = ["en", "tc"].reduce((result, lang, index) => {
         {
             ...getMenu(lang)[0],
             icon: <Icon.Cpu width="15" />,
+            list: [
+                {
+                    ...getMenu(lang)[13],
+                    icon: <Icon.FileText />
+                },
+            ],
         },
         {
             ...getMenu(lang)[1],

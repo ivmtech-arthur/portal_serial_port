@@ -9,10 +9,12 @@ import { withCookies } from 'react-cookie'
 import { CustomRequest, internalAPICallHandler } from 'lib/api/handler'
 import ExpandableRowTable from 'components/Table/expandableTable'
 import StyledH1 from 'components/Common/Element/H1'
-import { mapDataByCol } from 'lib/helper'
+import { handleDeleteS3, mapDataByCol } from 'lib/helper'
 import { productContent } from 'data/product'
 import axios from 'axios'
 import BasicSnackBar, { SnackBarProps } from 'components/snackbar'
+import { Prisma } from '@prisma/client'
+import { AlertColor } from '@mui/material'
 const ProductList = (props) => {
     const { cookies, profile, data, columnMap, collection } = props
     const token = cookies.get("userToken")
@@ -26,7 +28,6 @@ const ProductList = (props) => {
         dispatch,
     } = useStore()
 
-    // console.log("accountList props", props, pageName, lang, data, columnMap, role)
     const [snackBarProps, setSnackbarProps] = useState<SnackBarProps>({
         open: false,
         handleClose: () => {
@@ -37,32 +38,36 @@ const ProductList = (props) => {
     const productString = get(productContent, lang)
     const router = useRouter()
 
+    const handleSetHandleBarProps = useCallback((open: boolean, handleClose: () => void, message: String, severity: AlertColor) => {
+        setSnackbarProps({
+            open: open,
+            handleClose: handleClose,
+            message: message,
+            severity: severity
+        })
+    }, [])
+
     const handleDelete = useCallback(
-        async (id) => {
-            await axios.delete(`/api/prisma/product/${id}`, {
+        async (oldData) => {
+            const id = oldData[0]
+            let select: Prisma.MasterProductSelect = {
+                attachment: true
+            }
+            await axios.delete(`/api/prisma/masterProduct/${id}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
-            }).then((data) => {
+                data: {
+                    select
+                }
+            }).then(async (data) => {
                 console.log("success!!")
-                var tempSnackBarProps = snackBarProps
-                tempSnackBarProps.open = true
-                tempSnackBarProps.severity = "success"
-                tempSnackBarProps.handleClose = () => {
-                    router.reload()
-                }
-                tempSnackBarProps.message = productString.deleteproductSnackbar + id
-                setSnackbarProps({ ...tempSnackBarProps })
+                await handleDeleteS3(oldData.attachment, token).catch((e) => {
+                    throw e
+                })
+                handleSetHandleBarProps(true, () => { router.reload() }, productString.editProductSnackBar, "success")
             }).catch((e) => {
-                var tempSnackBarProps = snackBarProps
-                tempSnackBarProps.open = true
-                tempSnackBarProps.severity = "error"
-                tempSnackBarProps.message = `${e}`
-                tempSnackBarProps.handleClose = () => {
-                    tempSnackBarProps.open = false
-                    setSnackbarProps({ ...tempSnackBarProps })
-                }
-                setSnackbarProps({ ...tempSnackBarProps })
+                handleSetHandleBarProps(true, () => { }, `${e}`, "error")
             })
         }, [])
 
@@ -85,10 +90,7 @@ const ProductList = (props) => {
                     handleDelete={(data) => {
                         handleDelete(data)
                     }}
-                    // handleClickEditFromParent={(displayID) => {
-                    //     router.push(`${router.asPath}/${displayID}`)
-                    // }}
-                    handleClickAdd={() => { 
+                    handleClickAdd={() => {
                         router.push(`/${lang}/product-management/create-product`)
                     }}
                 />
@@ -116,7 +118,7 @@ export async function getServerSideProps(ctx: CustomCtx) {
             name: "productDisplayID",
             mobileDisplay: true,
             mobileCollapse: true,
-            objPath: "userDisplayID",
+            objPath: "productDisplayID",
         },
         {
             name: "isActive",
@@ -197,34 +199,15 @@ export async function getServerSideProps(ctx: CustomCtx) {
     }).catch((e) => {
         console.log("error getserversideProps", e)
     })
-    // var customRequest: CustomRequest = {
-    //     query: {
-    //         collection,
 
-    //     },
-    //     method: ctx.req.method,
-    // }
-
-
-    // const data = await internalAPICallHandler(customRequest).then((data) => {
-    //     return data
-    // }).catch((e) => {
-    //     console.log("error getserversideProps", e)
-    // })
     console.log("dataxd", data)
     return {
         props: {
-            // contentData,
-            // physioData,
-            // subscriptionData,
             data,
             columnMap,
             headerTheme: 'white',
             headerPosition: 'fixed',
             collection,
-            // pageName: "account Management"
-            // profile,
-            // siteConfig
         },
     }
 }

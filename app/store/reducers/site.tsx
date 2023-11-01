@@ -18,6 +18,7 @@ const initialState = {
   notice: false,
   noticeTitle: '',
   noticeMsg: '',
+  systemConstant: {},
 }
 
 // Please update the reducer counter in storeHandler when you add new reducer

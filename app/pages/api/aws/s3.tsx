@@ -15,7 +15,8 @@ import { createRouter, expressWrapper } from "next-connect";
 import cors from "cors";
 import passport from "passport";
 import { Blob } from "buffer";
-import CustomNextApiResponse from "lib/response";
+import CustomNextApiResponse, { CustomServerResponse } from "lib/response";
+import { AuthorisedMiddleware } from "lib/prisma";
 
 const router = createRouter<NextApiRequest, NextApiResponse>();
 const upload = multer({
@@ -41,26 +42,24 @@ router
         const end = Date.now();
         console.log(`Request took ${end - start}ms`);
     }).post(async (req, res) => {
-        // const form = new formidable.IncomingForm();
-        var form = formidable({});
-        // form.uploadDir = "./";
-        // form.e
-        let fields: formidable.Fields<string>
-        let files: formidable.Files<string>
-        // form.keepExtensions = true;
+
         try {
+
+            await AuthorisedMiddleware(req)
+            var form = formidable({});
+            let fields: formidable.Fields<string>
+            let files: formidable.Files<string>
             [fields, files] = await form.parse(req);
-            const { type, collection } = fields
+            const { type, collection, id } = fields
             const file: formidable.File = files.file[0]
             const buffer = fs.readFileSync(file.filepath)
             console.log("fields", fields, files,)
 
             var params: PutObjectCommandInput = {
                 Bucket: globalS3Client.bucket,
-                Key: `${globalS3Client.schema}/${type[0]}//${file.originalFilename}`,
+                Key: `${globalS3Client.schema}/${type[0]}/${collection}/${id}/${file.originalFilename}`,
                 Body: buffer,
                 ContentType: file.mimetype,
-
             };
             const response = await globalS3Client.s3.send(new PutObjectCommand(params))
             fs.unlinkSync(file.filepath)
@@ -72,41 +71,32 @@ router
             console.error(e);
             throw e
         }
+    }).delete(async (req, res) => {
+        try {
+            var form = formidable({});
+            let fields: formidable.Fields<string>
+            let files: formidable.Files<string>
+            [fields, files] = await form.parse(req);
+            const { type, collection, idWithFilenameLists } = fields
+            console.log("type", type, collection, idWithFilenameLists)
+            let Objects: ObjectIdentifier[] = idWithFilenameLists.map((item) => {
+                return {
+                    Key: `${globalS3Client.schema}/${type}/${collection}/${item}`
+                }
+            })
+            var params: DeleteObjectsCommandInput = {
+                Bucket: globalS3Client.bucket,
+                Delete: {
+                    Objects: Objects
+                }
+            }
 
-        // form.parse(req, async (err, fields, files) => {
-        //     const file: formidable.File = files.file[0]
-        //     const buffer = fs.readFileSync(file.filepath)
+            const response = await globalS3Client.s3.send(new DeleteObjectsCommand(params))
+            // return res.status(200).json({ "result": "ok" });
+            CustomNextApiResponse(res, response['$metadata'], 200)
+        } catch (e) {
 
-        //     var params: PutObjectCommandInput = {
-        //         Bucket: globalS3Client.bucket,
-        //         Key: `/folder/${file.originalFilename}`,
-        //         Body: buffer,
-        //         ContentType: file.mimetype,
-
-        //     };
-
-        //     try {
-        //         const response = await globalS3Client.s3.send(new PutObjectCommand(params))
-        //         return res.status(200).json({ "result": response['$metadata'] });
-        //         // res.end()
-        //         // next()
-        //     } catch (err) {
-        //         console.error(err);
-        //         throw err
-        //     }
-        //     console.log(err, fields, file.filepath);
-        // });
-
-        // return next();
-        // const { data } = req.body
-        // const file  = (req.body) as Blob
-        // // if (file instanceof File) { 
-        // console.log("data will", file.type)
-        // }
-
-        // const file = req.;
-        // const user = getUser(req.query.id);
-
+        }
     })
 
 // async function uploadFileFromS3(file: Express.Multer.File, type: string) {
@@ -148,14 +138,21 @@ async function removeFileFromS3(keyList: ObjectIdentifier[]) {
 
 export const config = {
     api: {
-        bodyParser: false,
+        bodyParser: false
+        // bodyParser: {
+        //     sizeLimit: '4mb'
+        // },
     },
-};
+}
 
 export default router.handler({
     onError: (err: any, req, res) => {
         console.error(err.stack);
-        CustomNextApiResponse(res, err, 400)
+        let statusCode = 400
+        if (err && err.statusCode) {
+            statusCode = err.statusCode
+        }
+        CustomNextApiResponse(res, err, statusCode)
         // res.status(400).json({ err });
     },
 });

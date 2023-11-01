@@ -108,5 +108,31 @@ export async function clientGetDisplayID(token, collection) {
       headers: {
         Authorization: `Bearer ${token}`,
       }
-    }).then(({ data }) => data.result),
+    }).then(({ data }) => data.result)
+}
+
+export const handleDeleteS3 = async (oldAttachment, token) => {
+  // const data = new FormData()
+  const data = {
+    type: oldAttachment.type,
+    collection: oldAttachment.tableName,
+    idWithFilenameLists: [`${oldAttachment.attachmentDisplayID}/${oldAttachment.name}`]
+  }
+  // data.set("type", oldAttachment.type)
+  // data.set("collection", "masterProduct")
+  // data.set("idWithFilenameLists", JSON.stringify([`${oldAttachment.attachmentDisplayID}/${oldAttachment.name}`]))
+  // console.log(":handleUpdates3", data, attachment, attachmentRecord)
+  await axios.delete('/api/aws/s3',
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        // 'Content-Type': `multipart/form-data`
+      },
+      data
+    }
+  ).then((subResult) => {
+    console.log("result", subResult)
+  }).catch((err) => {
+    console.log("error api", err)
+  })
 }

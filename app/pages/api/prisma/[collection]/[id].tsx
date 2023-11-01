@@ -14,7 +14,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         //     const tokenAuthorized = await isAuthorised(authorization.replace("Bearer ", ""));
         //     if (tokenAuthorized) {
         const { collection, id, ...queryParams } = req.query;
-        if (typeof collection == "string" && typeof id == "string") {
+        if (typeof collection == "string" && typeof id == "string" && req.method != "POST") {
             var customRequest: CustomRequest = {
                 query: {
                     collection,
@@ -25,10 +25,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 body: req.body
             }
             var result = await singleEntryHandler(customRequest)
-            CustomNextApiResponse(res, result, 200)
+            return CustomNextApiResponse(res, result, 200)
         }
         else {
-            throw "invalid parameter"
+            throw "invalid request"
         }
 
         //     }
@@ -39,7 +39,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     } catch (e) {
         let statusCode = 400;
         let err = (e as CustomResponse)
-        if (err) {
+        if (err && err.status) {
             statusCode = err.status;
         }
         CustomNextApiResponse(res, e, statusCode);

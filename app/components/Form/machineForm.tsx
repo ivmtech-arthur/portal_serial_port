@@ -14,9 +14,9 @@ import { withCookies } from 'react-cookie'
 import { useRouter } from 'next/router'
 import BasicSnackBar, { SnackBarProps } from 'components/snackbar'
 import { Prisma } from '@prisma/client'
-import { ChangeProductInput, CreateProductInput } from 'lib/validations/product.schema'
+import { ChangeMachineInput, CreateMachineInput } from 'lib/validations/machine.schema'
 import UploadButton from 'components/Button/UploadButton'
-import { productContent } from 'data/product'
+import { machineContent } from 'data/machine'
 import { handleDeleteS3 } from 'lib/helper'
 import Image from 'next/image'
 
@@ -182,13 +182,13 @@ const getFieldList = (fieldConfig, handleChangeFormData, errors, placeholderMap,
     return result
 }
 
-const ProductForm = (props) => {
-    const { getInitFields, handleOnSubmit, handleValidation, errors, parentCallback, fields, userTypeData, userRoleData, mode = "view", productData } = props
+const MachineForm = (props) => {
+    const { getInitFields, handleOnSubmit, handleValidation, errors, parentCallback, fields, userTypeData, userRoleData, mode = "view", machineData } = props
 
 
-    const initFields: ChangeProductInput = mode == "add" ? {
-        productName: "",
-        productNameEn: "",
+    const initFields: ChangeMachineInput = mode == "add" ? {
+        machineName: "",
+        machineNameEn: "",
         desc: "",
         descEn: "",
         weight: 0,
@@ -201,33 +201,33 @@ const ProductForm = (props) => {
         remark: "",
         attachment: null,
     } : {
-        productName: productData.productName,
-        productNameEn: productData.productNameEn,
-        desc: productData.desc,
-        descEn: productData.descEn,
-        price: productData.price,
-        weight: productData.weight,
-        unitPrice: productData.unitPrice,
-        unit: productData.unit,
-        currency: productData.currency,
-        abbreviation: productData.abbreviation,
-        clientRefID: productData.clientRefID,
-        remark: productData.remark,
+        machineName: machineData.machineName,
+        machineNameEn: machineData.machineNameEn,
+        desc: machineData.desc,
+        descEn: machineData.descEn,
+        price: machineData.price,
+        weight: machineData.weight,
+        unitPrice: machineData.unitPrice,
+        unit: machineData.unit,
+        currency: machineData.currency,
+        abbreviation: machineData.abbreviation,
+        clientRefID: machineData.clientRefID,
+        remark: machineData.remark,
         attachment: {},
-        currentAttachment: productData.attachment,
+        currentAttachment: machineData.attachment,
     }
 
     const fieldConfig = {
         ...(mode != "add" && {
-            productDisplayID: {
+            machineDisplayID: {
                 type: "textField",
                 disabled: true,
             }
         }),
-        productName: {
+        machineName: {
             type: "textField",
         },
-        productNameEn: {
+        machineNameEn: {
             type: "textField",
         },
         desc: {
@@ -281,7 +281,7 @@ const ProductForm = (props) => {
     const { cookies } = props
     const token = cookies.get("userToken")
     const generalString = get(general, lang)
-    const productString = get(productContent, lang)
+    const machineString = get(machineContent, lang)
     const forgetPasswordString = get(forgetPassword, lang)
     const router = useRouter()
     const [email, setEmail] = useState("")
@@ -336,7 +336,7 @@ const ProductForm = (props) => {
         const data = new FormData()
         data.append("file", attachment);
         data.set("type", attachment.type.split('/')[0])
-        data.set("collection", "masterProduct")
+        data.set("collection", "machine")
         data.set("id", attachmentRecord.attachmentDisplayID)
         await axios.post('/api/aws/s3', data,
             {
@@ -353,25 +353,25 @@ const ProductForm = (props) => {
         if (mode == "edit") {
             let attachment: File = fields.attachment;
             delete updateFields.attachment
-            let select: Prisma.MasterProductSelect = {
+            let select: Prisma.MachineSelect = {
                 attachment: true,
-                productDisplayID: true,
+                machineDisplayID: true,
             }
 
-            let data: Prisma.MasterProductUpdateInput = {
+            let data: Prisma.MachineUpdateInput = {
                 ...(attachment && {
                     attachment: {
                         update: {
                             type: attachment.type.split('/')[0],
                             name: attachment.name,
-                            tableName: "masterProduct"
+                            tableName: "machine"
                         }
 
                     }
                 }),
                 ...updateFields
             }
-            const result = await axios.put(`/api/prisma/masterProduct/${productData.productID}`, { data, select }, {
+            const result = await axios.put(`/api/prisma/machine/${machineData.machineID}`, { data, select }, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -380,7 +380,7 @@ const ProductForm = (props) => {
                 let attachmentRecord = result.attachment
                 await handleDeleteS3(fields.currentAttachment, token).catch((e) => { throw (e) })
                 await handleUpdateS3(attachment, attachmentRecord, token)
-                handleSetHandleBarProps(true, () => { router.reload() }, productString.editProductSnackBar, "success")
+                handleSetHandleBarProps(true, () => { router.reload() }, machineString.editmachineSnackBar, "success")
                 return result
             }).catch((e) => {
                 console.log("axios req error", e)
@@ -389,24 +389,24 @@ const ProductForm = (props) => {
         } else if (mode == "add") {
             let attachment: File = fields.attachment;
             delete fields.attachment
-            let select: Prisma.MasterProductSelect = {
+            let select: Prisma.MachineSelect = {
                 attachment: true,
-                productDisplayID: true,
+                machineDisplayID: true,
             }
-            let data: Prisma.MasterProductCreateInput = {
+            let data: Prisma.MachineCreateInput = {
                 ...(attachment && {
                     attachment: {
                         create: {
                             type: attachment.type.split('/')[0],
                             name: attachment.name,
-                            tableName: "masterProduct"
+                            tableName: "machine"
                         }
 
                     }
                 }),
                 ...fields
             }
-            let result = await axios.post(`/api/prisma/masterProduct`, { data, select }, {
+            let result = await axios.post(`/api/prisma/machine`, { data, select }, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -416,7 +416,7 @@ const ProductForm = (props) => {
                 if (result.attachment) {
                     await handleUpdateS3(attachment, attachmentRecord, token)
                 }
-                handleSetHandleBarProps(true, () => { router.push(`${lang}/product-management/product-list`) }, productString.editProductSnackBar, "success")
+                handleSetHandleBarProps(true, () => { router.push(`${lang}/machine-management/machine-list`) }, machineString.editmachineSnackBar, "success")
                 return result
             }).catch((err) => {
                 console.log(err)
@@ -431,7 +431,7 @@ const ProductForm = (props) => {
             getInitFields(initFields)
     }, [])
 
-    const fieldList = getFieldList(fieldConfig, handleChangeFormData, errors, productString, handleValidation, fields, productData, mode, cloudFrontURL, schema)
+    const fieldList = getFieldList(fieldConfig, handleChangeFormData, errors, machineString, handleValidation, fields, machineData, mode, cloudFrontURL, schema)
 
     return (
         <Block
@@ -449,16 +449,16 @@ const ProductForm = (props) => {
                         else {
                             handleSubmit()
                         }
-                    }, mode == "edit" ? "changeProduct" : "createProduct")
+                    }, mode == "edit" ? "changeMachine" : "createMachine")
                 }}>{generalString.confirm}</BasicButton>
                 <BasicButton className="mt-10 ml-3 w-32" onClick={(e) => {
                     router.back()
                 }}>{generalString.back}</BasicButton>
             </Block>
             <BasicSnackBar {...snackBarProps} />
-            <Popup type="local" propsToPopup={{ proceedFunc: async () => { await handleSubmit() }, title: productString.productFormPopupTitle, message: productString.productFormPopupMessage }} />
+            <Popup type="local" propsToPopup={{ proceedFunc: async () => { await handleSubmit() }, title: machineString.machineFormPopupTitle, message: machineString.machineFormPopupMessage }} />
         </Block>
     )
 }
 
-export default withCookies(ProductForm)
+export default withCookies(MachineForm)

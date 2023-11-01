@@ -38,7 +38,7 @@ const BasicButton = (props: BasicButtonProps) => {
     //     }))) { 
     //     isIconButton = false;
     // }
-    const onClickEvent = (e) => {
+    const onClickEvent = async (e) => {
         if (props.onClick)
             props.onClick(e)
     }
@@ -55,7 +55,7 @@ const BasicButton = (props: BasicButtonProps) => {
                     variant={variant || 'contained'}
                     color={color || "primary"}
                     className={`${rounded ? " rounded-full" : ""} ${className}`}
-                    onClick={(e) => { onClickEvent(e) }}
+                    onClick={async (e) => { await onClickEvent(e) }}
                 >{props.children}
 
                 </Button>

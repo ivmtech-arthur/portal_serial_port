@@ -12,6 +12,10 @@ import dotenv from 'dotenv';
 import dotenvExpand from 'dotenv-expand';
 import { getMenu } from "data/menu";
 import axios from "axios";
+import SuperJSON from "superjson";
+import Decimal from "decimal.js";
+import { setConfig, } from 'next/config'
+import { globalS3Client } from "lib/aws";
 
 interface InjectStates {
   user?: {
@@ -22,6 +26,17 @@ interface InjectStates {
     [name: string]: any
   }
 }
+
+SuperJSON.registerCustom<Decimal, string>(
+  {
+    isApplicable: (v): v is Decimal => Decimal.isDecimal(v),
+    serialize: v => v.toJSON(),
+    deserialize: v => new Decimal(v),
+  },
+  'decimal.js'
+);
+
+
 
 function App({ Component, pageProps, router }: AppProps<any>) {
   //notes: case when store refresh need inject state
@@ -51,6 +66,10 @@ function App({ Component, pageProps, router }: AppProps<any>) {
     }
   }
 
+  if (pageProps?.systemConstant) {
+    injectStates.site.systemConstant = pageProps?.systemConstant
+  }
+
   // console.log(injectStates, 'injectStates', router.basePath)
   return (
     <>
@@ -75,11 +94,14 @@ App.getInitialProps = async (ctx: NextPageContext) => {
   const config = dotenv.config();
   dotenvExpand.expand(config);
   console.log("getInitProps")
-  // await axios.post('/api/aws/init').then((res) => {
-  //   console.log("res", res)
-  // }).catch((err) => {
-  //   console.log("err", err)
-  // })
+  // if (!globalS3Client.s3) { 
+  //   await axios.post('/api/aws/init').then((res) => {
+  //     console.log("res", res)
+  //   }).catch((err) => {
+  //     console.log("err", err)
+  //   })
+  // }
+ 
   return { props }
 
 }

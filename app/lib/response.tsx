@@ -6,7 +6,8 @@ import { Prisma } from "@prisma/client";
 import { getErrorMessage } from "./prisma";
 import { ServerResponse } from "http";
 import { CustomResponse } from "./api/handler";
-export default function CustomNextApiResponse(res: NextApiResponse,result: any,statusCode: number,collection?: any) { 
+export default function CustomNextApiResponse(res: NextApiResponse, result: any, statusCode: number, collection?: any) { 
+    console.log("CustomNextApiResponse", result, statusCode)
     // let result: NextApiResponse;
     let resultObj = {};
     const nonce = Buffer.from(randomUUID()).toString('base64')
@@ -53,12 +54,13 @@ export default function CustomNextApiResponse(res: NextApiResponse,result: any,s
             message: message
         }
     }
-    res.status(statusCode).json({
+    return res.status(statusCode).json({
         ...resultObj
     })
 }
 
 export function CustomServerResponse(result: any, statusCode: number, collection?: any) { 
+
     let message;
     let resultObj: CustomResponse = {};
     if (statusCode == 200) {

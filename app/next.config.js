@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const applicationConfig = require('./config/app.config')
 const nextConfig = {
-  reactStrictMode: true,
+  // reactStrictMode: true,
   swcMinify: true,
   poweredByHeader: false,
   publicRuntimeConfig: applicationConfig,
@@ -25,6 +25,9 @@ const nextConfig = {
         permanent: true,
       },
     ]
+  },
+  images: {
+    domains: ['d1vu88wh6vye3r.cloudfront.net'],
   },
   async headers() {
     return [

@@ -12,6 +12,7 @@ import { ChangeEvent, useState } from "react"
 import BasicSnackBar from "components/snackbar"
 import styled from "@emotion/styled"
 import axios from "axios"
+// import { createReadStream, fsync } from "fs"
 
 const VisuallyHiddenInput = styled('input')({
     clip: 'rect(0 0 0 0)',
@@ -103,25 +104,36 @@ export default function Test() {
                 console.log("file", file)
                 if (file instanceof File) {
                     let fileBuffer = await file.arrayBuffer()
-                    let blob = new Blob([fileBuffer]);
+                    // let blob = new Blob([fileBuffer]);
                     const data = new FormData()
+                    let newFile = new File([fileBuffer], file.name, {
+                        type: file.type,
+                    });
                     data.append("file", file);
+                    data.set("id", "att")
                     data.set("type", file.type.split('/')[0])
                     data.set("collection", "test")
-                    await axios.post('/api/aws/s3', data,
-                        // {
+                    // const data = {
+                    //     file: file,
+                    //     id: "att",
+                    //     type: "test",
+                    //     collection: "反"
+                    // }
+                await axios.post('/api/aws/test', data,
+                    {
                         // headers: {
-                        //     'Content-Type': 'application/json',
+                        //     // 'Content-Type': 'application/json',
+                        //     'Content-Type': `multipart/form-data`
                         // },
-                        // }
-                    ).then((result) => {
-                        console.log("result", result)
-                    }).catch((err) => {
-                        console.log("error api", err)
-                    })
-                }
+                    }
+                ).then((result) => {
+                    console.log("result", result)
+                }).catch((err) => {
+                    console.log("error api", err)
+                })
+            }
 
-            }}>submit</Button>
+            }}>submit</Button >
             {/* <Snackbar open={open} autoHideDuration={6000} onClose={handleClose} anchorOrigin={{ vertical:'top', horizontal:'right' }}>
                 <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
                     This is a success message!
@@ -132,7 +144,7 @@ export default function Test() {
             <Alert severity="warning">This is a warning message!</Alert>
             <Alert severity="info">This is an information message!</Alert>
             <Alert severity="success">This is a success message!</Alert> */}
-            {/* <Input color="primary" id="outlined-basic" placeholder="outlined" InputLabelProps={{ shrink: true, style: { padding: '1px' } }} /> */}
+    {/* <Input color="primary" id="outlined-basic" placeholder="outlined" InputLabelProps={{ shrink: true, style: { padding: '1px' } }} /> */ }
         </>
     )
 }

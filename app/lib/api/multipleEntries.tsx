@@ -3,6 +3,7 @@ import { isAuthorised, prisma, schemaMap, handleClause, Test } from "lib/prisma"
 import { CustomRequest } from "./handler";
 import { Prisma, } from "@prisma/client";
 import { UserResultType } from "./type";
+import { parse, serialize } from "superjson/";
 
 
 
@@ -21,7 +22,7 @@ async function GET(req: CustomRequest, collectionName?: string) {
         }
         console.log("req.query", req.query, Object.entries(req.query), new URLSearchParams(filters), typeof collection)
         if (typeof collection === 'string') {
-            const { where, include, select } = handleClause(collection, id, populate, queryParams);
+            const { where, include, select } = handleClause(collection, id, queryParams);
             console.log("whereClause", where, include)
             const result = await schemaMap[collection].findMany({
 
@@ -29,7 +30,7 @@ async function GET(req: CustomRequest, collectionName?: string) {
                 ...(select ? { select: select } : {}),
                 ...(include ? { include: include } : {}),
             })
-            console.log("result test", result)
+            console.log("result test", result, Number.isNaN(result.weight), Number.isNaN(result.remark))
             // type ThenArg<T> = T extends PromiseLike<infer U> ? U : T
             // type dynamicReturnType = ThenArg<ReturnType<typeof result>>
             // CustomNextApiResponse(res, result, 200, collection);
@@ -70,7 +71,7 @@ async function PUT(req: CustomRequest): Promise<Prisma.BatchPayload> {
     const { data, ...bodyParams } = req.body;
     try {
         if (typeof collection === 'string') {
-            const { where } = handleClause(collection, null, null, bodyParams);
+            const { where } = handleClause(collection, null, bodyParams);
             const result = await schemaMap[collection].updateMany({
                 where: where,
                 data
@@ -91,7 +92,7 @@ async function DELETE(req: CustomRequest): Promise<Prisma.BatchPayload> {
     // const { where } = req.body;
     try {
         if (typeof collection === 'string') {
-            const { where } = handleClause(collection, null, null, ...req.body);
+            const { where } = handleClause(collection, null, ...req.body);
             const result = await schemaMap[collection].deleteMany({
                 where: where,
             })

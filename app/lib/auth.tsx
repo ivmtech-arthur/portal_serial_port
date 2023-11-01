@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client'
-import { prisma } from './prisma'
+import { AuthorisedMiddleware, isAuthorised, prisma } from './prisma'
 import { ClientFetcher } from 'lib/fetcher'
 // import { serialize } from 'superjson'
 
@@ -25,7 +25,7 @@ const getUser = async (token) => {
     },
     include: {
       profile: true,
-      
+
     },
     // include: {
     //   user: true,
@@ -39,6 +39,14 @@ const getUser = async (token) => {
   //     Authorization: `Bearer ${token}`,
   //   },
   // }).then(({ data }) => data)
+}
+
+const getSystemContant = async (token) => {
+  await isAuthorised(token)
+  const constant: any = await prisma.systemConstant.findFirst().then((result) => {
+    return JSON.parse(result.Json)
+  });
+  return constant
 }
 
 const getPermission = (role) => {
@@ -55,4 +63,4 @@ const getPermission = (role) => {
   }
 }
 
-export { fakeLogin, getPermission, getUser }
+export { fakeLogin, getPermission, getUser, getSystemContant }

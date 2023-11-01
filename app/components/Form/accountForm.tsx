@@ -241,7 +241,7 @@ const AccountForm = (props) => {
 
 
 
-    const handleUpdate = useCallback((fields) => {
+    const handleUpdate = (fields) => {
         var needUpdate = false
         var updateField = {}
         for (const field in fields) {
@@ -261,20 +261,22 @@ const AccountForm = (props) => {
                 },
             })
         }
-    }, [])
+    }
 
     const handleSubmit = useCallback(async () => {
         // fields
         if (mode == "edit") {
             console.log()
             var data: any = { data: updateFields };
-            await axios.put(`/api/prisma/user/${fields.userID}`, data, {
+            await axios.put(`/api/prisma/user/${userData.userID}`, data, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
             }).then((data) => {
                 console.log("success!!")
                 handleSetHandleBarProps(true, () => { router.reload() }, userString.editUserSnackBar, "success")
+            }).catch((err) => {
+                handleSetHandleBarProps(true, () => { }, `${err}`, "error")
             })
         } else if (mode == "add") {
             await axios.post(`/api/auth/register`, fields, {
@@ -284,6 +286,8 @@ const AccountForm = (props) => {
             }).then((data) => {
                 console.log("success!!", lang)
                 handleSetHandleBarProps(true, () => { router.push(`/${lang}/setting/account`); }, userString.createdUserSnackBar, "success")
+            }).catch((err) => {
+                handleSetHandleBarProps(true, () => { }, `${err}`, "error")
             })
         }
 

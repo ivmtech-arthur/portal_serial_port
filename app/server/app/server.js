@@ -3,6 +3,7 @@
 const express = require('express')
 const next = require('next')
 const path = require('path');
+const cors = require('cors')
 
 
 // const { APP_PREFIX } = require('./../../config/app.config')
@@ -15,6 +16,7 @@ const handle = app.getRequestHandler()
 
 app.prepare().then(() => {
   const server = express()
+  server.use(cors())
   const proxy = express()
   server.disable('x-powered-by')
 
@@ -27,6 +29,8 @@ app.prepare().then(() => {
     // return await app.render(req, res, '/api/hello', req.query)
     res.send('OK')
   })
+
+  app.use
 
   server.all('*', (req, res) => {
     return handle(req, res)

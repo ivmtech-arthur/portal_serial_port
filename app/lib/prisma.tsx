@@ -249,7 +249,19 @@ async function getAutoIncrement(collection: string) {
   }
 }
 
-export function handleClause(collection, id?, populate?, queryParams?) {
+export function ensureAtLeast<T extends object, K extends keyof T & string>(
+  value: T,
+  keys: Array<K>,
+): asserts value is Prisma.AtLeast<T, K> {
+  for (const key of keys) {
+    if (value[key] != null) {
+      return;
+    }
+  }
+  throw new Error(`Expected at least one of the keys set: ${keys.join(', ')}`);
+}
+
+export function handleClause(collection, id?, queryParams?) {
   var allPopulate = false;
   var singlePopulate = false;
   var listPopulate = false;
@@ -276,7 +288,8 @@ export function handleClause(collection, id?, populate?, queryParams?) {
   switch (collection) {
     case "machine":
       var machineClause: Prisma.MachineWhereUniqueInput = {
-        machineID: id
+        machineID: id,
+        ...queryParams?.where
       }
       whereInput = machineClause;
 
@@ -297,6 +310,7 @@ export function handleClause(collection, id?, populate?, queryParams?) {
     case "machinePalletDetail":
       var machinePalletDetailClause: Prisma.MachinePalletDetailWhereUniqueInput = {
         palletDetailID: id,
+        ...queryParams?.where
       }
       whereInput = machinePalletDetailClause;
 
@@ -304,7 +318,8 @@ export function handleClause(collection, id?, populate?, queryParams?) {
       break
     case "machineProductSummary":
       var machineProductSummaryClause: Prisma.MachineProductSummaryWhereUniqueInput = {
-        summaryID: id
+        summaryID: id,
+        ...queryParams?.where
       }
       whereInput = machineProductSummaryClause;
 
@@ -324,7 +339,8 @@ export function handleClause(collection, id?, populate?, queryParams?) {
       break
     case "masterProduct":
       var masterProductClause: Prisma.MasterProductWhereUniqueInput = {
-        productID: id
+        productID: id,
+        ...queryParams?.where
       }
       whereInput = masterProductClause;
 
@@ -345,7 +361,8 @@ export function handleClause(collection, id?, populate?, queryParams?) {
       break
     case "user":
       var userClause: Prisma.UserWhereUniqueInput = {
-        userID: id
+        userID: id,
+        ...queryParams?.where
       }
       whereInput = userClause
 
@@ -385,17 +402,10 @@ export function handleClause(collection, id?, populate?, queryParams?) {
   return { singleWhereClause: { where: whereInput }, includeClause: { include: includeInput }, ...queryParamsObject }
 }
 
-export async function handleDisplayID(collection: string, data) {
-
-  const displayID = await generateDisplayID(collection)
+export function handleDisplayData(collection: string, data) {
   switch (collection) {
-    case "masterProduct":
-      let a: Prisma.MasterProductCreateInput = Object.assign({}, data)
-      a.productDisplayID = displayID
-      a.attachment.create.attachmentDisplayID = await generateDisplayID("attachment")
-      break;
-    case "":s
-      break
+    case "machine":
+
   }
 }
 

@@ -60,8 +60,8 @@ const ConfirmProceed = (props) => {
                 >{message}</StyledBody1>
                 <Block className="flex flex-wrap items-center justify-end p-3 border-t-[1] border-[#dee2e6]">
                     <BasicButton className="mx-1" onClick={() => { handleCancel() }}>{generalString.cancel}</BasicButton>
-                    <BasicButton color={mode == "delete" ? "error" : "primary"} className="mx-1" onClick={() => {
-                        proceedFunc(popupData);
+                    <BasicButton color={mode == "delete" ? "error" : "primary"} className="mx-1" onClick={async () => {
+                        await proceedFunc(popupData);
                         closePopup()
                     }}>{generalString.confirm}</BasicButton>
                 </Block>

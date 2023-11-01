@@ -1,38 +1,25 @@
 import { CustomCtx, preprocessServerSideProps } from 'lib/serverside-prepro'
 import Block from 'components/Common/Element/Block'
-import listMachine from "data/machine"
-import StyledTextFieldSearch from 'components/TextField/styledTextFieldSearch'
-import Table1 from 'components/Table/table1'
 import { useStore } from 'store'
-import find from 'lodash/find'
 import get from 'lodash/get'
 import getConfig from 'next/config'
-import Popup from 'components/Popup'
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { useRouter } from 'next/router'
-import axios from 'axios'
-import SvgIconDeleteGrey from 'public/svg/icon_delete_grey.svg'
-import SvgIconDeleteBlack from 'public/svg/icon_delete_black.svg'
-import SvgIconEditGrey from 'public/svg/icon_edit_grey.svg'
-import SvgIconEditBlack from 'public/svg/icon_edit_black.svg'
-import SvgIconMore from 'public/svg/icon_more_arrow_black.svg'
-import { IconButton, Icon } from "@mui/material";
-// import {StyledSelectField} from 'components/TextField/styledSelectField'
-import StyledSelectField from 'components/TextField/styledSelectField'
 import { withCookies } from 'react-cookie'
-import { type } from 'os'
-import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import { CustomRequest, internalAPICallHandler } from 'lib/api/handler'
 import ExpandableRowTable from 'components/Table/expandableTable'
 import StyledH1 from 'components/Common/Element/H1'
-import { mapDataByCol } from 'lib/helper'
-const { publicRuntimeConfig } = getConfig()
-const { API_URL, APP_URL } = publicRuntimeConfig
-
+import { handleDeleteS3, mapDataByCol } from 'lib/helper'
+import { machineContent } from 'data/machine'
+import axios from 'axios'
+import BasicSnackBar, { SnackBarProps } from 'components/snackbar'
+import { Prisma } from '@prisma/client'
+import { AlertColor } from '@mui/material'
 const MachineList = (props) => {
     const { cookies, profile, data, columnMap, collection } = props
     const token = cookies.get("userToken")
     const role = cookies.get("userRole")
+
     const {
         state: {
             site: { lang, pageName },
@@ -40,91 +27,153 @@ const MachineList = (props) => {
         },
         dispatch,
     } = useStore()
-    console.log("MachineList props", props, pageName, lang)
-    const listMachineString = get(listMachine, lang)
+
+    const [snackBarProps, setSnackbarProps] = useState<SnackBarProps>({
+        open: false,
+        handleClose: () => {
+        },
+        message: "",
+        severity: 'success'
+    })
+    const machineString = get(machineContent, lang)
+    const router = useRouter()
+
+    const handleSetHandleBarProps = useCallback((open: boolean, handleClose: () => void, message: String, severity: AlertColor) => {
+        setSnackbarProps({
+            open: open,
+            handleClose: handleClose,
+            message: message,
+            severity: severity
+        })
+    }, [])
+
+    const handleDelete = useCallback(
+        async (oldData) => {
+            const id = oldData[0]
+            let select: Prisma.MachineSelect = {
+                attachment: true
+            }
+            await axios.delete(`/api/prisma/machine/${id}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+                data: {
+                    select
+                }
+            }).then(async (data) => {
+                console.log("success!!")
+                await handleDeleteS3(oldData.attachment, token).catch((e) => {
+                    throw e
+                })
+                handleSetHandleBarProps(true, () => { router.reload() }, machineString.editmachineSnackBar, "success")
+            }).catch((e) => {
+                handleSetHandleBarProps(true, () => { }, `${e}`, "error")
+            })
+        }, [])
+
 
     return (
         <Block>
-            <StyledH1 className=" text-white font-jost" color="white"
-            // fontFamily={lang == "tc" ? "notoSansTc" : "jost"}
+            <StyledH1 className={`text-white ${lang == 'en' ? 'font-jost' : 'font-notoSansTC'}`} color="white"
             >
                 {pageName}
             </StyledH1>
-            <Block
-                color='midGrey1'
-                fontWeight={{ _: 500, md: 700 }}
-                fontSize={{ _: '24px', md: '30px' }}
-                lineHeight={{ _: '29px', md: '36px' }}
-                pt={{ md: '40px' }}
-            >
-                {listMachineString.hello}
-            </Block>
-            <Block
-                color='darkGrey1'
-                fontWeight={{ _: 700, md: 600 }}
-                fontSize={{ _: '30px', md: '48px' }}
-                lineHeight={{ _: '36px', md: '58px' }}
-            >{profile && profile.username}</Block>
 
-            <IconButton color="primary" aria-label="add to shopping cart">
-                {/* <AddShoppingCartIcon /> */}
-            </IconButton>
-
-            <Block boxShadow='0px 10p   x 30px rgba(0, 0, 0, 0.1)' borderRadius='32px' mb='30px'>
+            <Block boxShadow='0px 10px 30px rgba(0, 0, 0, 0.1)' borderRadius='32px' mb='30px'>
                 <ExpandableRowTable
                     dataObjList={mapDataByCol(data, columnMap, role, false)}
                     mobileDataObjList={mapDataByCol(data, columnMap, role, true)}
                     columnsFromParent={columnMap}
+                    popupTitle={machineString.deleteFromPopupTitle}
+                    title={pageName}
+                    message={machineString.deletemachinePopupMessage}
+                    handleDelete={(data) => {
+                        handleDelete(data)
+                    }}
+                    handleClickAdd={() => {
+                        router.push(`/${lang}/machine-management/add`)
+                    }}
                 />
             </Block>
-            <Popup type="local" propsToPopup={{ data: data }} />
+            <BasicSnackBar {...snackBarProps} />
         </Block>
     )
 }
 
 export async function getServerSideProps(ctx: CustomCtx) {
+    console.log("machineList", global.s3)
     const preProps = await preprocessServerSideProps(ctx)
     if (preProps.redirect)
         return preProps
 
-    console.log("ctx is", ctx.params)
-    const { pageName } = ctx.query
-    const { profile, token, siteConfig } = ctx?.props || {}
-    const { slug, lang } = ctx.params
+    const { profile, token, siteConfig, user } = ctx?.props || {}
     const collection = 'machine'
-    const userType = profile?.userType
-
     const columnMap = [
         {
-            name: "userID",
+            name: "machineID",
+            desktopIgnore: true,
+            objPath: "machineID",
+        },
+        {
+            name: "machineDisplayID",
             mobileDisplay: true,
             mobileCollapse: true,
-            objPath: "userID",
+            objPath: "machineDisplayID",
         },
         {
-            name: "name",
+            name: "isActive",
             mobileCollapse: true,
-            objPath: "name",
+            objPath: "isActive",
         },
         {
-            name: "nameEn",
+            name: "suspend",
             mobileCollapse: true,
-            objPath: "nameEn",
+            objPath: "suspend",
         },
         {
-            name: "authenticated",
+            name: "machineName",
             mobileCollapse: true,
-            objPath: "authenticated",
+            objPath: "machineName",
         },
         {
-            name: "userRole",
+            name: "machineNameEn",
             mobileCollapse: false,
-            objPath: "userRole.userRoleName",
+            objPath: "machineNameEn",
         },
         {
-            name: "userType",
+            name: "desc",
             mobileCollapse: false,
-            objPath: "userType.userTypeName",
+            objPath: "desc",
+        },
+        {
+            name: "descEn",
+            mobileCollapse: false,
+            objPath: "descEn",
+        },
+        {
+            name: "price",
+            mobileCollapse: false,
+            objPath: "price",
+        },
+        {
+            name: "unitPrice",
+            mobileCollapse: false,
+            objPath: "unitPrice",
+        },
+        {
+            name: "unit",
+            mobileCollapse: false,
+            objPath: "unit",
+        },
+        {
+            name: "currency",
+            mobileCollapse: false,
+            objPath: "currency",
+        },
+        {
+            name: "remark",
+            mobileCollapse: false,
+            objPath: "remark",
         },
         {
             name: "createdAt",
@@ -141,23 +190,21 @@ export async function getServerSideProps(ctx: CustomCtx) {
     var customRequest: CustomRequest = {
         query: {
             collection,
-
         },
         method: ctx.req.method,
     }
 
-
     const data = await internalAPICallHandler(customRequest).then((data) => {
-        return data
+        return JSON.parse(JSON.stringify(data.result))
     }).catch((e) => {
         console.log("error getserversideProps", e)
     })
 
-    console.log("getServersideProps ctx", data)
-
+    console.log("dataxd", data)
     return {
         props: {
             data,
+            columnMap,
             headerTheme: 'white',
             headerPosition: 'fixed',
             collection,
