@@ -1,6 +1,6 @@
 import { getEnvVariable, getErrorResponse } from "lib/helper";
 import { prisma } from "lib/prisma";
-import { signJWT } from "lib/jwt";
+import { createAccessToken, createRefreshToken, sendRefreshToken, signJWT } from "lib/jwt";
 import { LoginUserInput, LoginUserSchema } from "lib/validations/user.schema";
 import { compare } from "bcryptjs";
 import { NextRequest, NextResponse } from "next/server";
@@ -48,30 +48,39 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const JWT_EXPIRES_IN = getEnvVariable("JWT_EXPIRES_IN");
 
-    const token = await signJWT(
-      { sub: user.userID },
-      { exp: `${JWT_EXPIRES_IN}m` }
+    let payload = {
+      sub: user.userID,
+      username: user.username,
+      userDisplayID: user.userDisplayID
+    }
+    const refreshToken = await createRefreshToken(
+      payload
     );
 
+    sendRefreshToken(res, refreshToken)
+
+    const accessToken = await createAccessToken(payload)
     if (user.userSession) {
       let expireDate = new Date();
-      expireDate.setFullYear(expireDate.getFullYear() + 1);
+      // expireDate.setFullYear(expireDate.getFullYear() + 1);
+      expireDate.setMinutes(expireDate.getMinutes() + 1)
       await prisma.userSession.update({
         where: {
           userID: user.userID
         },
         data: {
-          token,
+          refreshToken,
           expiredDate: expireDate,
         }
       })
     } else {
       let expireDate = new Date();
-      expireDate.setFullYear(expireDate.getFullYear() + 1);
+      // expireDate.setFullYear(expireDate.getFullYear() + 1);
+      expireDate.setMinutes(expireDate.getMinutes() + 1)
       await prisma.userSession.create({
         data: {
           userID: user.userID,
-          token: token,
+          refreshToken,
           expiredDate: expireDate,
 
         }
@@ -90,7 +99,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const tokenMaxAge = parseInt(JWT_EXPIRES_IN) * 60;
     const cookieOptions = {
       name: "token",
-      value: token,
+      value: refreshToken,
       httpOnly: true,
       path: "/",
       secure: process.env.NODE_ENV !== "development",
@@ -98,7 +107,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     };
 
     CustomNextApiResponse(res, {
-      jwt: token,
+      refreshToken: refreshToken,
+      accessToken: accessToken,
       user
     }, 200)
     // await Promise.all([

@@ -24,7 +24,11 @@ const {
 } = getConfig()
 
 import { muiTheme } from 'styles/mui'
+import axios from 'axios'
 
+const refreshToken = async () => {
+  return axios.post('/api/auth/refreshToken')
+}
 
 function Layout(props) {
   const {
@@ -41,7 +45,7 @@ function Layout(props) {
   } = props
   const {
     state: {
-      site: { loading, lang, storeHeaderTheme },
+      site: { loading, lang, storeHeaderTheme, noticeTitle },
     },
     dispatch,
   } = useStore()
@@ -54,7 +58,7 @@ function Layout(props) {
   const handleRouteChangeComplete = () => {
 
 
-   
+
     const urlLang = get(window, 'location.href', '').match(/\/(zh|en)/)
     if (get(urlLang, '[1]') && lang !== get(urlLang, '[1]')) {
       dispatch({
@@ -63,7 +67,7 @@ function Layout(props) {
       })
     }
     const pathList = window.location.pathname.split('/');
-    console.log("pathxd", pathList,pathList[pathList.length - 1], getMenu(get(urlLang, '[1]')).find((menu) => { console.log(menu.url); return menu.url == pathList[pathList.length - 1] }))
+    console.log("pathxd", pathList, pathList[pathList.length - 1], getMenu(get(urlLang, '[1]')).find((menu) => { console.log(menu.url); return menu.url == pathList[pathList.length - 1] }))
     if (pathList && pathList[pathList.length - 1]) {
       dispatch({
         type: 'setPageName',
@@ -118,11 +122,38 @@ function Layout(props) {
     // window.addEventListener('scroll', handleScroll)
   }, []) // eslint-disable-line
 
+  useEffect(() => {
+    //initial funciton
+    refreshToken().then(({ data }) => {
+      if (data.ok) {
+        console.log("accessToken init okay", data, lang)
+        const { accessToken } = data
+        dispatch({ type: 'setAccessToken', payload: { accessToken } })
+        // store.setAccessToken(data.accessToken)
+        // store.setUser(data.user)
+      }
+      // setLoading(false)
+    })
+
+    //starts silent refreshes countdown
+    setInterval(() => {
+      refreshToken().then(({ data }) => {
+        if (data.ok) {
+          console.log("accessToken refresh okay", data)
+          const { accessToken } = data
+          dispatch({ type: 'setAccessToken', payload: { accessToken: data.accessToken } })
+          // store.setAccessToken(data.accessToken)
+          // store.setUser(data.user)
+        }
+      })
+    }, 3600000)
+  }, [])
+
   return (
     <>
       <ThemeProvider theme={muiTheme}>
-      <DesktopLayout>
-        {/* {!blankLayout && (
+        <DesktopLayout>
+          {/* {!blankLayout && (
           <Header
             hideLang={hideLang}
             hideLogo={hideLogo}
@@ -132,21 +163,21 @@ function Layout(props) {
           />
         )} */}
 
-        {/* {verticalMenu} */}
+          {/* {verticalMenu} */}
 
           {children}
-    
-     
 
-        {/* {!hideFooter && !blankLayout && (
+
+
+          {/* {!hideFooter && !blankLayout && (
           <Footer
             hideEmojiFooter={hideEmojiFooter}
             hideGenericFooter={hideGenericFooter}
           />
         )} */}
-        
-       
-      </DesktopLayout>
+
+
+        </DesktopLayout>
         {loading && <Loading />}
       </ThemeProvider>
     </>

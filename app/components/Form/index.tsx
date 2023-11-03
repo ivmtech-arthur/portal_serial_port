@@ -12,6 +12,8 @@ import AccountForm from "./accountForm";
 import { ChangeUserDataInput, ChangeUserDataSchema, RegisterUserInput, RegisterUserSchema } from "lib/validations/user.schema";
 import { ChangeProductInput, ChangeProductSchema, CreateProductInput, CreateProductSchema } from "lib/validations/product.schema";
 import MachineForm from "./machineForm";
+import { ChangeMachineInput, ChangeMachineSchema, CreateMachineInput, CreateMachineSchema } from "lib/validations/machine.schema";
+import MachineTypeForm from "./machineTypeForm";
 
 
 function FormHandler(props) {
@@ -42,6 +44,14 @@ function FormHandler(props) {
                 case "changeProduct":
                     body = fields as ChangeProductInput;
                     data = ChangeProductSchema.parse(body);
+                    break;
+                case "createMachine":
+                    body = fields as CreateMachineInput;
+                    data = CreateMachineSchema.parse(body);
+                    break;
+                case "changeMachine":
+                    body = fields as ChangeMachineInput;
+                    data = ChangeMachineSchema.parse(body);
                     break;
             }
 
@@ -93,7 +103,7 @@ function FormHandler(props) {
         // }
     }
 
-    async function handleValidation(e, valueType = "string") {
+    async function handleValidation(e, valueType = "string", customParams = { action: "add", index: 0 }) {
         console.log("handleValidationx", e, valueType, e.target.value, fields)
         try {
             if (e.target) {
@@ -105,6 +115,7 @@ function FormHandler(props) {
                         value = e.target.checked
                         break;
                     case "file":
+                    case "fileMultiple":
                         value = e.target.files[0]
                         break;
                     default:
@@ -112,9 +123,9 @@ function FormHandler(props) {
                 }
                 const name = e.target.name;
 
-                assignValue(name, value, valueType);
+                assignValue(name, value, valueType, customParams);
             } else {
-                assignValue(e.name, e.value, valueType)
+                assignValue(e.name, e.value, valueType, customParams)
             }
         } catch (e) {
             //
@@ -127,8 +138,9 @@ function FormHandler(props) {
 
     }
 
-    function assignValue(name, value, valueType) {
-        console.log("assignValue", name, value, valueType, fields)
+    function assignValue(name, value, valueType, customParams = { action: "add", index: 0 }) {
+        console.log("assignValue", name, value, valueType, fields, customParams)
+
         if (value === "") {
             delete fields[name];
             // setErrors({ ...errors, [name]: 'Required' });
@@ -138,11 +150,20 @@ function FormHandler(props) {
 
         delete errors[name];
         var tempValue = value;
+
         switch (valueType) {
             case "string":
                 break;
             case "number":
                 tempValue = parseFloat(value)
+                break;
+            case "fileMultiple":
+                tempValue = fields[name]
+                if (customParams.action == "delete") {
+                    tempValue.splice(customParams.index, 1)
+                } else {
+                    tempValue.push(value)
+                }
                 break;
         }
         setFields({ ...fields, [name]: tempValue });
@@ -197,6 +218,7 @@ function FormHandler(props) {
             {formType == "AccountForm" && <AccountForm getInitFields={getInitFields} handleOnSubmit={handleOnSubmit} handleValidation={handleValidation} errors={errors} parentCallback={parentCallback} fields={fields} {...restProps} />}
             {formType == "ProductForm" && <ProductForm getInitFields={getInitFields} handleOnSubmit={handleOnSubmit} handleValidation={handleValidation} errors={errors} parentCallback={parentCallback} fields={fields} {...restProps} />}
             {formType == "MachineForm" && <MachineForm getInitFields={getInitFields} handleOnSubmit={handleOnSubmit} handleValidation={handleValidation} errors={errors} parentCallback={parentCallback} fields={fields} {...restProps} />}
+            {formType == "MachineTypeForm" && <MachineTypeForm getInitFields={getInitFields} handleOnSubmit={handleOnSubmit} handleValidation={handleValidation} errors={errors} parentCallback={parentCallback} fields={fields} {...restProps} />}
         </Block>
     )
 }

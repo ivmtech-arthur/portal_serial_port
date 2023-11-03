@@ -7,7 +7,7 @@ const withLogin = (
   assignOpts = {},
   defaultOpts = {
     type: 'authenticated',
-    tokenKey: 'userToken',
+    tokenKey: 'refreshToken',
     redirect: {
       path: false,
     },

@@ -22,7 +22,7 @@ const { API_URL, APP_URL } = publicRuntimeConfig
 
 const AccountDetail = (props) => {
     const { cookies, userTypeData, userRoleData, userData,collection } = props
-    const token = cookies.get("userToken")
+    const token = cookies.get("accessToken")
     const role = cookies.get("userRole")
     const {
         state: {

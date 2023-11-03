@@ -1,5 +1,6 @@
 const initialState = {
   authenticated: false,
+  accessToken: '',
   userProfile: {},
 }
 
@@ -20,6 +21,14 @@ function reducer(state, action) {
       return {
         ...state,
         profile,
+        authenticated: true,
+      }
+    }
+    case 'setAccessToken': {
+      const { accessToken } = payload
+      return {
+        ...state,
+        accessToken,
         authenticated: true,
       }
     }

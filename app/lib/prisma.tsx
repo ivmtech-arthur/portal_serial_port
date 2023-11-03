@@ -2,6 +2,7 @@ import { Prisma, PrismaClient, User } from "@prisma/client";
 import { DefaultArgs } from "@prisma/client/runtime/library";
 import { NextApiRequest } from "next";
 import { CustomServerResponse } from "./response";
+import { verifyPublicJWT } from "./jwt";
 // import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
@@ -20,6 +21,9 @@ export const tableConfig = {
   "machine": {
     instance: prisma.machine,
     prefix: "MAC",
+  },
+  "machineType": {
+    instance: prisma.machineType
   },
   "machinePalletDetail": {
     instance: prisma.machinePalletDetail,
@@ -415,7 +419,7 @@ export async function isAuthorised(token: string) {
     const result = await prisma.userSession.findFirstOrThrow({
       where: {
         // userID: "SuperAdmin",
-        token: token
+        refreshToken: token
       },
 
     });
@@ -435,15 +439,28 @@ export async function AuthorisedMiddleware(req: NextApiRequest) {
     const { authorization } = req.headers
     if (authorization && authorization.includes("Bearer ")) {
       let tokenAuthorized = false;
-      try {
-        tokenAuthorized = await isAuthorised(authorization.replace("Bearer ", ""));
+      try { 
+        const payload = await verifyPublicJWT(authorization.replace("Bearer ", ""))
+        // payload.
+        console.log("payload", payload, Date.now())
+        if (payload) {
+          return true
+        } else { 
+          throw "token expired"
+        }
+        
       } catch (e) {
         throw ("Access Denied, Authorized fail")
       }
+      // try {
+      //   tokenAuthorized = await isAuthorised(authorization.replace("Bearer ", ""));
+      // } catch (e) {
+      //   throw ("Access Denied, Authorized fail")
+      // }
 
-      if (tokenAuthorized) {
-        return
-      }
+      // if (tokenAuthorized) {
+      //   return
+      // }
     } else {
       throw ("Access Denied, Bearer Token Not Found")
     }

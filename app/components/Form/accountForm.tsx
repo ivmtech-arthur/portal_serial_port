@@ -23,6 +23,7 @@ import axios from 'axios'
 import { withCookies } from 'react-cookie'
 import { useRouter } from 'next/router'
 import BasicSnackBar, { SnackBarProps } from 'components/snackbar'
+import { Prisma } from '@prisma/client'
 
 
 
@@ -210,14 +211,14 @@ const AccountForm = (props) => {
         dispatch
     } = useStore()
     const { cookies } = props
-    const token = cookies.get("userToken")
+    const token = cookies.get("accessToken")
     const generalString = get(general, lang)
     const userString = get(userContent, lang)
     const forgetPasswordString = get(forgetPassword, lang)
     const router = useRouter()
     const [email, setEmail] = useState("")
     const [formData, setFormData] = useState({})
-    const [updateFields, setUpdateFields] = useState({})
+    const [updateFields, setUpdateFields] = useState<any>({})
     const [snackBarProps, setSnackbarProps] = useState<SnackBarProps>({
         open: false,
         handleClose: () => {
@@ -267,8 +268,40 @@ const AccountForm = (props) => {
         // fields
         if (mode == "edit") {
             console.log()
-            var data: any = { data: updateFields };
-            await axios.put(`/api/prisma/user/${userData.userID}`, data, {
+            const { userRole, userType, restFields } = updateFields
+            var data: Prisma.UserUpdateInput = {
+                ...(userRole &&
+                {
+                    userRole: {
+                        connect: {
+                            userRoleID: userRole
+                        }
+                    }
+                }
+                ),
+                ...(userType &&
+                {
+                    userType: {
+                        connect: {
+                            userTypeID: userType
+                        }
+                    }
+                }
+                ),
+                ...restFields
+                // userRole: {
+                //     update: {
+                //         userRoleID
+                //     }
+                // }
+            }
+            // var b: Prisma.UserUpdateArgs = {
+            //     data: {
+
+            //     }
+            // }
+            // var data: any = { data: updateFields };
+            await axios.put(`/api/prisma/user/${userData.userID}`, { data }, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -279,7 +312,7 @@ const AccountForm = (props) => {
                 handleSetHandleBarProps(true, () => { }, `${err}`, "error")
             })
         } else if (mode == "add") {
-            await axios.post(`/api/auth/register`, fields, {
+            await axios.post(`/api/auth/register`, { data: fields }, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },

@@ -7,7 +7,7 @@ import get from 'lodash/get'
 
 const PalletConfig = (props) => {
     const { cookies, profile } = props
-    const token = cookies.get("userToken")
+    const token = cookies.get("accessToken")
     // console.log("PatientList props", props)
     const {
         state: {

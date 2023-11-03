@@ -9,14 +9,13 @@ import { withCookies } from 'react-cookie'
 import { CustomRequest, internalAPICallHandler } from 'lib/api/handler'
 import ExpandableRowTable from 'components/Table/expandableTable'
 import StyledH1 from 'components/Common/Element/H1'
-import { mapDataByCol } from 'lib/helper'
-import { userContent } from 'data/user'
+import { handleDeleteS3, mapDataByCol } from 'lib/helper'
+import { machineContent } from 'data/machine'
 import axios from 'axios'
 import BasicSnackBar, { SnackBarProps } from 'components/snackbar'
-const { publicRuntimeConfig } = getConfig()
-
-
-const AccountList = (props) => {
+import { Prisma } from '@prisma/client'
+import { AlertColor } from '@mui/material'
+const MachineTypeList = (props) => {
     const { cookies, profile, data, columnMap, collection } = props
     const token = cookies.get("accessToken")
     const role = cookies.get("userRole")
@@ -29,7 +28,6 @@ const AccountList = (props) => {
         dispatch,
     } = useStore()
 
-    // console.log("accountList props", props, pageName, lang, data, columnMap, role)
     const [snackBarProps, setSnackbarProps] = useState<SnackBarProps>({
         open: false,
         handleClose: () => {
@@ -37,37 +35,41 @@ const AccountList = (props) => {
         message: "",
         severity: 'success'
     })
-    const userString = get(userContent, lang)
+    const machineString = get(machineContent, lang)
     const router = useRouter()
 
-    const handleDelete = useCallback(
-        async (id) => {
-        await axios.delete(`/api/prisma/user/${id}`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        }).then((data) => {
-            console.log("success!!")
-            var tempSnackBarProps = snackBarProps
-            tempSnackBarProps.open = true
-            tempSnackBarProps.severity = "success"
-            tempSnackBarProps.handleClose = () => {
-                router.reload()
-            }
-            tempSnackBarProps.message = userString.deleteUserSnackbar + id
-            setSnackbarProps({ ...tempSnackBarProps })
-        }).catch((e) => {
-            var tempSnackBarProps = snackBarProps
-            tempSnackBarProps.open = true
-            tempSnackBarProps.severity = "error"
-            tempSnackBarProps.message = `${e}`
-            tempSnackBarProps.handleClose = () => {
-                tempSnackBarProps.open = false
-                setSnackbarProps({ ...tempSnackBarProps })
-             }
-            setSnackbarProps({ ...tempSnackBarProps })
+    const handleSetHandleBarProps = useCallback((open: boolean, handleClose: () => void, message: String, severity: AlertColor) => {
+        setSnackbarProps({
+            open: open,
+            handleClose: handleClose,
+            message: message,
+            severity: severity
         })
-    },[])
+    }, [])
+
+    const handleDelete = useCallback(
+        async (oldData) => {
+            const id = oldData[0]
+            let select: Prisma.MachineTypeSelect = {
+                // attachment: true
+            }
+            await axios.delete(`/api/prisma/machineType/${id}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+                data: {
+                    select
+                }
+            }).then(async (data) => {
+                console.log("success!!")
+                await handleDeleteS3(oldData.attachment, token).catch((e) => {
+                    throw e
+                })
+                handleSetHandleBarProps(true, () => { router.reload() }, machineString.editmachineTypeSnackBar, "success")
+            }).catch((e) => {
+                handleSetHandleBarProps(true, () => { }, `${e}`, "error")
+            })
+        }, [])
 
 
     return (
@@ -82,14 +84,14 @@ const AccountList = (props) => {
                     dataObjList={mapDataByCol(data, columnMap, role, false)}
                     mobileDataObjList={mapDataByCol(data, columnMap, role, true)}
                     columnsFromParent={columnMap}
+                    popupTitle={machineString.deleteFromPopupTitle}
                     title={pageName}
-                    popupTitle={userString.deleteFromPopupTitle}
-                    message={userString.deleteUserPopupMessage}
+                    message={machineString.deletemachineTypePopupMessage}
                     handleDelete={(data) => {
                         handleDelete(data)
                     }}
-                    handleClickAdd={() => { 
-                        router.push(`${router.asPath}/add`)
+                    handleClickAdd={() => {
+                        router.push(`/${lang}/machine-management/machine-Type/add`)
                     }}
                 />
             </Block>
@@ -99,51 +101,34 @@ const AccountList = (props) => {
 }
 
 export async function getServerSideProps(ctx: CustomCtx) {
+    console.log("machineTypeList", global.s3)
     const preProps = await preprocessServerSideProps(ctx)
     if (preProps.redirect)
         return preProps
 
-    const { pageName } = ctx.query
     const { profile, token, siteConfig, user } = ctx?.props || {}
-    const { slug, lang } = ctx.params
-    const collection = 'user'
-    const userType = profile?.userType
+    const collection = 'machineType'
     const columnMap = [
         {
-            name: "userID",
+            name: "machineTypeID",
             desktopIgnore: true,
-            objPath: "userID",
+            objPath: "machineTypeID",
         },
         {
-            name: "userDisplayID",
+            name: "machineTypeDisplayID",
             mobileDisplay: true,
             mobileCollapse: true,
-            objPath: "userDisplayID",
+            objPath: "machineTypeDisplayID",
         },
         {
-            name: "name",
+            name: "machineTypeName",
             mobileCollapse: true,
-            objPath: "name",
+            objPath: "machineTypeName",
         },
         {
-            name: "nameEn",
-            mobileCollapse: true,
-            objPath: "nameEn",
-        },
-        {
-            name: "authenticated",
-            mobileCollapse: true,
-            objPath: "authenticated",
-        },
-        {
-            name: "userRole",
+            name: "machineTypeNameEn",
             mobileCollapse: false,
-            objPath: "userRole.userRoleName",
-        },
-        {
-            name: "userType",
-            mobileCollapse: false,
-            objPath: "userType.userTypeName",
+            objPath: "machineTypeNameEn",
         },
         {
             name: "createdAt",
@@ -156,17 +141,13 @@ export async function getServerSideProps(ctx: CustomCtx) {
             objPath: "updatedAt",
         },
     ]
+
     var customRequest: CustomRequest = {
         query: {
             collection,
-            include: {
-                userType: true,
-                userRole: true
-            },
         },
         method: ctx.req.method,
     }
-
 
     const data = await internalAPICallHandler(customRequest).then((data) => {
         return JSON.parse(JSON.stringify(data.result))
@@ -174,14 +155,16 @@ export async function getServerSideProps(ctx: CustomCtx) {
         console.log("error getserversideProps", e)
     })
 
+    console.log("dataxd", data)
     return {
         props: {
+            data,
             columnMap,
-            data: data,
-            user,
+            headerTheme: 'white',
+            headerPosition: 'fixed',
             collection,
         },
     }
 }
 
-export default withCookies(AccountList)
+export default withCookies(MachineTypeList)

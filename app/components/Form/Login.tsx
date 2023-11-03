@@ -76,13 +76,14 @@ const LoginForm = (props) => {
         if (fields.rememberMe)
           opt.maxAge = 360000
 
-        // cookies.set('userToken', get(data, 'jwt', false), opt)
+        // cookies.set('refreshToken', get(data, 'jwt', false), opt)
         // cookies.set('role', useType, opt)
-        Cookies.set('userToken', get(result, 'jwt', false), opt)
+        // Cookies.set('accessToken',get(result,'accessToken',false),opt)
+        // Cookies.set('refreshToken', get(result, 'jwt', false), opt)
         Cookies.set('userRole', userRole, opt)
         Cookies.set('userType', userType, opt)
         // Cookies.
-        // cookies.set('userToken', "test", opt)
+        // cookies.set('refreshToken', "test", opt)
 
         // cookies.set('role', "xd", opt)
         // console.log("handleLogin cookies", props, Object.keys(cookies), cookies)

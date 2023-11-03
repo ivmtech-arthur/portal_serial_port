@@ -17,7 +17,7 @@ import { Prisma } from '@prisma/client'
 import { AlertColor } from '@mui/material'
 const ProductList = (props) => {
     const { cookies, profile, data, columnMap, collection } = props
-    const token = cookies.get("userToken")
+    const token = cookies.get("accessToken")
     const role = cookies.get("userRole")
 
     const {

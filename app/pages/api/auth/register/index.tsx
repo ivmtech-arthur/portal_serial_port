@@ -20,12 +20,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // res.status(200).json({ body: 'John Doe' })
     console.log("register service");
     try {
-        const body = (await req.body) as RegisterUserInput;
-        const data = RegisterUserSchema.parse(body);
+        const { data } = req.body
+        const body = (await data) as RegisterUserInput;
+        const inputData = RegisterUserSchema.parse(body);
 
         const password = generatePassword(2);
 
-        const hashedPassword = await hash(data.password, 12);
+        const hashedPassword = await hash(inputData.password, 12);
 
         // let userCreatenput: Prisma.UserCreateInput = {
         //     name
@@ -37,19 +38,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         // }
         const user = await prisma.user.create({
             data: {
-                name: data.name,
-                nameEn: data.nameEn,
-                username: data.username,
+                name: inputData.name,
+                nameEn: inputData.nameEn,
+                username: inputData.username,
                 password: hashedPassword,
                 authenticated: false,
                 userRole: {
                     connect: {
-                        userRoleID: data.userRole
+                        userRoleID: inputData.userRole
                     }
                 },
                 userType: {
                     connect: {
-                        userTypeID: data.userType
+                        userTypeID: inputData.userType
                     }
                 },
                 // userDisplayID: await generateDisplayID("user"),
@@ -77,7 +78,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         console.log("error:", error);
         CustomNextApiResponse(res, error, 400)
         // res.status(400).json(error);
-      
+
     }
 }
 

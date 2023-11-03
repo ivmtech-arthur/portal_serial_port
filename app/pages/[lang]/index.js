@@ -39,7 +39,7 @@ export const getServerSideProps = withLogin(
   },
   {
     // type: 'authenticated',
-    tokenKey: 'userToken',
+    tokenKey: 'refreshToken',
   }
 )
 

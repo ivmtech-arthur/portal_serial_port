@@ -71,7 +71,7 @@ export const muiTheme = createTheme({
                             // background: '#000000',
                             border: '1px solid red'
                         },
-                        padding: '3px',
+                        // padding: '3px',
                         // border: '1px solid red'
                     }
                     // input: ({ ownerState, theme }) => { 
@@ -81,7 +81,7 @@ export const muiTheme = createTheme({
                     //     //     padding: '5px',
                     //     // }
                     // }
-                }
+                },
             }
         },
         // MuiInput: {
@@ -151,6 +151,33 @@ export const muiTheme = createTheme({
 
                 //     }
                 // }
+            }
+        },
+        MuiAutocomplete: {
+            styleOverrides: {
+                input: {
+                    paddingTop: '10px'
+                },
+                inputRoot: {
+                    // '&.MuiAutocomplete-input': {
+                    //     padding: '13px'
+                    // },
+                    paddingTop: '1px',
+                    paddingBottom: '1px',
+             
+                    paddingLeft: '8px'
+                    // paddingX: '4px'
+                },
+                root: {
+                    '& > .MuiOutlinedInput-root': {
+                        // '& > .MuiAutocomplete-input': {
+                        //     padding: '13px'
+                        // },
+                        paddingX: '4px',
+                        paddingY:'2px'
+                    }
+                    // padding: '9px'
+                }
             }
         },
         MuiTextField: {
@@ -427,7 +454,7 @@ export const muiTheme = createTheme({
                     fontWeight: "bold",
                 },
                 root: {
-                    
+
                 }
             }
         },

@@ -17,7 +17,7 @@ import { Prisma } from '@prisma/client'
 import { AlertColor } from '@mui/material'
 const MachineList = (props) => {
     const { cookies, profile, data, columnMap, collection } = props
-    const token = cookies.get("userToken")
+    const token = cookies.get("accessToken")
     const role = cookies.get("userRole")
 
     const {
@@ -51,7 +51,7 @@ const MachineList = (props) => {
         async (oldData) => {
             const id = oldData[0]
             let select: Prisma.MachineSelect = {
-                attachment: true
+                // attachment: true
             }
             await axios.delete(`/api/prisma/machine/${id}`, {
                 headers: {

@@ -19,7 +19,9 @@ model Profile {
 
 model MachineType {
   machineTypeID        Int       @id @unique @default(autoincrement())
-  machineTypeDisplayID String?    @unique @db.VarChar(20)
+  machineTypeDisplayID String?   @unique @db.VarChar(20)
+  machineTypeName      String    @db.NVarChar(50)
+  machineTypeNameEn    String    @db.VarChar(50)
   Machine              Machine[]
 }
 
@@ -27,14 +29,18 @@ model Machine {
   machineID             Int                     @id @unique @default(autoincrement())
   createdAt             DateTime                @default(now())
   updatedAt             DateTime                @updatedAt
-  serverToken           String                  @db.VarChar(255)
-  location              String                  @db.VarChar(10)
+  serverToken           String                  @db.VarChar(8000)
+  location              String?                 @db.VarChar(10)
   ownerID               Int
   status                String                  @db.VarChar(10)
-  config                String                  @db.VarChar(8000)
+  config                String?                 @db.VarChar(8000)
   remark                String?                 @db.VarChar(255)
   palletNo              Int
   machineTypeID         Int
+  machineDisplayID      String?                 @unique @db.VarChar(21)
+  machineName           String                  @db.NVarChar(50)
+  machineNameEn         String                  @db.VarChar(50)
+  isActive              Boolean                 @default(false)
   machineType           MachineType             @relation(fields: [machineTypeID], references: [machineTypeID])
   owner                 User                    @relation(fields: [ownerID], references: [userID])
   machinePalletDetail   MachinePalletDetail[]
@@ -108,12 +114,12 @@ model Transaction {
 }
 
 model UserSession {
-  userID      Int      @unique
-  token       String
-  expiredDate DateTime
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  user        User     @relation(fields: [userID], references: [userID])
+  userID       Int      @unique
+  refreshToken String
+  expiredDate  DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userID], references: [userID])
 }
 
 model User {
@@ -161,6 +167,7 @@ model Attachment {
   createdAt           DateTime        @default(now())
   updatedAt           DateTime        @updatedAt
   attachmentDisplayID String?         @unique @db.VarChar(21)
+  tableUsage          String?         @db.VarChar(20)
   MasterProduct       MasterProduct[]
   Machine             Machine[]       @relation("AttachmentToMachine")
 }

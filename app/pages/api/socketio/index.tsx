@@ -16,8 +16,10 @@ const SocketHandler = (req, res) => {
       // path: "/socket.io/",
     })
 
-    io.use(async (socket,next) => { 
+    io.use(async (socket, next) => { 
+      console.log("socketio", socket.handshake)
       if (socket.handshake.query && socket.handshake.query.token) {
+        console.log("socketio", socket.handshake)
         let token = `${socket.handshake.query.token}`;
         let where: Prisma.MachineWhereInput = {
           serverToken: token
@@ -30,6 +32,7 @@ const SocketHandler = (req, res) => {
           method: "GET"
         }
         const result = await singleEntryHandler(req);
+        
         // jwt.verify(socket.handshake.query.token, 'SECRET_KEY', function (err, decoded) {
         //   if (err) return next(new Error('Authentication error'));
         //   socket.decoded = decoded;

@@ -4,7 +4,11 @@ import { NextResponse } from "next/server";
 import { Cookies } from "react-cookie";
 import { ZodError } from "zod";
 
-type EnvVariableKey = "JWT_SECRET_KEY" | "JWT_EXPIRES_IN";
+type EnvVariableKey = "JWT_SECRET_KEY" | "JWT_EXPIRES_IN" | "JWT_PRIVATE_KEY" | "JWT_PRIVATE_KEY_PKCS8";
+
+export interface ExtendFile extends File {
+  usage?: string,
+}
 
 export function getEnvVariable(key: EnvVariableKey): string {
   const value = process.env[key];

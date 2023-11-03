@@ -4,9 +4,9 @@ import theme from 'styles/theme'
 // import JsxGlobalStyle from '/styles/global/styled-jsx'
 import GlobalStyle from 'styles/global'
 import '/styles/globals_style.scss'
-import { StoreProvider } from 'store'
+import { StoreProvider, useStore } from 'store'
 import Layout from 'components/Layout'
-import React from "react";
+import React, { useEffect } from "react";
 import { NextPageContext } from "next";
 import dotenv from 'dotenv';
 import dotenvExpand from 'dotenv-expand';
@@ -43,6 +43,7 @@ function App({ Component, pageProps, router }: AppProps<any>) {
   const config = dotenv.config();
   dotenvExpand.expand(config);
   const injectStates: InjectStates = {}
+
   if (pageProps?.user || pageProps?.profile) {
     injectStates.user = {
       authenticated: true,
@@ -57,7 +58,14 @@ function App({ Component, pageProps, router }: AppProps<any>) {
     if (urlList.length > 1) {
       pageName = getMenu(router.query.lang).find((menu) => {
         // console.log("regex test", menu.regex?.test(urlList.slice(2).join('/')), menu.regex, urlList.slice(2).join('/'))
-        return menu.url === urlList.slice(2).join('/') || menu.regex?.test(urlList.slice(2).join('/'))
+        if (menu.url === urlList.slice(2).join('/')) {
+          return true
+        } else if (menu.regex?.test(urlList.slice(2).join('/'))) {
+          return true
+        } else {
+          return false
+        }
+
       })?.title
     }
     injectStates.site = {
@@ -69,6 +77,7 @@ function App({ Component, pageProps, router }: AppProps<any>) {
   if (pageProps?.systemConstant) {
     injectStates.site.systemConstant = pageProps?.systemConstant
   }
+
 
   // console.log(injectStates, 'injectStates', router.basePath)
   return (
@@ -101,7 +110,7 @@ App.getInitialProps = async (ctx: NextPageContext) => {
   //     console.log("err", err)
   //   })
   // }
- 
+
   return { props }
 
 }

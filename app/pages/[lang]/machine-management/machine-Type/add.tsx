@@ -9,11 +9,12 @@ import { withCookies } from 'react-cookie'
 import { CustomRequest, internalAPICallHandler } from 'lib/api/handler'
 import StyledH1 from 'components/Common/Element/H1'
 import FormHandler from 'components/Form'
+import { Prisma } from '@prisma/client'
 const { publicRuntimeConfig } = getConfig()
 
 
-const AccountAdd = (props) => {
-    const { cookies, userTypeData, userRoleData, collection } = props
+const MachineTypeAdd = (props) => {
+    const { cookies, clientUserData, collection } = props
     const token = cookies.get("accessToken")
     const role = cookies.get("userRole")
     const {
@@ -32,7 +33,7 @@ const AccountAdd = (props) => {
             </StyledH1>
 
             <Block boxShadow='0px 10px 30px rgba(0, 0, 0, 0.1)' bg='white' borderRadius='32px' mb='30px'>
-                <FormHandler formType="AccountForm" userTypeData={userTypeData} userRoleData={userRoleData} mode="add" />
+                <FormHandler formType="MachineTypeForm" mode="add" />
             </Block>
             <Popup type="local" />
         </Block>
@@ -44,41 +45,13 @@ export async function getServerSideProps(ctx: CustomCtx) {
     if (preProps.redirect)
         return preProps
 
-    const collection = 'user'
-
-    var getUserRole: CustomRequest = {
-        query: {
-            collection: "userRole",
-        },
-        method: ctx.req.method,
-    }
-
-    var getUserType: CustomRequest = {
-        query: {
-            collection: "userType",
-        },
-        method: ctx.req.method,
-    }
-
-    const userRoleData = await internalAPICallHandler(getUserRole).then((data) => {
-        return JSON.parse(JSON.stringify(data.result))
-    }).catch((e) => {
-        console.log("error getserversideProps", e)
-    })
-
-    const userTypeData = await internalAPICallHandler(getUserType).then((data) => {
-        return JSON.parse(JSON.stringify(data.result))
-    }).catch((e) => {
-        console.log("error getserversideProps", e)
-    })
+    const collection = 'machineType'
 
     return {
         props: {
-            userRoleData,
-            userTypeData,
             collection,
         },
     }
 }
 
-export default withCookies(AccountAdd)
+export default withCookies(MachineTypeAdd)

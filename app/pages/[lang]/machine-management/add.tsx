@@ -9,17 +9,17 @@ import { withCookies } from 'react-cookie'
 import { CustomRequest, internalAPICallHandler } from 'lib/api/handler'
 import StyledH1 from 'components/Common/Element/H1'
 import FormHandler from 'components/Form'
+import { Prisma } from '@prisma/client'
 const { publicRuntimeConfig } = getConfig()
 
 
 const MachineAdd = (props) => {
-    const { cookies, collection } = props
-    const token = cookies.get("userToken")
+    const { cookies, clientUserData, machineTypeData, collection } = props
     const role = cookies.get("userRole")
     const {
         state: {
             site: { lang, pageName },
-            user: { userProfile }
+            user: { userProfile, accessToken }
         },
         dispatch,
     } = useStore()
@@ -32,7 +32,7 @@ const MachineAdd = (props) => {
             </StyledH1>
 
             <Block boxShadow='0px 10px 30px rgba(0, 0, 0, 0.1)' bg='white' borderRadius='32px' mb='30px'>
-                <FormHandler formType="MachineForm" mode="add" />
+                <FormHandler formType="MachineForm" clientUserData={clientUserData} machineTypeData={machineTypeData} mode="add" />
             </Block>
             <Popup type="local" />
         </Block>
@@ -44,11 +44,44 @@ export async function getServerSideProps(ctx: CustomCtx) {
     if (preProps.redirect)
         return preProps
 
-    const collection = 'm achine'
+    const collection = 'machine'
 
+    let a: Prisma.UserWhereInput = {
+        userRoleID: 1
+    }
+    const getClientUser: CustomRequest = {
+        query: {
+            collection: "user",
+            where: {
+                userRoleID: 3
+            }
+        },
+        method: "GET"
+    }
+
+    const getMachineType: CustomRequest = {
+        query: {
+            collection: "machineType",
+
+        },
+        method: "GET"
+    }
+    const clientUserData = await internalAPICallHandler(getClientUser).then((data) => {
+        return data.result
+    }).catch((e) => {
+        console.log("error getserversideProps", e)
+    })
+
+    const machineTypeData = await internalAPICallHandler(getMachineType).then((data) => {
+        return data.result
+    }).catch((e) => {
+        console.log("error getserversideProps", e)
+    })
 
     return {
         props: {
+            clientUserData,
+            machineTypeData,
             collection,
         },
     }

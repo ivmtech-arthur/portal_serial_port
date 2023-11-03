@@ -18,6 +18,20 @@ import { Blob } from "buffer";
 import CustomNextApiResponse, { CustomServerResponse } from "lib/response";
 import { AuthorisedMiddleware } from "lib/prisma";
 
+export async function addFileToS3(file: formidable.File, fields) {
+    const { type, collection, id } = fields
+    const buffer = fs.readFileSync(file.filepath)
+    var params: PutObjectCommandInput = {
+        Bucket: globalS3Client.bucket,
+        Key: `${globalS3Client.schema}/${type[0]}/${collection}/${id}/${file.originalFilename}`,
+        Body: buffer,
+        ContentType: file.mimetype,
+    };
+    const response = await globalS3Client.s3.send(new PutObjectCommand(params))
+    fs.unlinkSync(file.filepath)
+    return response
+}
+
 const router = createRouter<NextApiRequest, NextApiResponse>();
 const upload = multer({
     storage: multer.diskStorage({
@@ -49,20 +63,16 @@ router
             var form = formidable({});
             let fields: formidable.Fields<string>
             let files: formidable.Files<string>
+
+
             [fields, files] = await form.parse(req);
-            const { type, collection, id } = fields
+
             const file: formidable.File = files.file[0]
-            const buffer = fs.readFileSync(file.filepath)
+            const response = await addFileToS3(file, fields)
             console.log("fields", fields, files,)
 
-            var params: PutObjectCommandInput = {
-                Bucket: globalS3Client.bucket,
-                Key: `${globalS3Client.schema}/${type[0]}/${collection}/${id}/${file.originalFilename}`,
-                Body: buffer,
-                ContentType: file.mimetype,
-            };
-            const response = await globalS3Client.s3.send(new PutObjectCommand(params))
-            fs.unlinkSync(file.filepath)
+
+
             // return res.status(200).json({ "result": "ok" });
             CustomNextApiResponse(res, response['$metadata'], 200)
             // return res.status(200).json({ "result": response['$metadata'] });

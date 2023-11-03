@@ -279,7 +279,7 @@ const ProductForm = (props) => {
         dispatch
     } = useStore()
     const { cookies } = props
-    const token = cookies.get("userToken")
+    const token = cookies.get("accessToken")
     const generalString = get(general, lang)
     const productString = get(productContent, lang)
     const forgetPasswordString = get(forgetPassword, lang)

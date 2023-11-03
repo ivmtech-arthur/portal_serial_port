@@ -13,15 +13,12 @@ import { withCookies } from 'react-cookie'
 import { useRouter } from 'next/router'
 import BasicSnackBar, { SnackBarProps } from 'components/snackbar'
 import { Prisma } from '@prisma/client'
-import { ChangeMachineInput, CreateMachineInput } from 'lib/validations/machine.schema'
+import { ChangeMachineInput, CreateMachineInput, CreateMachineTypeInput } from 'lib/validations/machine.schema'
 import UploadButton from 'components/Button/UploadButton'
 import { machineContent } from 'data/machine'
-import { ExtendFile, handleDeleteS3 } from 'lib/helper'
+import { handleDeleteS3 } from 'lib/helper'
 import Image from 'next/image'
 import StyledSearchField from 'components/TextField/styledSearchField'
-import { signServerToken } from 'lib/jwt'
-import machineType from 'pages/[lang]/machine-management/machine-Type'
-import { serialize, stringify } from 'superjson'
 
 
 
@@ -84,7 +81,7 @@ const getFieldList = (fieldConfig, handleChangeFormData, errors, placeholderMap,
                             {...(mode != "add" ? {
                                 value: data[key]
                             } : {
-                                value: fields[key]
+                                value: 0
                             })}
                             placeholder={placeholderMap[`${key}Placeholder`]}
                             handleValidation={handleValidation}
@@ -155,11 +152,9 @@ const getFieldList = (fieldConfig, handleChangeFormData, errors, placeholderMap,
                             error={errors[key]}
                             color="primary"
                             variant="contained"
-                            multiple={fieldConfig[key].multiple}
-                            usageMap={fieldConfig[key].usageMap}
                             handleValidation={handleValidation}
-                            onChange={(file: Blob, deleteIndex) => {
-                                handleChangeFormData(key, file, deleteIndex)
+                            onChange={(file: Blob) => {
+                                handleChangeFormData(key, file)
                             }}>
                             {placeholderMap[`${key}Placeholder`]}
                         </UploadButton>
@@ -186,19 +181,15 @@ const getFieldList = (fieldConfig, handleChangeFormData, errors, placeholderMap,
                 options = fieldConfig[key].options
                 result.push(
                     <Grid item xs={12} md={6}>
-                        <InputLabel className="h5" shrink htmlFor="bootstrap-input">
-                            {placeholderMap[`${key}Placeholder`]}
-                        </InputLabel>
                         <StyledSearchField
                             id={key}
                             name={key}
                             error={errors[key]}
-                            value={options.find(option => option.value === fields[key])?.value}
+                            value={fields[key]}
                             options={options}
-                            handleValidation={handleValidation}
                             onChange={(e) => {
-                                handleChangeFormData(key, parseInt(e.target.value))
-                                console.log("onChange2", parseInt(e.target.value))
+                                handleChangeFormData(key, e.target.value)
+                                console.log("onChange2", e.target.value)
                             }}
                         />
                     </Grid>
@@ -210,29 +201,16 @@ const getFieldList = (fieldConfig, handleChangeFormData, errors, placeholderMap,
     return result
 }
 
-const MachineForm = (props) => {
-    const { getInitFields, handleOnSubmit, handleValidation, errors, parentCallback, fields, machineTypeData, clientUserData, mode = "view", machineData } = props
+const MachineTypeForm = (props) => {
+    const { getInitFields, handleOnSubmit, handleValidation, errors, parentCallback, fields, clientUserData, mode = "view", machineTypeData } = props
 
 
-    const initFields: ChangeMachineInput = mode == "add" ? {
-        machineName: "",
-        machineNameEn: "",
-        machineType: 0,
-        ownerID: 0,
-        palletNo: 24,
-        // clientRefID: "",
-        remark: "",
-        attachments: [],
+    const initFields: CreateMachineTypeInput = mode == "add" ? {
+        machineTypeName: "",
+        machineTypeNameEn: "",
     } : {
-        machineName: machineData.machineName,
-        machineNameEn: machineData.machineNameEn,
-        machineType: machineData.machinTypr,
-        ownerID: machineData.ownerID,
-        palletNo: machineData.palletNo,
-        // clientRefID: machineData.clientRefID,
-        remark: machineData.remark,
-        attachments: machineData.attachments,
-        currentAttachment: machineData.attachment,
+        machineTypeName: machineTypeData.machineName,
+        machineTypeNameEn: machineTypeData.machineNameEn,
     }
 
     const fieldConfig = {
@@ -242,57 +220,18 @@ const MachineForm = (props) => {
                 disabled: true,
             }
         }),
-        machineName: {
+        machineTypeName: {
             type: "textField",
         },
-        machineNameEn: {
+        machineTypeNameEn: {
             type: "textField",
         },
-        machineType: {
-            type: "textSearch",
-            options: machineTypeData.map((data) => {
-                return {
-                    value: data.machineTypeID,
-                    label: data.machineTypeName
-                }
-            })
-        },
-        ownerID: {
-            type: "textSearch",
-            options: clientUserData.map((data) => {
-                return {
-                    value: data.userID,
-                    label: data.name,
-                }
-            }),
-        },
-        palletNo: {
-            type: "number"
-        },
-        // clientRefID: {
-        //     type: "textField",
-        // },
-        remark: {
-            type: "textArea",
-        },
-        attachments: {
-            type: "upload",
-            multiple: true,
-            usageMap: [
-                "intro",
-                "env",
-                "qc"
-            ]
-        },
-        currentAttachment: {
-            type: "preview",
-        }
     }
 
     const {
         state: {
             site: { lang, systemConstant: { cloudFrontURL, schema } },
-            user: { accessToken }
+            user
         },
         dispatch
     } = useStore()
@@ -319,36 +258,10 @@ const MachineForm = (props) => {
         })
     }, [])
 
-    const handleChangeFormData = (field, value, deleteArrayIndex) => {
-        console.log("handleChangeFormData", field, value, deleteArrayIndex)
-        let tempFormData = formData
-        switch (field) {
-            case "attachments":
-                if (deleteArrayIndex) {
-
-                    let tempArr = Object.assign([], tempFormData[field])
-                    tempArr.splice(deleteArrayIndex, 1)
-                    tempFormData[field].push(null)
-                    // tempFormData[field] = [...tempArr]
-                    console.log("handleChangeFormData2", field, value, deleteArrayIndex, tempFormData[field])
-                } else {
-                    if (tempFormData[field]) {
-                        tempFormData[field].push(value)
-                    } else {
-                        let tempArr = [value]
-                        tempFormData[field] = tempArr
-                    }
-
-                }
-
-                break
-            default:
-                tempFormData[field] = value
-                break;
-        }
-
-        setFormData({ ...tempFormData })
-    }
+    const handleChangeFormData = useCallback((field, value) => {
+        formData[field] = value
+        setFormData({ ...formData })
+    }, [formData])
 
 
 
@@ -406,18 +319,16 @@ const MachineForm = (props) => {
                         update: {
                             type: attachment.type.split('/')[0],
                             name: attachment.name,
-                            tableName: "machine"
+                            tableName: "machineType"
                         }
 
                     }
                 }),
-
                 ...updateFields
             }
-            // { data, select, files: formData }
-            const result = await axios.put(`/api/prisma/machine/${machineData.machineID}`, { data }, {
+            const result = await axios.put(`/api/prisma/machineType/${machineTypeData.machineID}`, { data, select }, {
                 headers: {
-                    Authorization: `Bearer ${accessToken}`,
+                    Authorization: `Bearer ${token}`,
                 },
             }).then(async ({ data }) => {
                 const { result } = data
@@ -431,71 +342,36 @@ const MachineForm = (props) => {
                 handleSetHandleBarProps(true, () => { }, `${e}`, "error")
             })
         } else if (mode == "add") {
-            console.log("fields", fields)
-            const { attachments, ownerID, machineType, ...restFields } = fields
-            let resultAttachments: ExtendFile[] = attachments;
-            delete fields.attachment
-            let select: Prisma.MachineSelect = {
-                attachments: true,
-                machineDisplayID: true,
-                machineID: true,
-            }
-            let data: Prisma.MachineCreateInput = {
-                ...(resultAttachments && {
-                    attachments: {
-                        create: resultAttachments.map((attachment) => {
-                            let input: Prisma.AttachmentCreateWithoutMachineInput = {
-                                type: attachment.type.split('/')[0],
-                                name: attachment.name,
-                                tableName: "machine",
-                                tableUsage: attachment.usage
-                            }
-                            return input
-                        })
+            let data: Prisma.MachineTypeCreateInput = {
+                // ...(attachment && {
+                //     attachment: {
+                //         create: {
+                //             type: attachment.type.split('/')[0],
+                //             name: attachment.name,
+                //             tableName: "machine"
+                //         }
 
-                    }
-                }),
-                serverToken: "",
-                machineType: {
-                    connect: {
-                        machineTypeID: machineType
-                    }
-                },
-                status: "created",
-                owner: {
-                    connect: {
-                        userID: ownerID
-                    }
-                },
-                // serverToken: await signServerToken({sub:}),
-                ...restFields
+                //     }
+                // }),
+                ...fields
             }
-            const formData = new FormData()
-            // { data, select, files: attachments }
-            formData.append("data", stringify(data))
-            formData.set("select", stringify(select))
-            // formData.set("files", attachments)
-            resultAttachments.forEach((attachment) => {
-                formData.append("files", attachment)
-            })
-
-            let result = await axios.post(`/api/machine/register`, formData, {
+            let result = await axios.post(`/api/prisma/machineType`, { data }, {
                 headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                    // 'Content-Type': 'multipart/form-data',
+                    Authorization: `Bearer ${token}`,
                 },
-            }).then(async ({ data }) => {
-                // const { result } = data
-                // let attachmentRecord = result.attachment
-                // if (result.attachment) {
-                //     await handleUpdateS3(attachment, attachmentRecord, token)
-                // }
-                handleSetHandleBarProps(true, () => { router.push(`/${lang}/machine-management`) }, machineString.editmachineSnackBar, "success")
-                return result
-            }).catch((err) => {
-                console.log(err)
-                handleSetHandleBarProps(true, () => { }, `${err}`, "error")
             })
+                .then(async ({ data }) => {
+                    // const { result } = data
+                    // let attachmentRecord = result.attachment
+                    // if (result.attachment) {
+                    //     await handleUpdateS3(attachment, attachmentRecord, token)
+                    // }
+                    handleSetHandleBarProps(true, () => { router.push(`${lang}/machine-management/machine-Type`) }, machineString.editMachineTypeSnackBar, "success")
+                    return result
+                }).catch((err) => {
+                    console.log(err)
+                    handleSetHandleBarProps(true, () => { }, `${err}`, "error")
+                })
         }
 
     }
@@ -505,8 +381,8 @@ const MachineForm = (props) => {
             getInitFields(initFields)
     }, [])
 
-    const fieldList = getFieldList(fieldConfig, handleChangeFormData, errors, machineString, handleValidation, mode == "edit" ? fields : initFields, machineData, mode, cloudFrontURL, schema)
-    console.log("machine form props", props, accessToken)
+    const fieldList = getFieldList(fieldConfig, handleChangeFormData, errors, machineString, handleValidation, fields, machineTypeData, mode, cloudFrontURL, schema)
+    console.log("machine Type form props", props)
 
     return (
         <Block
@@ -524,7 +400,7 @@ const MachineForm = (props) => {
                         else {
                             handleSubmit()
                         }
-                    }, mode == "edit" ? "changeMachine" : "createMachine")
+                    }, "")
                 }}>{generalString.confirm}</BasicButton>
                 <BasicButton className="mt-10 ml-3 w-32" onClick={(e) => {
                     router.back()
@@ -536,4 +412,4 @@ const MachineForm = (props) => {
     )
 }
 
-export default withCookies(MachineForm)
+export default withCookies(MachineTypeForm)

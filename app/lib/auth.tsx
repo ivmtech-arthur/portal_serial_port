@@ -20,7 +20,7 @@ const getUser = async (token) => {
   const result = await prisma.user.findFirst({
     where: {
       userSession: {
-        token: token
+        refreshToken: token
       }
     },
     include: {

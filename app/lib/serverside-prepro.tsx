@@ -33,7 +33,7 @@ const preprocessServerSidePropsPromise = withLogin(
     }
   },
   {
-    tokenKey: 'userToken',
+    tokenKey: 'refreshToken',
   }
 )
 

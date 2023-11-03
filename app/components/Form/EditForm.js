@@ -37,7 +37,7 @@ const { API_URL, APP_URL } = publicRuntimeConfig
 const EditForm = (props) => {
     const { isOpen, data, getInitFields, handleConfirm, handleOnSubmit, errors, handleCancel, handleValidation, handleChange, physioData, subscriptionData, fields, mode } = props
     const { cookies } = props
-    const token = cookies.get("userToken")
+    const token = cookies.get("accessToken")
     const router = useRouter()
     const {
         state: {

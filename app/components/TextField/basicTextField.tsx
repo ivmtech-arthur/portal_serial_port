@@ -39,7 +39,7 @@ type BasicTextFieldProps = {
     [name: string]: any
 }
 
-const CustomTextArea = styled(TextareaAutosize)(({ theme, color, value, type }) => ({
+const CustomTextArea = styled(TextareaAutosize)(({ theme, color, value }) => ({
     ":focus": {
         boxShadow: `0 0 0 0.2rem ${hexToRgbA(theme.palette[color].light, 0.5)}`,
         border: `2px solid ${hexToRgbA(theme.palette[color].main, 1)}`
@@ -98,7 +98,7 @@ const BasicTextField = (props: BasicTextFieldProps) => {
                             handleOnChange(e)
                         }}
                         color={!error ? (color || "primary") : "error"}
-                        className={`${rounded ? " rounded-full" : "rounded-[3px]"} hover:border-[#333333] resize-y min-h-[19px] py-[11.5px] px-[17px] border-[#C4C4C4]`}
+                        className={`${rounded ? " rounded-full" : "rounded-[3px]"} hover:border-[#333333] resize-y min-h-[19px] py-[9.5px] px-[14px] border-[#C4C4C4]`}
                         onClick={(e) => { onClickEvent(e) }}
                         placeholder={placeholder}
                     />

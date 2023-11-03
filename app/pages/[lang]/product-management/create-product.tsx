@@ -14,7 +14,7 @@ const { publicRuntimeConfig } = getConfig()
 
 const ProductAdd = (props) => {
     const { cookies, collection } = props
-    const token = cookies.get("userToken")
+    const token = cookies.get("accessToken")
     const role = cookies.get("userRole")
     const {
         state: {

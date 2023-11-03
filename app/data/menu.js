@@ -1,6 +1,6 @@
 import * as Icon from "react-feather";
 
-export const getMenu = (lang) => { 
+export const getMenu = (lang) => {
 
     const menu = [
         // menu item  do not change its order!
@@ -77,16 +77,16 @@ export const getMenu = (lang) => {
         {
             title: lang == 'en' ? 'Change Product' : "Change Product Tc",
             url: 'product-management/product-list/[id]',
-            regex: /product-management\/product-list\/([^(?!create-product)*]+)/
+            regex: /product-management\/product-list\/([^(?!create\-product)*]+)/
         },
         {
-            title: lang == 'en' ? 'Account Add' : "新增設備",
+            title: lang == 'en' ? 'Machine Add' : "新增設備",
             url: 'machine-management/add',
         },
         {
-            title: lang == 'en' ? 'Account Change' : "Change設備",
+            title: lang == 'en' ? 'Machine Change' : "Change設備",
             url: 'machine-management/[id]',
-            regex: /machine-management\/([^(?!add)*]+)/
+            regex: /machine-management\/([^(?!.*(add|machine\-Type)).*]+)/
         },
         {
             title: lang == 'en' ? 'Add Machine Type' : "新增設備種類",
@@ -108,6 +108,10 @@ export const menuContent = ["en", "tc"].reduce((result, lang, index) => {
             ...getMenu(lang)[0],
             icon: <Icon.Cpu width="15" />,
             list: [
+                {
+                    ...getMenu(lang)[0],
+                    icon: <Icon.Cpu width="15" />,
+                },
                 {
                     ...getMenu(lang)[13],
                     icon: <Icon.FileText />

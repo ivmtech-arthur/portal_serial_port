@@ -40,7 +40,7 @@ const Logout = (props) => {
     }
     
     const handleLogout = () => {
-        cookies.remove('userToken', { path: '/' })
+        cookies.remove('refreshToken', { path: '/' })
         cookies.remove('role', { path: '/' })
         dispatch({ type: 'setAuthenticated', payload: { authenticated: false } })
         handleClose()
