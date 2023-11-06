@@ -29,7 +29,7 @@ model Machine {
   machineID             Int                     @id @unique @default(autoincrement())
   createdAt             DateTime                @default(now())
   updatedAt             DateTime                @updatedAt
-  serverToken           String                  @db.VarChar(8000)
+  serverToken           String?                 @unique @db.VarChar(8000)
   location              String?                 @db.VarChar(10)
   ownerID               Int
   status                String                  @db.VarChar(10)
@@ -41,6 +41,7 @@ model Machine {
   machineName           String                  @db.NVarChar(50)
   machineNameEn         String                  @db.VarChar(50)
   isActive              Boolean                 @default(false)
+  socketID              String?                 @db.VarChar(30)
   machineType           MachineType             @relation(fields: [machineTypeID], references: [machineTypeID])
   owner                 User                    @relation(fields: [ownerID], references: [userID])
   machinePalletDetail   MachinePalletDetail[]

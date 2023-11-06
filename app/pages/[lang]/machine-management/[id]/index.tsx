@@ -10,6 +10,9 @@ import StyledH1 from 'components/Common/Element/H1'
 import FormHandler from 'components/Form'
 import superjson, { convertObjDecimalToNum } from 'lib/superjson'
 import { deserialize } from 'superjson'
+import get from 'lodash/get'
+import { machineContent } from 'data/machine'
+import BasicButton from 'components/Button/BasicButton'
 const { publicRuntimeConfig } = getConfig()
 const { API_URL, APP_URL } = publicRuntimeConfig
 
@@ -27,6 +30,14 @@ const MachineDetail = (props) => {
     } = useStore()
     const router = useRouter()
 
+    const machineString = get(machineContent, lang)
+    const palletConfigBtnList = Object.keys(machineString.palletConfiguration).map((key) => {
+        const item = machineString.palletConfiguration[key]
+        return <BasicButton onClick={() => {
+            router.push(`${router.asPath}/${item.url}`)
+        }}>{item.name}</BasicButton>
+    })
+
     return (
         <Block>
             <StyledH1 className={`${lang == 'en' ? 'font-jost' : 'font-notoSansTC'}`} color="white"
@@ -36,6 +47,10 @@ const MachineDetail = (props) => {
 
             <Block boxShadow='0px 10px 30px rgba(0, 0, 0, 0.1)' bg='white' borderRadius='32px' mb='30px'>
                 <FormHandler formType="machineForm" mode="edit" machineData={machineData} />
+            </Block>
+
+            <Block>
+                {palletConfigBtnList}
             </Block>
             {/* <Popup type="local" /> */}
         </Block>

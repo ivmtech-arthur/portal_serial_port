@@ -26,6 +26,24 @@ export const machineContent = {
         // for machine-Type page
         machineTypeNamePlaceholder: 'Machine Type Name',
         machineTypeNameEnPlaceholder: 'Machine Type Name En',
+        palletConfiguration: {
+            replenishment: {
+                name: "Replenishment",
+                url: "/replenishment",
+                icon: "",
+            },
+            palletSetting: {
+                name: "Pallet Setting",
+                url: '/pallet-config',
+                icon: "",
+            }
+        },
+        salesManagement: {
+            salesRecord: {
+
+            }
+        }
+
     },
     tc: {
         machineDisplayIDPlaceholder: 'Machine ID tc',
@@ -53,5 +71,23 @@ export const machineContent = {
         deleteMachineSnackbar: 'Deleted Machine tc',
         machineTypeNamePlaceholder: 'Machine Type Name tc',
         machineTypeNameEnPlaceholder: 'Machine Type Name En tc',
+        palletConfiguration: {
+            replenishment: {
+                name: "Replenishment tc",
+                url: "/replenishment",
+                icon: "",
+            },
+            palletSetting: {
+                name: "Pallet Setting tc",
+                url: '/pallet-config',
+                icon: "",
+            }
+        },
+        salesManagement: {
+            salesRecord: {
+
+            }
+        }
+
     }
 }

@@ -42,7 +42,7 @@ const getUser = async (token) => {
 }
 
 const getSystemContant = async (token) => {
-  await isAuthorised(token)
+  // await isAuthorised(token)
   const constant: any = await prisma.systemConstant.findFirst().then((result) => {
     return JSON.parse(result.Json)
   });

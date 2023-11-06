@@ -292,7 +292,7 @@ export function handleClause(collection, id?, queryParams?) {
   switch (collection) {
     case "machine":
       var machineClause: Prisma.MachineWhereUniqueInput = {
-        machineID: id,
+        ...(id && { machineID: id }),
         ...queryParams?.where
       }
       whereInput = machineClause;
@@ -439,16 +439,16 @@ export async function AuthorisedMiddleware(req: NextApiRequest) {
     const { authorization } = req.headers
     if (authorization && authorization.includes("Bearer ")) {
       let tokenAuthorized = false;
-      try { 
+      try {
         const payload = await verifyPublicJWT(authorization.replace("Bearer ", ""))
         // payload.
         console.log("payload", payload, Date.now())
         if (payload) {
           return true
-        } else { 
+        } else {
           throw "token expired"
         }
-        
+
       } catch (e) {
         throw ("Access Denied, Authorized fail")
       }
