@@ -80,7 +80,7 @@ type styledDropDownButtonProps = {
     value?: any,
     onChange?: (e) => void,
     variant?: 'standard' | 'outlined' | 'filled',
-    handleValidation?: (e, string) => void,
+    handleValidation?: (e, string, customParam?: any) => void,
     disabled?: boolean,
     [name: string]: any
 }
@@ -108,6 +108,8 @@ const StyledDropDownButton = (props: styledDropDownButtonProps) => {
             onChange={(e) => {
                 setCurrValue(e.target.value)
                 if (handleValidation) {
+                    //notes: assume ID is value
+                    console.log("handleValidationy")
                     handleValidation(e, "number")
                 }
                 onChange(e)

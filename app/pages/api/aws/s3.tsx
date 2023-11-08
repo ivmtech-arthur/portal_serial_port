@@ -23,7 +23,7 @@ export async function addFileToS3(file: formidable.File, fields) {
     const buffer = fs.readFileSync(file.filepath)
     var params: PutObjectCommandInput = {
         Bucket: globalS3Client.bucket,
-        Key: `${globalS3Client.schema}/${type[0]}/${collection}/${id}/${file.originalFilename}`,
+        Key: `${globalS3Client.schema}/${type}/${collection}/${id}/${file.originalFilename}`,
         Body: buffer,
         ContentType: file.mimetype,
     };

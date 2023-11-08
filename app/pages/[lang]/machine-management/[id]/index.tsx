@@ -8,7 +8,7 @@ import { withCookies } from 'react-cookie'
 import { CustomRequest, internalAPICallHandler } from 'lib/api/handler'
 import StyledH1 from 'components/Common/Element/H1'
 import FormHandler from 'components/Form'
-import superjson, { convertObjDecimalToNum } from 'lib/superjson'
+import superjson, { deserializeObjInit, deserializeListInit } from 'lib/superjson'
 import { deserialize } from 'superjson'
 import get from 'lodash/get'
 import { machineContent } from 'data/machine'
@@ -18,7 +18,7 @@ const { API_URL, APP_URL } = publicRuntimeConfig
 
 
 const MachineDetail = (props) => {
-    const { cookies, machineData } = props
+    const { cookies, clientUserData, machineTypeData, machineData } = props
     const token = cookies.get("accessToken")
     const role = cookies.get("userRole")
     const {
@@ -46,7 +46,7 @@ const MachineDetail = (props) => {
             </StyledH1>
 
             <Block boxShadow='0px 10px 30px rgba(0, 0, 0, 0.1)' bg='white' borderRadius='32px' mb='30px'>
-                <FormHandler formType="machineForm" mode="edit" machineData={machineData} />
+                <FormHandler formType="MachineForm" mode="edit" machineData={machineData} clientUserData={clientUserData} machineTypeData={machineTypeData}/>
             </Block>
 
             <Block>
@@ -77,9 +77,39 @@ export async function getServerSideProps(ctx: CustomCtx) {
         method: ctx.req.method,
     }
 
+    const getClientUser: CustomRequest = {
+        query: {
+            collection: "user",
+            where: {
+                userRoleID: 3
+            }
+        },
+        method: "GET"
+    }
+
+    const getMachineType: CustomRequest = {
+        query: {
+            collection: "machineType",
+
+        },
+        method: "GET"
+    }
+
+    const clientUserData = await internalAPICallHandler(getClientUser).then((data) => {
+        return deserializeListInit(data.result)
+    }).catch((e) => {
+        console.log("error getserversideProps", e)
+    })
+
+    const machineTypeData = await internalAPICallHandler(getMachineType).then((data) => {
+        return deserializeListInit(data.result)
+    }).catch((e) => {
+        console.log("error getserversideProps", e)
+    })
+
 
     const machineData = await internalAPICallHandler(getMachine).then((data) => {
-        return convertObjDecimalToNum(deserialize(data.result))
+        return deserializeObjInit(data.result)
     }).catch((e) => {
         console.log("error getserversideProps", e)
     })
@@ -90,6 +120,8 @@ export async function getServerSideProps(ctx: CustomCtx) {
         props: {
             machineData,
             collection,
+            machineTypeData,
+            clientUserData,
             user,
             systemConstant
         },

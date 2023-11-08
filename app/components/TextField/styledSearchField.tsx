@@ -87,7 +87,7 @@ type styledDropDownButtonProps = {
     value?: any,
     onChange?: (e) => void,
     variant?: 'standard' | 'outlined' | 'filled',
-    handleValidation?: (e, string) => void,
+    handleValidation?: (e, string,customParams?) => void,
     disabled?: boolean,
     placeholder?: string,
     multiple?: boolean,
@@ -131,7 +131,15 @@ const StyledSearchField = (props: styledDropDownButtonProps) => {
                         // setCurrValue(value.value)
                         if (handleValidation) {
                             //notes: assume ID is value
-                            handleValidation(customE, "number")
+                            handleValidation(customE, "number"
+                            //     {
+                            //     action: "defaultValue",
+                            //     objParam: {
+                            //         price: 2,
+                            //         weight: 3.4
+                            //     }
+                            // }
+                            )
                         }
                         onChange(customE)
                     }

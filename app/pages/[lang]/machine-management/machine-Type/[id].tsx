@@ -8,7 +8,7 @@ import { withCookies } from 'react-cookie'
 import { CustomRequest, internalAPICallHandler } from 'lib/api/handler'
 import StyledH1 from 'components/Common/Element/H1'
 import FormHandler from 'components/Form'
-import superjson, { convertObjDecimalToNum } from 'lib/superjson'
+import superjson, { deserializeObjInit } from 'lib/superjson'
 import { deserialize } from 'superjson'
 const { publicRuntimeConfig } = getConfig()
 const { API_URL, APP_URL } = publicRuntimeConfig
@@ -64,7 +64,7 @@ export async function getServerSideProps(ctx: CustomCtx) {
 
 
     const machineTypeData = await internalAPICallHandler(getMachineType).then((data) => {
-        return convertObjDecimalToNum(deserialize(data.result))
+        return deserializeObjInit(data.result)
     }).catch((e) => {
         console.log("error getserversideProps", e)
     })

@@ -84,6 +84,11 @@ const BasicTextField = (props: BasicTextFieldProps) => {
         if (onChange)
             onChange(e)
     }
+
+    useEffect(() => {
+        setCurrValue(value)
+        console.log("useEffect", id, value)
+    }, [value])
     return (
         <ThemeProvider theme={muiTheme}>
             {

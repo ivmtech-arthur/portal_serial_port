@@ -32,7 +32,7 @@ const getUser = async (token) => {
     // }
   })
   delete result.password
-  //notes: can use json.parse(json.stringify()) instead xd
+  //notes: can use deserialize()) instead xd
   return result;
   // return await ClientFetcher.get('/api/users/me', {
   //   headers: {

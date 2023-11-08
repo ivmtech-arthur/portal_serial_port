@@ -1,7 +1,7 @@
 import Block from 'components/Common/Element/Block'
-import forgetPassword from '../../data/auth/forgetPassword'
 import general from '../../data/general'
 import get from 'lodash/get'
+import find from 'lodash/find'
 import { useStore } from 'store'
 import { useCallback, useEffect, useState } from 'react'
 import BasicButton from 'components/Button/BasicButton'
@@ -14,22 +14,30 @@ import { withCookies } from 'react-cookie'
 import { useRouter } from 'next/router'
 import BasicSnackBar, { SnackBarProps } from 'components/snackbar'
 import { Prisma } from '@prisma/client'
-import { ChangeProductInput, CreateProductInput } from 'lib/validations/product.schema'
+import { ChangeMachineInput, CreateMachineInput } from 'lib/validations/machine.schema'
 import UploadButton from 'components/Button/UploadButton'
-import { productContent } from 'data/product'
-import { handleDeleteS3 } from 'lib/helper'
+import { palletContent } from 'data/pallet'
+import { ExtendFile, handleDeleteS3 } from 'lib/helper'
 import Image from 'next/image'
+import StyledSearchField from 'components/TextField/styledSearchField'
+import { signServerToken } from 'lib/jwt'
+import machineType from 'pages/[lang]/machine-management/machine-Type'
+import { serialize, stringify } from 'superjson'
+import { ChangePalletDetailInput } from 'lib/validations/pallet.schema'
+import { Delete, KeyboardArrowDown, KeyboardArrowRight } from '@mui/icons-material'
 
 
 
 
 const getFieldList = (fieldConfig, handleChangeFormData, errors, placeholderMap, handleValidation, fields, data, mode, cloudURL, schema) => {
+    console.log("getFieldList", data, fields, mode)
     var result = []
     for (const key in fieldConfig) {
+        var options = []
         switch (fieldConfig[key].type) {
             case "textField":
                 result.push(
-                    <Grid item xs={12} md={6}>
+                    <Grid item xs={6} sm={4} md={3}>
                         <InputLabel className="h5" shrink htmlFor="bootstrap-input">
                             {placeholderMap[`${key}Placeholder`]}
                         </InputLabel>
@@ -63,7 +71,7 @@ const getFieldList = (fieldConfig, handleChangeFormData, errors, placeholderMap,
                 break;
             case "number":
                 result.push(
-                    <Grid item xs={12} md={6}>
+                    <Grid item xs={6} sm={4} md={3}>
                         <InputLabel className="h5" shrink htmlFor="bootstrap-input">
                             {placeholderMap[`${key}Placeholder`]}
                         </InputLabel>
@@ -80,7 +88,7 @@ const getFieldList = (fieldConfig, handleChangeFormData, errors, placeholderMap,
                             {...(mode != "add" ? {
                                 value: data[key]
                             } : {
-                                value: 0
+                                value: fields[key]
                             })}
                             placeholder={placeholderMap[`${key}Placeholder`]}
                             handleValidation={handleValidation}
@@ -95,7 +103,7 @@ const getFieldList = (fieldConfig, handleChangeFormData, errors, placeholderMap,
                 break
             case "textArea":
                 result.push(
-                    <Grid item xs={12} md={6}>
+                    <Grid item xs={6} sm={4} md={3}>
                         <InputLabel className="h5" shrink htmlFor="bootstrap-input">
                             {placeholderMap[`${key}Placeholder`]}
                         </InputLabel>
@@ -114,9 +122,9 @@ const getFieldList = (fieldConfig, handleChangeFormData, errors, placeholderMap,
                 )
                 break;
             case "select":
-                const options = fieldConfig[key].options
+                options = fieldConfig[key].options
                 result.push(
-                    <Grid item xs={12} md={6}>
+                    <Grid item xs={6} sm={4} md={3}>
                         <InputLabel className="h5" shrink htmlFor="bootstrap-input">
                             {placeholderMap[`${key}Placeholder`]}
                         </InputLabel>
@@ -143,7 +151,7 @@ const getFieldList = (fieldConfig, handleChangeFormData, errors, placeholderMap,
                 break;
             case "upload":
                 result.push(
-                    <Grid item xs={12} md={6}>
+                    <Grid item xs={6} sm={4} md={3}>
                         <UploadButton
                             id={key}
                             name={key}
@@ -151,9 +159,11 @@ const getFieldList = (fieldConfig, handleChangeFormData, errors, placeholderMap,
                             error={errors[key]}
                             color="primary"
                             variant="contained"
+                            multiple={fieldConfig[key].multiple}
+                            usageMap={fieldConfig[key].usageMap}
                             handleValidation={handleValidation}
-                            onChange={(file: Blob) => {
-                                handleChangeFormData(key, file)
+                            onChange={(file: Blob, deleteIndex) => {
+                                handleChangeFormData(key, file, deleteIndex)
                             }}>
                             {placeholderMap[`${key}Placeholder`]}
                         </UploadButton>
@@ -165,7 +175,7 @@ const getFieldList = (fieldConfig, handleChangeFormData, errors, placeholderMap,
                 if (attachment) {
                     const { type, tableName, attachmentDisplayID, name } = attachment
                     result.push(
-                        <Grid item xs={12} md={6}>
+                        <Grid item xs={6} md={3}>
                             <Image
                                 src={`https://${cloudURL}/${schema}/${type}/${tableName}/${attachmentDisplayID}/${name}`}
                                 // layout="fill"
@@ -175,6 +185,28 @@ const getFieldList = (fieldConfig, handleChangeFormData, errors, placeholderMap,
                         </Grid>
                     )
                 }
+                break;
+            case "textSearch":
+                options = fieldConfig[key].options
+                result.push(
+                    <Grid item xs={6} sm={4} md={3}>
+                        <InputLabel className="h5" shrink htmlFor="bootstrap-input">
+                            {placeholderMap[`${key}Placeholder`]}
+                        </InputLabel>
+                        <StyledSearchField
+                            id={key}
+                            name={key}
+                            error={errors[key]}
+                            value={options.find(option => option.value === fields[key])?.value}
+                            options={options}
+                            handleValidation={handleValidation}
+                            onChange={(e) => {
+                                handleChangeFormData(key, parseInt(e.target.value))
+                                console.log("onChange2", parseInt(e.target.value))
+                            }}
+                        />
+                    </Grid>
+                )
 
         }
     }
@@ -182,93 +214,65 @@ const getFieldList = (fieldConfig, handleChangeFormData, errors, placeholderMap,
     return result
 }
 
-const ProductForm = (props) => {
-    const { getInitFields, handleOnSubmit, handleValidation, errors, parentCallback, fields, userTypeData, userRoleData, mode = "view", productData } = props
+const PalletDetailForm = (props) => {
+    const { getInitFields, handleOnSubmit, handleValidation, setDefaultValue, errors, parentCallback, fields, index, masterProductData, clientUserData, mode = "view", machineData, palletDetailData, handleChildChange, palletNo, childCallbackFetcher, parentInvoke, setChildResult } = props
 
 
-    const initFields: ChangeProductInput = mode == "add" ? {
-        productName: "",
-        productNameEn: "",
-        desc: "",
-        descEn: "",
-        weight: 0,
+    const initFields: ChangePalletDetailInput = mode == "add" ? {
+        palletID: palletNo || 0,
+        description: "",
+        machineID: machineData.machineID,
+        productID: 0,
+        inventory: 0,
         price: 0,
-        unitPrice: 0,
-        unit: "",
-        currency: "",
-        abbreviation: "",
-        clientRefID: "",
-        remark: "",
-        attachment: null,
-    } : {
-        productName: productData.productName,
-        productNameEn: productData.productNameEn,
-        desc: productData.desc,
-        descEn: productData.descEn,
-        price: productData.price,
-        weight: productData.weight,
-        unitPrice: productData.unitPrice,
-        unit: productData.unit,
-        currency: productData.currency,
-        abbreviation: productData.abbreviation,
-        clientRefID: productData.clientRefID,
-        remark: productData.remark,
+        // clientRefID: "",
+        weight: 0,
         attachment: {},
-        currentAttachment: productData.attachment,
+    } : {
+        palletID: palletDetailData.palletID,
+        description: palletDetailData.description,
+        machineID: machineData.machineID,
+        productID: palletDetailData.productID,
+        inventory: palletDetailData.inventory,
+        price: palletDetailData.price,
+        weight: palletDetailData.weight,
+        attachment: palletDetailData.attachment,
     }
 
     const fieldConfig = {
         ...(mode != "add" && {
-            productDisplayID: {
+            palletDetailDisplayID: {
                 type: "textField",
                 disabled: true,
             }
         }),
-        productName: {
-            type: "textField",
-        },
-        productNameEn: {
-            type: "textField",
-        },
-        desc: {
-            type: "textArea",
-        },
-        descEn: {
-            type: "textArea",
-        },
-        weight: {
+        palletID: {
             type: "number",
+        },
+        description: {
+            type: "textArea",
+        },
+        productID: {
+            type: "textSearch",
+            options: masterProductData.map((data) => {
+                return {
+                    value: data.productID,
+                    label: data.productName
+                }
+            })
+        },
+        inventory: {
+            type: "number"
         },
         price: {
-            type: "number",
-            step: '0.01',
-            min: '0',
+            type: "number"
         },
-        unitPrice: {
-            type: "number",
-        },
-        unit: {
-            type: "textField",
-        },
-        currency: {
-            type: "textField",
-        },
-        abbreviation: {
-            type: "textField",
-            uppercase: true,
-        },
-        clientRefID: {
-            type: "textField",
-        },
-        remark: {
-            type: "textArea",
+        weight: {
+            type: "number"
         },
         attachment: {
             type: "upload",
         },
-        currentAttachment: {
-            type: "preview",
-        }
     }
 
     const {
@@ -279,13 +283,12 @@ const ProductForm = (props) => {
         dispatch
     } = useStore()
     const { cookies } = props
-    // const token = cookies.get("accessToken")
+    const token = cookies.get("accessToken")
     const generalString = get(general, lang)
-    const productString = get(productContent, lang)
-    const forgetPasswordString = get(forgetPassword, lang)
+    const palletString = get(palletContent, lang)
     const router = useRouter()
-    const [email, setEmail] = useState("")
-    const [formData, setFormData] = useState({})
+    const [formData, setFormData] = useState(mode == "add" ? initFields : fields )
+    const [focus, setFocus] = useState(mode == "add")
     const [updateFields, setUpdateFields] = useState<any>({})
     const [snackBarProps, setSnackbarProps] = useState<SnackBarProps>({
         open: false,
@@ -294,6 +297,7 @@ const ProductForm = (props) => {
         message: "",
         severity: 'success'
     })
+    const [fetcher, setFetcher] = useState()
     const handleSetHandleBarProps = useCallback((open: boolean, handleClose: () => void, message: String, severity: AlertColor) => {
         setSnackbarProps({
             open: open,
@@ -303,10 +307,39 @@ const ProductForm = (props) => {
         })
     }, [])
 
-    const handleChangeFormData = useCallback((field, value) => {
-        formData[field] = value
-        setFormData({ ...formData })
-    }, [formData])
+
+    const handleChangeFormData = (field, value, deleteArrayIndex) => {
+        console.log("handleChangeFormData", field, value, deleteArrayIndex)
+        let tempFormData = formData
+        switch (field) {
+            case "productID":
+                let obj: any = {}
+                let a = masterProductData as ChangePalletDetailInput[]
+                // find(masterProductData)
+                let matchProduct = a.find((singleProductData) => {
+                    return singleProductData.productID == value
+                })
+                tempFormData['productID'] = value
+                tempFormData['price'] = matchProduct.price
+                tempFormData['weight'] = matchProduct.weight
+                //notes:  override the component update here so need add this field
+                obj['productID'] = value
+                obj['price'] = matchProduct.price
+                obj['weight'] = matchProduct.weight
+                console.log("handleChangeFormData", field, value, matchProduct, masterProductData, tempFormData, obj)
+
+                setDefaultValue(obj)
+                break
+            default:
+                tempFormData[field] = value
+                break;
+        }
+        // setFormData({ ...tempFormData })
+        if (handleChildChange)
+            handleChildChange(index, tempFormData)
+
+
+    }
 
 
 
@@ -336,7 +369,7 @@ const ProductForm = (props) => {
         const data = new FormData()
         data.append("file", attachment);
         data.set("type", attachment.type.split('/')[0])
-        data.set("collection", "masterProduct")
+        data.set("collection", "machine")
         data.set("id", attachmentRecord.attachmentDisplayID)
         await axios.post('/api/aws/s3', data,
             {
@@ -353,47 +386,51 @@ const ProductForm = (props) => {
         if (mode == "edit") {
             let attachment: File = fields.attachment;
             delete updateFields.attachment
-            let select: Prisma.MasterProductSelect = {
-                attachment: true,
-                productDisplayID: true,
+            let select: Prisma.MachineSelect = {
+                // attachment: true,
+                machineDisplayID: true,
             }
 
-            let data: Prisma.MasterProductUpdateInput = {
-                ...(Object.keys(attachment).length > 0 && {
+            let data: Prisma.MachinePalletDetailUpdateInput = {
+                ...(attachment && {
                     attachment: {
                         update: {
                             type: attachment.type.split('/')[0],
                             name: attachment.name,
-                            tableName: "masterProduct"
+                            tableName: "machine"
                         }
 
                     }
                 }),
+
                 ...updateFields
             }
-            const result = await axios.put(`/api/prisma/masterProduct/${productData.productID}`, { data, select }, {
+            // { data, select, files: formData }
+            const result = await axios.put(`/api/prisma/machinePalletDetail/${palletDetailData.palletDetailID}`, { data }, {
                 headers: {
                     Authorization: `Bearer ${accessToken}`,
                 },
             }).then(async ({ data }) => {
                 const { result } = data
                 let attachmentRecord = result.attachment
-                await handleDeleteS3(fields.currentAttachment, accessToken).catch((e) => { throw (e) })
-                await handleUpdateS3(attachment, attachmentRecord, accessToken)
-                handleSetHandleBarProps(true, () => { router.reload() }, productString.editProductSnackBar, "success")
+                await handleDeleteS3(fields.currentAttachment, token).catch((e) => { throw (e) })
+                await handleUpdateS3(attachment, attachmentRecord, token)
+                handleSetHandleBarProps(true, () => { router.reload() }, palletString.editmachineSnackBar, "success")
                 return result
             }).catch((e) => {
                 console.log("axios req error", e)
                 handleSetHandleBarProps(true, () => { }, `${e}`, "error")
             })
         } else if (mode == "add") {
-            let attachment: File = fields.attachment;
+            console.log("fields", fields)
+            const { attachment, machineID, productID, ...restFields } = fields
             delete fields.attachment
-            let select: Prisma.MasterProductSelect = {
+            let select: Prisma.MachinePalletDetailSelect = {
                 attachment: true,
-                productDisplayID: true,
+                palletDetailDisplayID: true,
+                machineID: true,
             }
-            let data: Prisma.MasterProductCreateInput = {
+            let data: Prisma.MachinePalletDetailCreateInput = {
                 ...(attachment && {
                     attachment: {
                         create: {
@@ -405,61 +442,147 @@ const ProductForm = (props) => {
 
                     }
                 }),
-                ...fields
-            }
-            let result = await axios.post(`/api/prisma/masterProduct`, { data, select }, {
-                headers: {
-                    Authorization: `Bearer ${accessToken}`,
+                machine: {
+                    connect: {
+                        machineID: machineID
+                    }
                 },
-            }).then(async ({ data }) => {
-                const { result } = data
-                let attachmentRecord = result.attachment
-                if (result.attachment) {
-                    await handleUpdateS3(attachment, attachmentRecord, accessToken)
-                }
-                handleSetHandleBarProps(true, () => { router.push(`${lang}/product-management/product-list`) }, productString.editProductSnackBar, "success")
-                return result
-            }).catch((err) => {
-                console.log(err)
-                handleSetHandleBarProps(true, () => { }, `${err}`, "error")
-            })
+                masterProduct: {
+                    connect: {
+                        productID: productID
+                    }
+                },
+                status: "created",
+                // serverToken: await signServerToken({sub:}),
+                ...restFields
+            }
+            const formData = new FormData()
+            // { data, select, files: attachments }
+            formData.append("data", stringify(data))
+            formData.set("select", stringify(select))
+            // formData.set("files", attachments)
+
+            formData.append("files", attachment)
+
+            // let result = await axios.post(`/api/prisma/machinePalletDetail`, formData, {
+            //     headers: {
+            //         Authorization: `Bearer ${accessToken}`,
+            //         // 'Content-Type': 'multipart/form-data',
+            //     },
+            // }).then(async ({ data }) => {
+            //     const { result } = data
+            //     let attachmentRecord = result.attachment
+            //     if (result.attachment) {
+            //         await handleUpdateS3(attachment, attachmentRecord, token)
+            //     }
+            //     handleSetHandleBarProps(true, () => { router.push(`/${lang}/machine-management`) }, palletString.editmachineSnackBar, "success")
+            //     return result
+            // }).catch((err) => {
+            //     console.log(err)
+            //     handleSetHandleBarProps(true, () => { }, `${err}`, "error")
+            // })
         }
+
+    }
+
+    const handleDelete = () => {
 
     }
 
     useEffect(() => {
         if (getInitFields)
             getInitFields(initFields)
-    }, [])
+        // if (childCallbackFetcher) (
+        //     childCallbackFetcher(handleOnSubmit)
+        // )
 
-    const fieldList = getFieldList(fieldConfig, handleChangeFormData, errors, productString, handleValidation, fields, productData, mode, cloudFrontURL, schema)
+    }, [])
+    useEffect(() => {
+        if (parentInvoke && setChildResult)
+
+            setChildResult(testFunc())
+        // console.log("handleOnSubmitx", fields)
+        // if (childCallbackFetcher) (
+        //     childCallbackFetcher(testFunc)
+        // )
+    }, [parentInvoke])
+
+    const testFunc = () => {
+        return handleOnSubmit(null, (fields) => {
+            return "success"
+            // if (mode == "edit")
+            //     handleUpdate(fields)
+            // else {
+            //     handleSubmit()
+            // }
+        }, "editPalletDetail")
+    }
+
+
+    const fieldList = getFieldList(fieldConfig, handleChangeFormData, errors, palletString, handleValidation, fields, palletDetailData, mode, cloudFrontURL, schema)
+    console.log("pallet form props", props, accessToken)
 
     return (
         <Block
-            className="flex flex-col items-center justify-around md:p-20 xs:p-5"
-        >
-            <Grid container spacing={2}>
-                {fieldList}
-            </Grid>
+            // onMouseMove={() => {
+            //     setFocus(true)
+            // }}
+            // onMouseLeave={() => {
+            //     setFocus(false)
+            // }}
 
-            <Block className="flex justify-between">
-                <BasicButton className="mt-10 mr-3 w-32" onClick={(e) => {
-                    handleOnSubmit(e, (fields) => {
-                        if (mode == "edit")
-                            handleUpdate(fields)
-                        else {
-                            handleSubmit()
-                        }
-                    }, mode == "edit" ? "changeProduct" : "createProduct")
-                }}>{generalString.confirm}</BasicButton>
-                <BasicButton className="mt-10 ml-3 w-32" onClick={(e) => {
+            className={`flex flex-col justify-around md:p-20 xs:p-5 ${focus ? " rounded-sm shadow-[0_0_0_3px_rgba(0,0,0,0.5)]" : ""}`}
+        >
+
+            {!focus && <Block className=" inline-block">
+                {/* {fieldList[0]} */}
+                <Grid container spacing={4}>
+                    {fieldList[0]}
+                </Grid>
+
+            </Block>}
+            {focus && <Grid container spacing={4}>
+                {fieldList}
+            </Grid>}
+
+            {focus && < Block className="flex justify-end">
+                <BasicButton className="mt-10 mr-3 w-32" color="error" onClick={(e) => {
+                    if (mode == "edit") {
+                        dispatch({
+                            type: 'showPopup',
+                            payload: {
+                                popup: true,
+                                popupType: 'confirmProceed',
+                                isGlobal: false,
+                            },
+                        })
+                    } else {
+                        handleChildChange(index, null, true)
+                    }
+
+                    testFunc()
+
+                    // handleOnSubmit(e, (fields) => {
+                    //     // if (mode == "edit")
+                    //     //     handleUpdate(fields)
+                    //     // else {
+                    //     //     handleSubmit()
+                    //     // }
+                    // }, mode == "editPalletDetail")
+                }}><Delete /></BasicButton>
+                {/* <BasicButton className="mt-10 ml-3 w-32" onClick={(e) => {
                     router.back()
-                }}>{generalString.back}</BasicButton>
+                }}>{generalString.back}</BasicButton> */}
+            </Block>}
+            <Block className="py-2">
+                <BasicButton onClick={() => {
+                    setFocus(!focus)
+                }}>{focus ? <KeyboardArrowDown /> : <KeyboardArrowRight />}</BasicButton>
             </Block>
             <BasicSnackBar {...snackBarProps} />
-            <Popup type="local" propsToPopup={{ proceedFunc: async () => { await handleSubmit() }, title: productString.productFormPopupTitle, message: productString.productFormPopupMessage }} />
+            <Popup type="local" propsToPopup={{ proceedFunc: async () => { await handleChildChange(index, null, true) }, title: palletString.deleteFromPopupTitle, message: palletString.deleteProductPopupMessage }} />
         </Block>
     )
 }
 
-export default withCookies(ProductForm)
+export default withCookies(PalletDetailForm)

@@ -72,22 +72,12 @@ function MobileToolbar(props) {
 
   const handleDownload = useCallback(() => {
     columns.filter((column) => { return !actions.includes(column.name) })
-    // data.filter((entry) => {
-    //   let a: ReactNode;
-    //   if (a instanceof ReactNode) { 
-
-    //   }
-    //   return 
-    // })
     var columnString = columns.filter((column) => { return !actions.includes(column.name) }).map((filteredCol) => { return filteredCol.name }).join(',') + '\n'
     var dataString = dataList.map((data) => {
       var tempResult = data.join(',')
       tempResult += "\n"
       return tempResult
-    }).join("")
-    console.log("download data", dataList, columnString)
-    //  const csvList = 
-    const dummyData = "rahul,delhi,accountsdept\n";
+    }).join("") 
     const csvContent = `data:text/csv;charset=utf-8,${columnString}${dataString}`;
     const encodedURI = encodeURI(csvContent);
     window.open(encodedURI);
@@ -136,9 +126,7 @@ function MobileToolbar(props) {
           aria-label="vertical contained button group"
           variant="contained"
         >
-          {/* <Block>
-            <CSVDownload data={data} target="_blank" />
-          </Block> */}
+
           {buttons}
         </ButtonGroup>
       </Collapse>
@@ -396,7 +384,7 @@ const CustomMoreButton = (props) => {
 const ExpandableRowTable = (props) => {
   const { columnsFromParent, dataObjList, mobileDataObjList, message, popupTitle, handleDelete,handleClickAdd, title } = props
   var columns = []
-  columns = JSON.parse(JSON.stringify(columnsFromParent))
+  columns = JSON.parse(JSON.stringify((columnsFromParent)))
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [drawerAction, setDrawerAction] = useState("")
   const router = useRouter()

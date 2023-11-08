@@ -16,6 +16,7 @@ import StyledH1 from 'components/Common/Element/H1'
 import { mapDataByCol } from 'lib/helper'
 import FormHandler from 'components/Form'
 import { getRecordFromDisplayID } from 'lib/prisma'
+import { deserialize } from 'superjson'
 const { publicRuntimeConfig } = getConfig()
 const { API_URL, APP_URL } = publicRuntimeConfig
 
@@ -99,21 +100,21 @@ console.log("ctx is",ctx.props,ctx.params,ctx.query)
     }
 
     const userData = await internalAPICallHandler(getUser).then((data) => {
-        return JSON.parse(JSON.stringify(data.result))
+        return deserialize(data.result)
     }).catch((e) => {
         console.log("error getserversideProps", e)
     })
 
 
     const userRoleData = await internalAPICallHandler(getUserRole).then((data) => {
-        return JSON.parse(JSON.stringify(data.result))
+        return deserialize(data.result)
     }).catch((e) => {
         console.log("error getserversideProps", e)
     })
 
 
     const userTypeData = await internalAPICallHandler(getUserType).then((data) => {
-        return JSON.parse(JSON.stringify(data.result))
+        return deserialize(data.result)
     }).catch((e) => {
         console.log("error getserversideProps", e)
     })

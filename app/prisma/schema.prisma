@@ -37,11 +37,11 @@ model Machine {
   remark                String?                 @db.VarChar(255)
   palletNo              Int
   machineTypeID         Int
-  machineDisplayID      String?                 @unique @db.VarChar(21)
   machineName           String                  @db.NVarChar(50)
   machineNameEn         String                  @db.VarChar(50)
   isActive              Boolean                 @default(false)
   socketID              String?                 @db.VarChar(30)
+  machineDisplayID      String?                 @unique @db.VarChar(21)
   machineType           MachineType             @relation(fields: [machineTypeID], references: [machineTypeID])
   owner                 User                    @relation(fields: [ownerID], references: [userID])
   machinePalletDetail   MachinePalletDetail[]
@@ -90,6 +90,8 @@ model MachinePalletDetail {
   weight                Decimal
   createdAt             DateTime      @default(now())
   updatedAt             DateTime      @updatedAt
+  attachmentID          Int
+  attachment            Attachment    @relation(fields: [attachmentID], references: [attachmentID], onDelete: Cascade)
   machine               Machine       @relation(fields: [machineID], references: [machineID], onUpdate: NoAction)
   masterProduct         MasterProduct @relation(fields: [productID], references: [productID], onUpdate: NoAction)
 }
@@ -161,16 +163,17 @@ model SystemConstant {
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model Attachment {
-  attachmentID        Int             @id @unique @default(autoincrement())
-  type                String          @db.VarChar(10)
-  name                String          @db.VarChar(50)
-  tableName           String          @db.VarChar(20)
-  createdAt           DateTime        @default(now())
-  updatedAt           DateTime        @updatedAt
-  attachmentDisplayID String?         @unique @db.VarChar(21)
-  tableUsage          String?         @db.VarChar(20)
+  attachmentID        Int                   @id @unique @default(autoincrement())
+  type                String                @db.VarChar(10)
+  name                String                @db.VarChar(50)
+  tableName           String                @db.VarChar(20)
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  tableUsage          String?               @db.VarChar(20)
+  attachmentDisplayID String?               @unique @db.VarChar(21)
+  MachinePalletDetail MachinePalletDetail[]
   MasterProduct       MasterProduct[]
-  Machine             Machine[]       @relation("AttachmentToMachine")
+  Machine             Machine[]             @relation("AttachmentToMachine")
 }
 
 model AutoIncrement {

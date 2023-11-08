@@ -9,6 +9,7 @@ import { withCookies } from 'react-cookie'
 import { CustomRequest, internalAPICallHandler } from 'lib/api/handler'
 import StyledH1 from 'components/Common/Element/H1'
 import FormHandler from 'components/Form'
+import { deserialize } from 'superjson'
 const { publicRuntimeConfig } = getConfig()
 
 
@@ -61,13 +62,13 @@ export async function getServerSideProps(ctx: CustomCtx) {
     }
 
     const userRoleData = await internalAPICallHandler(getUserRole).then((data) => {
-        return JSON.parse(JSON.stringify(data.result))
+        return deserialize(data.result)
     }).catch((e) => {
         console.log("error getserversideProps", e)
     })
 
     const userTypeData = await internalAPICallHandler(getUserType).then((data) => {
-        return JSON.parse(JSON.stringify(data.result))
+        return deserialize(data.result)
     }).catch((e) => {
         console.log("error getserversideProps", e)
     })

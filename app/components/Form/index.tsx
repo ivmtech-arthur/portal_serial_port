@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import LoginForm from "./Login";
 import ContactForm from "./contactForm";
 import ForgetPasswordForm from "./ForgetPassword";
@@ -14,18 +14,21 @@ import { ChangeProductInput, ChangeProductSchema, CreateProductInput, CreateProd
 import MachineForm from "./machineForm";
 import { ChangeMachineInput, ChangeMachineSchema, CreateMachineInput, CreateMachineSchema } from "lib/validations/machine.schema";
 import MachineTypeForm from "./machineTypeForm";
+import PalletDetailForm from "./palletDetailForm";
+import { ChangePalletDetailInput, ChangePalletDetailSchema } from "lib/validations/pallet.schema";
 
 
 function FormHandler(props) {
-    const { formType, parentCallback, ...restProps } = props
+    const { formType, parentCallback, errorFromParent, ...restProps } = props
     const [fields, setFields] = useState({});
     const [errors, setErrors] = useState({});
     const [formValid, setFormValid] = useState(false);
 
     async function handleOnSubmit(e, callback, action) {
         try {
-            console.log("handleOnSubmit", fields, e, action)
-            e.preventDefault()
+            console.log("handleOnSubmitx", fields, e, action, formType, restProps)
+            if (e)
+                e.preventDefault()
             var body;
             var data;
             switch (action) {
@@ -53,18 +56,16 @@ function FormHandler(props) {
                     body = fields as ChangeMachineInput;
                     data = ChangeMachineSchema.parse(body);
                     break;
+                case "editPalletDetail":
+                    body = fields as ChangePalletDetailInput;
+                    data = ChangePalletDetailSchema.parse(body)
+                    break
             }
 
             if (callback)
-                callback(fields)
+                return callback(fields)
 
-            const formData = {};
-            switch (formType) {
-                case "AccountForm":
-
-                    break;
-
-            }
+            return "success"
         } catch (e) {
             if (e instanceof ZodError) {
                 console.log("error handleOnSubmit", fields, e.name, e.message, e.cause, e.issues)
@@ -74,6 +75,8 @@ function FormHandler(props) {
                 }, {})
                 setErrors({ ...errors })
             }
+
+            return "error"
         }
 
 
@@ -103,8 +106,8 @@ function FormHandler(props) {
         // }
     }
 
-    async function handleValidation(e, valueType = "string", customParams = { action: "add", index: 0 }) {
-        console.log("handleValidationx", e, valueType, e.target.value, fields)
+    async function handleValidation(e, valueType = "string", customParams = { action: "add", index: 0, objParam: {} }) {
+        console.log("handleValidationx", e, valueType, e.target.value, fields, customParams)
         try {
             if (e.target) {
                 // const body = fields as RegisterUserInput;
@@ -138,7 +141,7 @@ function FormHandler(props) {
 
     }
 
-    function assignValue(name, value, valueType, customParams = { action: "add", index: 0 }) {
+    function assignValue(name, value, valueType, customParams = { action: "add", index: 0, objParam: {} }) {
         console.log("assignValue", name, value, valueType, fields, customParams)
 
         if (value === "") {
@@ -150,6 +153,10 @@ function FormHandler(props) {
 
         delete errors[name];
         var tempValue = value;
+
+        if (customParams.action == "defaultValue") {
+            setDefaultValue(customParams.objParam)
+        }
 
         switch (valueType) {
             case "string":
@@ -164,6 +171,8 @@ function FormHandler(props) {
                 } else {
                     tempValue.push(value)
                 }
+                break;
+            default:
                 break;
         }
         setFields({ ...fields, [name]: tempValue });
@@ -180,6 +189,20 @@ function FormHandler(props) {
 
     }
 
+    function setDefaultValue(obj) {
+        console.log("setDefaultValue", obj, fields)
+        for (const name in obj) {
+            // delete fields[name] = obj
+            fields[name] = obj[name]
+            setFields({ ...fields });
+            // assignValue(name, obj[name], typeof obj[name])
+            // delete errors[name];
+            // let tempValue = obj[name]
+            // console.log("setDefaultValue", name, tempValue, fields)
+            // setFields({ ...fields, [name]: tempValue });
+        }
+    }
+
     // Email Validation
     function emailValidation(name, value) {
         const emailRegex = new RegExp(/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,15}/g);
@@ -194,7 +217,7 @@ function FormHandler(props) {
         if (value.length < 8) {
             // delete fields[name];
             // setErrors({ ...errors, [name]: 'Password is too short' });
-            setFormValid(false);
+            setFormValid(false); 12
         }
     }
 
@@ -208,6 +231,19 @@ function FormHandler(props) {
         setErrors({ ...errors, ...newErrors })
     }
 
+    // useEffect(() => { 
+    //     setErrors({})
+    // },[])
+
+    useEffect(() => {
+        console.log("useEffect form", errorFromParent,errors)
+        if (errorFromParent) {
+            setErrors({ ...errors, ...errorFromParent })
+        } else {
+            setErrors({})
+        }
+    }, [errorFromParent])
+
     return (
         <Block>
             {formType == "Login" && <LoginForm getInitFields={getInitFields} handleOnSubmit={handleOnSubmit} handleValidation={handleValidation} handleError={handleError} errors={errors} parentCallback={parentCallback} fields={fields} {...restProps} />}
@@ -219,6 +255,7 @@ function FormHandler(props) {
             {formType == "ProductForm" && <ProductForm getInitFields={getInitFields} handleOnSubmit={handleOnSubmit} handleValidation={handleValidation} errors={errors} parentCallback={parentCallback} fields={fields} {...restProps} />}
             {formType == "MachineForm" && <MachineForm getInitFields={getInitFields} handleOnSubmit={handleOnSubmit} handleValidation={handleValidation} errors={errors} parentCallback={parentCallback} fields={fields} {...restProps} />}
             {formType == "MachineTypeForm" && <MachineTypeForm getInitFields={getInitFields} handleOnSubmit={handleOnSubmit} handleValidation={handleValidation} errors={errors} parentCallback={parentCallback} fields={fields} {...restProps} />}
+            {formType == "PalletDetailForm" && <PalletDetailForm getInitFields={getInitFields} handleOnSubmit={handleOnSubmit} handleValidation={handleValidation} setDefaultValue={setDefaultValue} errors={errors} parentCallback={parentCallback} fields={fields} {...restProps} />}
         </Block>
     )
 }

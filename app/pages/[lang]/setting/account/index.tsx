@@ -13,6 +13,8 @@ import { mapDataByCol } from 'lib/helper'
 import { userContent } from 'data/user'
 import axios from 'axios'
 import BasicSnackBar, { SnackBarProps } from 'components/snackbar'
+import { deserialize } from 'superjson'
+import { deserializeListInit } from 'lib/superjson'
 const { publicRuntimeConfig } = getConfig()
 
 
@@ -169,11 +171,13 @@ export async function getServerSideProps(ctx: CustomCtx) {
 
 
     const data = await internalAPICallHandler(customRequest).then((data) => {
-        return JSON.parse(JSON.stringify(data.result))
+        return deserializeListInit(data.result)
     }).catch((e) => {
         console.log("error getserversideProps", e)
     })
 
+
+    console.log("data yoyo", data)
     return {
         props: {
             columnMap,

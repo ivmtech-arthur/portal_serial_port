@@ -10,21 +10,58 @@ interface b {
     "test": string
 }
 
-type actionMap = {
+var actionMap = {
     "unlock": {
         config: any,
-        payloadType: {}
+        payloadType: string
     }
 }
 
-export const handleIOEmit = (socketID, action, payload) => {
+type Fruit = "apple" | "banana" | "orange";
+type NewType = {
+    [F in Fruit]: {
+        name: F;
+    };
+};
+
+interface payloadType {
+    unlock: {};
+    test: string;
+}
+
+enum actionString { unlock = "unlock", test = "test" }
+type actionType = {
+    [A in actionString]: {
+        payloadType: any
+    }
+}
+
+function validatePayload(action,payload) { 
+    switch (action) { 
+        case "unlock":
+            break;
+        
+    }
+
+    return true
+}
+
+
+export const handleIOEmit = (socketID, action: string, payload) => {
     var io = globalSocketIOClient.IOServer
     try {
         if (io) {
             console.log("io server", socketID, action, payload)
-            // var ioServer = io.listen(3001)
-            const a = io.to(socketID).emit(action, payload)
-            return a;
+            // 
+            if (validatePayload(action,payload)) {
+                // let b = payload as actionType[action as actionString]
+                const a = io.to(socketID).emit(action, payload)
+                return a;
+            } else { 
+                throw("")
+            }
+                // var ioServer = io.listen(3001)
+               
         } else {
             throw ("socketIOclient not initialized")
         }

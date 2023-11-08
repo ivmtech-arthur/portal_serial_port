@@ -36,6 +36,15 @@ SuperJSON.registerCustom<Decimal, string>(
   'decimal.js'
 );
 
+// SuperJSON.registerCustom<Date, string>(
+//   {
+//     isApplicable: (v): v is Date => v instanceof Date,
+//     serialize: v => v.toJSON(),
+//     deserialize: v => v.toString(),
+//   },
+//   'decimal.js'
+// );
+
 
 
 function App({ Component, pageProps, router }: AppProps<any>) {

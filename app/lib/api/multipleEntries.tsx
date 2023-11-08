@@ -7,7 +7,7 @@ import { parse, serialize } from "superjson/";
 
 
 
-async function GET<T extends CustomRequest, V extends string>(req: T, collectionName?: V): Promise<Array<Test<V>>>
+// async function GET<T extends CustomRequest, V extends string>(req: T, collectionName?: V): Promise<Array<Test<V>>>
 async function GET(req: CustomRequest, collectionName?: string) {
     const { id, populate, collection, ...queryParams } = req.query
     try {
@@ -23,18 +23,18 @@ async function GET(req: CustomRequest, collectionName?: string) {
         console.log("req.query", req.query, Object.entries(req.query), new URLSearchParams(filters), typeof collection)
         if (typeof collection === 'string') {
             const { where, include, select } = handleClause(collection, id, queryParams);
-            console.log("whereClause", where, include)
+            console.log("whereClause", where, include,select)
             const result = await schemaMap[collection].findMany({
 
                 ...(where ? { where: where } : {}),
                 ...(select ? { select: select } : {}),
                 ...(include ? { include: include } : {}),
             })
-            console.log("result test", result, Number.isNaN(result.weight), Number.isNaN(result.remark))
+            console.log("result test", result)
             // type ThenArg<T> = T extends PromiseLike<infer U> ? U : T
             // type dynamicReturnType = ThenArg<ReturnType<typeof result>>
             // CustomNextApiResponse(res, result, 200, collection);
-            return result
+            return serialize(result)
         }
         return
         // res.end()

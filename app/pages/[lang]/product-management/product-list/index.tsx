@@ -15,6 +15,8 @@ import axios from 'axios'
 import BasicSnackBar, { SnackBarProps } from 'components/snackbar'
 import { Prisma } from '@prisma/client'
 import { AlertColor } from '@mui/material'
+import { deserialize } from 'superjson'
+import { deserializeListInit } from 'lib/superjson'
 const ProductList = (props) => {
     const { cookies, profile, data, columnMap, collection } = props
     const token = cookies.get("accessToken")
@@ -195,7 +197,7 @@ export async function getServerSideProps(ctx: CustomCtx) {
     }
 
     const data = await internalAPICallHandler(customRequest).then((data) => {
-        return JSON.parse(JSON.stringify(data.result))
+        return deserializeListInit(data.result)
     }).catch((e) => {
         console.log("error getserversideProps", e)
     })
