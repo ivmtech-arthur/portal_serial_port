@@ -8,7 +8,7 @@ const palletProps = {
     palletID: z.number({
         required_error: "pallet is required",
     }).min(1, "pallet is required"),
-    machineID: z.number(),
+    // machineID: z.number(),
     description: z.string({}).optional(),
     productID: z.number({
         required_error: "pallet is required",
@@ -25,7 +25,7 @@ const palletProps = {
 export const CreatePalletDetailSchema = z.object({
     palletID: palletProps.palletID,
     description: palletProps.description,
-    machineID: palletProps.machineID,
+    // machineID: palletProps.machineID,
     productID: palletProps.productID,
     inventory: palletProps.inventory,
     price: palletProps.price,
@@ -45,7 +45,7 @@ export const CreatePalletDetailSchema = z.object({
 export const ChangePalletDetailSchema = z.object({
     palletID: palletProps.palletID,
     description: palletProps.description,
-    machineID: palletProps.machineID,
+    // machineID: palletProps.machineID,
     productID: palletProps.productID,
     inventory: palletProps.inventory,
     price: palletProps.price,

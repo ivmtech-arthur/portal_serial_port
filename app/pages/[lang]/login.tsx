@@ -104,7 +104,7 @@ export async function getServerSideProps(ctx) {
 
     const { profile, token, siteConfig } = ctx?.props || {}
     const { slug, lang } = ctx.params
-    const collection = 'patients'
+    const collection = 'machine'
     const userType = profile?.userType
     // const a = test();
     // const b = await prisma.

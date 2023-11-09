@@ -79,19 +79,19 @@ model MasterProduct {
 
 model MachinePalletDetail {
   palletDetailID        Int           @id @unique @default(autoincrement())
-  palletDetailDisplayID String        @unique @db.VarChar(20)
   machineID             Int
   palletID              Int
   status                String
-  description           String
+  description           String?
   productID             Int
   inventory             Int
   price                 Decimal
   weight                Decimal
   createdAt             DateTime      @default(now())
   updatedAt             DateTime      @updatedAt
-  attachmentID          Int
-  attachment            Attachment    @relation(fields: [attachmentID], references: [attachmentID], onDelete: Cascade)
+  attachmentID          Int?
+  palletDetailDisplayID String?       @unique @db.VarChar(21)
+  attachment            Attachment?   @relation(fields: [attachmentID], references: [attachmentID], onDelete: Cascade)
   machine               Machine       @relation(fields: [machineID], references: [machineID], onUpdate: NoAction)
   masterProduct         MasterProduct @relation(fields: [productID], references: [productID], onUpdate: NoAction)
 }

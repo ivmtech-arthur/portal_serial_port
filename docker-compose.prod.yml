@@ -24,6 +24,6 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - REDIS_TTL=1
-      - API_URL=http://18.166.75.74:1337
+      - API_URL=http://localhost:1337
       - BACKEND_URL=http://app:3000
     command: npm run start

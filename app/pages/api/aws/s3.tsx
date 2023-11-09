@@ -128,7 +128,7 @@ router
 //     }
 // }
 
-async function removeFileFromS3(keyList: ObjectIdentifier[]) {
+export async function removeFileFromS3(keyList: ObjectIdentifier[]) {
 
     var bucketParams: DeleteObjectsCommandInput = {
         Bucket: this.bucket,

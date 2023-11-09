@@ -221,7 +221,7 @@ const PalletDetailForm = (props) => {
     const initFields: ChangePalletDetailInput = mode == "add" ? {
         palletID: palletNo || 0,
         description: "",
-        machineID: machineData.machineID,
+        // machineID: machineData.machineID,
         productID: 0,
         inventory: 0,
         price: 0,
@@ -231,7 +231,7 @@ const PalletDetailForm = (props) => {
     } : {
         palletID: palletDetailData.palletID,
         description: palletDetailData.description,
-        machineID: machineData.machineID,
+        // machineID: machineData.machineID,
         productID: palletDetailData.productID,
         inventory: palletDetailData.inventory,
         price: palletDetailData.price,
@@ -560,7 +560,7 @@ const PalletDetailForm = (props) => {
                         handleChildChange(index, null, true)
                     }
 
-                    testFunc()
+                    // testFunc()
 
                     // handleOnSubmit(e, (fields) => {
                     //     // if (mode == "edit")
@@ -580,7 +580,7 @@ const PalletDetailForm = (props) => {
                 }}>{focus ? <KeyboardArrowDown /> : <KeyboardArrowRight />}</BasicButton>
             </Block>
             <BasicSnackBar {...snackBarProps} />
-            <Popup type="local" propsToPopup={{ proceedFunc: async () => { await handleChildChange(index, null, true) }, title: palletString.deleteFromPopupTitle, message: palletString.deleteProductPopupMessage }} />
+            {/* <Popup type="local" propsToPopup={{ proceedFunc: async () => { await handleChildChange(index, null, true) }, title: palletString.deleteFromPopupTitle, message: palletString.deleteProductPopupMessage }} /> */}
         </Block>
     )
 }

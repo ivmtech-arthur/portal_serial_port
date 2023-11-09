@@ -23,7 +23,7 @@ export const getServerSideProps = withLogin(
       return {
         redirect: {
           permanent: false,
-          destination: '/en/patient-list',
+          destination: '/en/machine-list',
         },
         props: {},
       }
