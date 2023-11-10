@@ -2,13 +2,13 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 async function main() {
   const arthur = await prisma.user.upsert({
-    where: { userID: 'SuperAdmin' },
+    where: { userID: 1 },
     update: {},
     create: {
       password: "test2",
       name: "Arthur2",
       nameEn: "Arthur2",
-      userID: "SuperAdmin",
+      //userID: 1,
       username: "name",
       authenticated: false,
       userRole: {

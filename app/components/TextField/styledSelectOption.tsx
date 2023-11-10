@@ -4,17 +4,7 @@ import StyledBody4 from 'components/Common/Element/body4'
 import styled, { css } from 'styled-components'
 
 const InputField = styled.input`
-    ${(props) => {
-        if (props.hover) {
-            return css`
-        &:hover{
-            /* border-color: white; */
-            background: #FAFAFA;;
-            cursor: pointer;
-        }
-    `}
-    }
-    } 
+   
     /* box-sizing: border-box; */
 
     /* Auto layout */
@@ -70,8 +60,8 @@ const StyledSelectOption = (props) => {
                 readOnly={value}
                 type={type}
                 onClick={onClickEvent}
-                hover={hover}
-                focus
+               // hover={hover}
+                //focus
             />
         </Block>
 

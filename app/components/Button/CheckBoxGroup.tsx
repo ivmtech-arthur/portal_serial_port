@@ -78,4 +78,4 @@ const CustomCheckBoxGroup = () => {
     )
 }
 
-export default CustomCheckBox
+export default CustomCheckBoxGroup

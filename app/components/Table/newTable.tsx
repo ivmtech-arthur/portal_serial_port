@@ -762,7 +762,7 @@ function CustomPagination(props) {
     return (
         <Block className="flex justify-between">
 
-            <StyledDropDownButton id="search" width="60px" options={[5, 10, 25, 50]} value={rowPerPage} onChange={(e: SelectChangeEvent) => {
+            <StyledDropDownButton id="search" width="60px" options={[]} value={rowPerPage} onChange={(e: SelectChangeEvent) => {
                 apiRef.current.setPageSize(parseInt(e.target.value));
                 setLocalPage(e.target.value as string)
             }} theme={theme} />

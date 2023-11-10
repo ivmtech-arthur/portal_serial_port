@@ -94,9 +94,7 @@ const Button6 = (props) => {
         
 
     useEffect(() => {
-        style = {
-            width: '100%',
-        }
+       
     }, [props.active])
     const onClickEvent = (e) => {
         setActive(!active)

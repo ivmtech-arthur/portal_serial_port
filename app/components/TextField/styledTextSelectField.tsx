@@ -16,7 +16,8 @@ const Container = styled(Block)`
             
             /* border-radius: 5px;   */
         },
-    `, (props) => css`
+    `}
+    ${(props) => css`
             #right-icon{
                 background-image: ${props.showDropDownList ? "url('/svg/icon_vector_up.svg')" : "url('/svg/icon_vector_down.svg')"};
             /* background-image: url('/svg/eye.svg'); */
