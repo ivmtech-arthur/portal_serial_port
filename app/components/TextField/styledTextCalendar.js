@@ -3,14 +3,14 @@ import styled, { css } from 'styled-components'
 import { useState } from 'react'
 import { CalendarPicker } from '@mui/x-date-pickers'
 import dayjs from 'dayjs';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+//  import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import {
     createTheme,
     ThemeProvider,
     styled as muiStyled,
 } from '@mui/material/styles'
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+//import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 // import TextField
 
 const Container2 = styled(Block)`
@@ -229,7 +229,9 @@ const StyledTextCalendar = (props) => {
                 }}><i id="right-icon" aria-hidden="true" style={{ backgroundRepeat: 'no-repeat', backgroundPosition: 'center' }} /></button>
             </Container2>
             <Block display={showCalendar ? 'block' : 'none'} position='absolute' bg='white' zIndex='10'>
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <LocalizationProvider 
+                //dateAdapter={AdapterDayjs}
+                >
                     <ThemeProvider theme={theme}>
                         <CalendarPicker 
                             

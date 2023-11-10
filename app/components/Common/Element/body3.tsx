@@ -9,4 +9,4 @@ const StyledBody3 = styled.p.attrs({
   compose(...basicStyledSystem)
 )
 
-export default StyledBody1
+export default StyledBody3

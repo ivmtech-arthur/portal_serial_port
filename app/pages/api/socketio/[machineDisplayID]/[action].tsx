@@ -22,7 +22,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             throw ("machine is offline")
         }
 
-        const result2 = handleIOEmit(result.socketID, action, payload)
+        const result2 = handleIOEmit(result.socketID, action as string, payload)
 
         CustomNextApiResponse(res, { emitAction: action, "status": "ok", return: result2 }, 200)
 
