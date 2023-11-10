@@ -25,7 +25,7 @@ const MachineList = (props) => {
     const {
         state: {
             site: { lang, pageName },
-            user: { userProfile }
+            user: { userProfile, accessToken }
         },
         dispatch,
     } = useStore()
@@ -57,7 +57,7 @@ const MachineList = (props) => {
             }
             await axios.delete(`/api/prisma/machine/${id}`, {
                 headers: {
-                    Authorization: `Bearer ${token}`,
+                    Authorization: `Bearer ${accessToken}`,
                 },
                 data: {
                     select

@@ -10,12 +10,12 @@ interface b {
     "test": string
 }
 
-var actionMap = {
-    "unlock": {
-        config: any,
-        payloadType: string
-    }
-}
+// var actionMap = {
+//     "unlock": {
+//         config: any,
+//         payloadType: string
+//     }
+// }
 
 type Fruit = "apple" | "banana" | "orange";
 type NewType = {

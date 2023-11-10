@@ -10,6 +10,7 @@ import { CustomRequest, internalAPICallHandler } from 'lib/api/handler'
 import StyledH1 from 'components/Common/Element/H1'
 import FormHandler from 'components/Form'
 import { Prisma } from '@prisma/client'
+import { deserializeListInit } from 'lib/superjson'
 const { publicRuntimeConfig } = getConfig()
 
 
@@ -67,13 +68,13 @@ export async function getServerSideProps(ctx: CustomCtx) {
         method: "GET"
     }
     const clientUserData = await internalAPICallHandler(getClientUser).then((data) => {
-        return data.result
+        return deserializeListInit(data.result)
     }).catch((e) => {
         console.log("error getserversideProps", e)
     })
 
     const machineTypeData = await internalAPICallHandler(getMachineType).then((data) => {
-        return data.result
+        return deserializeListInit(data.result)
     }).catch((e) => {
         console.log("error getserversideProps", e)
     })
