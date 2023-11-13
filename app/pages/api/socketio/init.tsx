@@ -167,7 +167,8 @@ const SocketHandler = (req, res) => {
           })
         
         socketIOActionMap.forEach((actionItem) => { 
-          return socket.on(actionItem.clientAction, (data) => { 
+          socket.on(actionItem.clientAction, (data) => { 
+            console.log("socket event received:",actionItem.clientAction)
             actionItem.onReceivedCallBack(data);
           })
         })

@@ -21,7 +21,7 @@ function ReplenishmentPage(props) {
         <Block>
             <BasicButton
                 onClick={() => {
-                    axios.post(`/api/socketio/${machineData.machineDisplayID}/server-machine-replenishment`, {
+                    axios.post(`/api/socketio/${machineData.machineDisplayID}/replenishment`, {
                         payload: {
                             foo: "bar"
                         }

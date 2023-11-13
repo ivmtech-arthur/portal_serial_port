@@ -66,7 +66,7 @@ function validatePayload(action, payload) {
 
     }
 
-    if (socketIOActionMap.find((actionItem) => actionItem.name == action)){
+    if (!socketIOActionMap.find((actionItem) => actionItem.name == action)){
         throw ("action not found")
     }
 
