@@ -21,7 +21,7 @@ function ReplenishmentPage(props) {
         <Block>
             <BasicButton
                 onClick={() => {
-                    axios.post(`/api/socketio/${machineData.machineDisplayID}/unlock`, {
+                    axios.post(`/api/socketio/${machineData.machineDisplayID}/server-machine-replenishment`, {
                         payload: {
                             foo: "bar"
                         }
@@ -30,7 +30,7 @@ function ReplenishmentPage(props) {
                             Authorization: `Bearer ${accessToken}`,
                         },
                     })
-                }}>unlock</BasicButton>
+                }}>Start Replenishment</BasicButton>
         </Block>
     )
 }

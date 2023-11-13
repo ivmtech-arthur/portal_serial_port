@@ -4,7 +4,7 @@ import { CustomRequest } from 'lib/api/handler'
 import { multipleEntryhandler } from 'lib/api/multipleEntries'
 import { singleEntryHandler } from 'lib/api/singleEntry'
 import { prisma } from 'lib/prisma'
-import { globalSocketIOClient } from 'lib/socketIO'
+import { globalSocketIOClient, socketIOActionMap } from 'lib/socketIO'
 
 const getTokenMachine = async (handshake) => {
   const token = handshake.auth.token
@@ -165,6 +165,12 @@ const SocketHandler = (req, res) => {
             console.log("from client", data);
             // res.end()
           })
+        
+        socketIOActionMap.forEach((actionItem) => { 
+          return socket.on(actionItem.clientAction, (data) => { 
+            actionItem.onReceivedCallBack(data);
+          })
+        })
 
         socket.on("disconnect", async () => {
           await prisma.machine.update({
