@@ -25,6 +25,7 @@ import machineType from 'pages/[lang]/machine-management/machine-Type'
 import { serialize, stringify } from 'superjson'
 import { ChangePalletDetailInput } from 'lib/validations/pallet.schema'
 import { Delete, KeyboardArrowDown, KeyboardArrowRight } from '@mui/icons-material'
+import { ChangeProductInput } from 'lib/validations/product.schema'
 
 
 
@@ -113,6 +114,9 @@ const getFieldList = (fieldConfig, handleChangeFormData, errors, placeholderMap,
                             onChange={(e) => { handleChangeFormData(key, e.target.value) }}
                             placeholder={placeholderMap[`${key}Placeholder`]}
                             handleValidation={handleValidation}
+                            {...(mode == "edit" ? {
+                                value: data[key]
+                            } : {})}
                             error={errors[key]}
                             id={key}
                             name={key}
@@ -197,7 +201,7 @@ const getFieldList = (fieldConfig, handleChangeFormData, errors, placeholderMap,
                             id={key}
                             name={key}
                             error={errors[key]}
-                            value={options.find(option => option.value === fields[key])?.value}
+                            value={options.find(option => option.value === fields[key])}
                             options={options}
                             handleValidation={handleValidation}
                             onChange={(e) => {
@@ -226,8 +230,9 @@ const PalletDetailForm = (props) => {
         inventory: 0,
         price: 0,
         // clientRefID: "",
-        weight: 0,
-        attachment: {},
+        weightPerUnit: 0,
+        file: null,
+        // currentAttachment: {},
     } : {
         palletID: palletDetailData.palletID,
         description: palletDetailData.description,
@@ -235,8 +240,9 @@ const PalletDetailForm = (props) => {
         productID: palletDetailData.productID,
         inventory: palletDetailData.inventory,
         price: palletDetailData.price,
-        weight: palletDetailData.weight,
-        attachment: palletDetailData.attachment,
+        weightPerUnit: palletDetailData.weightPerUnit,
+        file: null,
+        currentAttachment: palletDetailData.attachment || {},
     }
 
     const fieldConfig = {
@@ -267,12 +273,15 @@ const PalletDetailForm = (props) => {
         price: {
             type: "number"
         },
-        weight: {
+        weightPerUnit: {
             type: "number"
         },
-        attachment: {
+        file: {
             type: "upload",
         },
+        currentAttachment: {
+            type: "preview",
+        }
     }
 
     const {
@@ -287,7 +296,7 @@ const PalletDetailForm = (props) => {
     const generalString = get(general, lang)
     const palletString = get(palletContent, lang)
     const router = useRouter()
-    const [formData, setFormData] = useState(mode == "add" ? initFields : fields )
+    const [formData, setFormData] = useState(mode == "add" ? initFields : fields)
     const [focus, setFocus] = useState(mode == "add")
     const [updateFields, setUpdateFields] = useState<any>({})
     const [snackBarProps, setSnackbarProps] = useState<SnackBarProps>({
@@ -314,18 +323,18 @@ const PalletDetailForm = (props) => {
         switch (field) {
             case "productID":
                 let obj: any = {}
-                let a = masterProductData as ChangePalletDetailInput[]
+                let a = masterProductData as ChangeProductInput[]
                 // find(masterProductData)
                 let matchProduct = a.find((singleProductData) => {
                     return singleProductData.productID == value
                 })
                 tempFormData['productID'] = value
                 tempFormData['price'] = matchProduct.price
-                tempFormData['weight'] = matchProduct.weight
+                tempFormData['weightPerUnit'] = matchProduct.weight
                 //notes:  override the component update here so need add this field
                 obj['productID'] = value
                 obj['price'] = matchProduct.price
-                obj['weight'] = matchProduct.weight
+                obj['weightPerUnit'] = matchProduct.weight
                 console.log("handleChangeFormData", field, value, matchProduct, masterProductData, tempFormData, obj)
 
                 setDefaultValue(obj)
@@ -515,7 +524,7 @@ const PalletDetailForm = (props) => {
             // else {
             //     handleSubmit()
             // }
-        }, "editPalletDetail")
+        }, mode == "add" ? "createPalletDetail" : "editPalletDetail")
     }
 
 
@@ -580,7 +589,7 @@ const PalletDetailForm = (props) => {
                 }}>{focus ? <KeyboardArrowDown /> : <KeyboardArrowRight />}</BasicButton>
             </Block>
             <BasicSnackBar {...snackBarProps} />
-            {/* <Popup type="local" propsToPopup={{ proceedFunc: async () => { await handleChildChange(index, null, true) }, title: palletString.deleteFromPopupTitle, message: palletString.deleteProductPopupMessage }} /> */}
+            <Popup type="local" propsToPopup={{ proceedFunc: async () => { await handleChildChange(index, null, true) }, title: palletString.deleteFromPopupTitle, message: palletString.deleteProductPopupMessage }} />
         </Block>
     )
 }

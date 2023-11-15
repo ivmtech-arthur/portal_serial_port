@@ -33,110 +33,36 @@ function CreateChildFormList(props) {
     return (
         <FormHandler
             {...props}
-            // formType="PalletDetailForm"
-            // palletDetailData={palletDetailData}
-            // machineData={machineData}
-            // masterProductData={masterProductData}
-            // index={index}
-            // palletNo={outstandingPalletNumber}
-            // // parentInvoke={parentInvoke}
-            // handleChildChange={handleChildChange}
-            // childCallbackFetcher={(func) => {
-            //     // handleChildCallback(func, index)
-            // }}
-            // setChildResult={async (promise: Promise<string>) => {
-            //     console.log("setChildResult", promise)
-            //     const result = await promise
-            //     if (result == "error") {
-            //         validateResult.push(false)
-            //         setValidateResult([...validateResult])
-            //     } else {
-            //         validateResult.push(true)
-            //         setValidateResult([...validateResult])
-            //     }
-            //     setParentInvoke(false)
-            //     // setChildResult(result)
-            // }}
-            // errorFromParent={errorsFromParent[index]}
-            mode="add" />
+        // formType="PalletDetailForm"
+        // palletDetailData={palletDetailData}
+        // machineData={machineData}
+        // masterProductData={masterProductData}
+        // index={index}
+        // palletNo={outstandingPalletNumber}
+        // // parentInvoke={parentInvoke}
+        // handleChildChange={handleChildChange}
+        // childCallbackFetcher={(func) => {
+        //     // handleChildCallback(func, index)
+        // }}
+        // setChildResult={async (promise: Promise<string>) => {
+        //     console.log("setChildResult", promise)
+        //     const result = await promise
+        //     if (result == "error") {
+        //         validateResult.push(false)
+        //         setValidateResult([...validateResult])
+        //     } else {
+        //         validateResult.push(true)
+        //         setValidateResult([...validateResult])
+        //     }
+        //     setParentInvoke(false)
+        //     // setChildResult(result)
+        // }}
+        // errorFromParent={errorsFromParent[index]}
+        // mode="add"
+        />
     )
 }
 
-function MobileToolbar(props) {
-    const { setDrawerOpen, setDrawerAction, dataList, columns, handleClickAdd } = props
-    const router = useRouter();
-
-    const [open, setOpen] = useState(false)
-
-    // const handleDownload = useCallback(() => {
-    //     columns.filter((column) => { return !action.includes(column.name) })
-    //     var columnString = columns.filter((column) => { return !actions.includes(column.name) }).map((filteredCol) => { return filteredCol.name }).join(',') + '\n'
-    //     var dataString = dataList.map((data) => {
-    //         var tempResult = data.join(',')
-    //         tempResult += "\n"
-    //         return tempResult
-    //     }).join("")
-    //     const csvContent = `data:text/csv;charset=utf-8,${columnString}${dataString}`;
-    //     const encodedURI = encodeURI(csvContent);
-    //     window.open(encodedURI);
-    // }, [dataList])
-
-    const buttons = [
-        <BasicButton size="large" key="search" onClick={() => {
-            setDrawerOpen(true)
-            setDrawerAction("search")
-        }}><Search /></BasicButton>,
-
-
-        <BasicButton size="large" onClick={() => {
-            setDrawerOpen(true)
-            setDrawerAction("filter")
-        }} key="filter"><FilterList /></BasicButton>,
-        // <BasicButton size="large" key="download" onClick={handleDownload}><DownloadCloud /></BasicButton>,
-        <BasicButton key="add" onClick={() => {
-            if (handleClickAdd) {
-                handleClickAdd()
-            }
-        }}><Add /></BasicButton>,
-    ];
-
-    return (
-        <Box
-            sx={{
-                transformOrigin: '0 100% 0',
-                scale: '1.3',
-                zIndex: 9999,
-                right: 20,
-                bottom: 50,
-                position: 'fixed',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                '& > *': {
-                    marginX: 1,
-                },
-            }}
-        >
-            <Collapse in={open} >
-                <ButtonGroup
-
-                    orientation="vertical"
-                    aria-label="vertical contained button group"
-                    variant="contained"
-                >
-                    {buttons}
-                </ButtonGroup>
-            </Collapse>
-            <BasicButton
-                // size="large"
-                onClick={() => {
-                    setOpen(!open)
-                }}>
-                <MoreVert />
-            </BasicButton>
-        </Box>
-    )
-}
 
 const PalletConfig = (props) => {
     const { cookies, profile, palletDetailListdata, machineData, masterProductData } = props
@@ -182,6 +108,56 @@ const PalletConfig = (props) => {
         }
 
         setPalletDetailList([...tempPalletDetailList])
+    }
+
+    const parentHandleChildChange = (index, data, isDelete, dataList, setDataList, updateList, setUpdateList) => {
+        let tempDataList = dataList
+        if (isDelete) {
+            console.log("delete item", dataList)
+            tempDataList.splice(index, 1)
+            // handleChildCallback(index, null, true)
+        }
+        else {
+            tempDataList[index] = {
+                ...tempDataList[index],
+                ...data
+            }
+            let outstandingItem = tempDataList[index]
+            const findResult = palletDetailListdata.find((parentData) => parentData.palletID == outstandingItem.palletID)
+            if (findResult) {
+                let assignObj = Object.keys(outstandingItem).reduce((result, key, index) => {
+                    if (findResult[key] != outstandingItem[key]) {
+                        result[key] = outstandingItem[key]
+                    }
+                    return result
+                }, {})
+                if (Object.keys(assignObj).length > 0) {
+                    var diffObj = {
+                        ...assignObj,
+                        palletID: findResult.palletID,
+                        palletDetailID: findResult.palletDetailID,
+                    }
+                    console.log("handleChildChangexd2", index, updateList, findResult)
+                    let outstandingID = updateList.findIndex((item) => item.palletID == findResult.palletID)
+                    if (outstandingID != -1) {
+                        // let editIndex = updateList.findIndex((item) => item.palletID == findResult.palletID)
+                        updateList[outstandingID] = diffObj;
+                    } else {
+                        updateList.push(diffObj)
+                    }
+                } else {
+                    let deleteIndex = updateList.findIndex((item) => item.palletID == findResult.palletID)
+                    updateList.splice(deleteIndex, 1)
+                }
+
+            }
+        }
+        console.log("handleChildChangexd", index, updateList)
+        if (setDataList)
+            setDataList([...tempDataList])
+        if (setUpdateList) {
+            setUpdateList([...updateList])
+        }
     }
 
     const handleChildCallback = (func, index, isDelete = false) => {
@@ -258,15 +234,16 @@ const PalletConfig = (props) => {
         })
     }, [])
 
-    const handleClickAdd = useCallback(() => {
-        dataListFunc()
+    const handleClickAdd = () => {
+        setInvokeChild(true)
+        // dataListFunc()
         // let tempPalletDetailList = palletDetailList
 
         // let tempPalletDetail: ChangePalletDetailInput = {}
         // console.log(tempPalletDetailList)
         // tempPalletDetailList.push(tempPalletDetail)
         // setPalletDetailList([...tempPalletDetailList])
-    }, [palletDetailList, dataListFunc])
+    }
 
 
 
@@ -283,28 +260,32 @@ const PalletConfig = (props) => {
         />
     })
 
-    const handleSubmit = async (detailList: any[]) => {
+    const handleSubmit = async (detailList: any[], updateDetailList: any[]) => {
         console.log("handleSubmit palletConfig", detailList)
         // const
         const formData = new FormData()
-        const updateList = detailList.filter((detailItem) => palletDetailList.map((originDetail) => originDetail.palletID).includes(detailItem.productID))
-        const createList = detailList.filter((detailItem) => !palletDetailList.map((originDetail) => originDetail.palletID).includes(detailItem.productID))
+        const updateList = detailList.filter((detailItem) => palletDetailList.map((originDetail) => originDetail.palletID).includes(detailItem.palletID))
+        const createList = detailList.filter((detailItem) => !palletDetailList.map((originDetail) => originDetail.palletID).includes(detailItem.palletID))
+        let newFilePalletIDs = []
+        let changeFilePalletIDs = []
         // createItem
         console.log("handleSubmit palletConfig a", detailList)
         let createData: Prisma.MachinePalletDetailCreateWithoutMachineInput[] = createList.map((createItem: any) => {
-            const { attachment, productID, ...restField } = createItem
-            let file: File = attachment
+            const { file, productID, ...restField } = createItem
+            let attachment: File = file
             if (attachment instanceof File) {
-                formData.append("newFiles", file)
+                //notes: they need to appedn together
+                formData.append("newFiles", attachment)
+                newFilePalletIDs.push(createItem.palletID)
             }
             console.log("handleSubmit file", attachment instanceof File)
             let result: Prisma.MachinePalletDetailCreateWithoutMachineInput = {
                 status: "created",
-                ...(attachment instanceof File ? {
+                ...(file instanceof File ? {
                     attachment: {
                         create: {
-                            type: file.type.split('/')[0],
-                            name: file.name,
+                            type: attachment.type.split('/')[0],
+                            name: attachment.name,
                             tableName: "machinePalletDetail",
                             tableUsage: "default",
                         }
@@ -322,22 +303,33 @@ const PalletConfig = (props) => {
             return result
         })
         console.log("handleSubmit palletConfig b", detailList)
-        let updateData: Prisma.MachinePalletDetailUpdateWithWhereUniqueWithoutMachineInput[] = updateList.map((updateItem) => {
-            const { attachment, ...restField } = updateItem
-            if (attachment instanceof File) {
-                formData.append("changeFiles", attachment)
+        let updateData: Prisma.MachinePalletDetailUpdateWithWhereUniqueWithoutMachineInput[] = updateDetailList.map((updateItem) => {
+            const { file, palletDetailID, currentAttachment, ...restField } = updateItem
+            if (file instanceof File) {
+                formData.append("changeFiles", file)
+                changeFilePalletIDs.push(updateItem.palletID)
             }
-            return {
+
+            let result: Prisma.MachinePalletDetailUpdateWithWhereUniqueWithoutMachineInput = {
                 where: {
-                    palletDetailID: palletDetailListdata.find((data) => {
-                        data.palletID == updateItem.palletID
-                    }).palletDetailID
+                    palletDetailID: palletDetailID
                 },
                 data: {
+                    ...(file && {
+                        attachment: {
+                            update: {
+                                type: file.type.split('/')[0],
+                                name: file.name,
+                                tableName: "machinePalletDetail",
+                                tableUsage: "default",
+                            }
+                        }
+                    }),
                     // status: "updated",
                     ...restField
                 }
             }
+            return result
         })
 
 
@@ -377,17 +369,26 @@ const PalletConfig = (props) => {
                 }
             }
         }
-        const removeFileList = palletDetailListdata.map((item) => {
+        const removeFileList = palletDetailListdata.filter((item) =>
+            updateDetailList.find((updateDetail) => updateDetail.palletID == item.palletID)?.file
+        ).map((item, index) => {
+            // if () { 
             return {
-                id: item.attachment.attachmentDisplayID,
-                type: item.attachment.type,
-                collection: item.attachment.tableName,
+                id: item.attachment?.attachmentDisplayID,
+                type: item.attachment?.type,
+                collection: item.attachment?.tableName,
+                name: item.attachment?.name,
             }
+            // }
+
         })
+
+        formData.set("changeFilePalletIDs", stringify(changeFilePalletIDs))
+        formData.set("newFilePalletIDs", stringify(newFilePalletIDs))
         formData.set("query", stringify(queryArg))
         formData.set("removeFileList", stringify(removeFileList))
         console.log("handleSubmit palletConfig c", detailList)
-        console.log("updatexdd input", update)
+        console.log("updatexdd input", update, queryArg, removeFileList,)
 
 
         let result = await axios.post(`/api/machine/changePalletConfig`, formData, {
@@ -463,7 +464,7 @@ const PalletConfig = (props) => {
 
                 </Block>
             </SimpleCard >
-            {a}
+            {/* {a} */}
             {/* <Block className=" border-[2px] border-[red]">
                 {list}
            </Block> */}
@@ -490,10 +491,17 @@ const PalletConfig = (props) => {
                     parentDataList={palletDetailList}
                     handleChildChange={handleChildChange}
                     ChildForm={(props) => {
-                        let palletNo = outstandingPalletNumber + props.index
+
+                        let mode = "edit";
+
+                        console.log("childForm props", props, outstandingPalletNumber)
                         if (palletDetailListdata.some((oldPalletDetailData) => { return oldPalletDetailData.palletID == outstandingPalletNumber })) {
                             outstandingPalletNumber += 1
                         }
+                        if (props.index >= palletDetailListdata.length) {
+                            mode = "add";
+                        }
+                        let palletNo = Math.max(outstandingPalletNumber, props.index + 1)
                         return <CreateChildFormList
                             {...props}
                             formType="PalletDetailForm"
@@ -501,9 +509,11 @@ const PalletConfig = (props) => {
                             machineData={machineData}
                             masterProductData={masterProductData}
                             palletNo={palletNo}
+                            mode={mode}
                         // handleChildChange={handleChildChange}
                         />
                     }}
+                    parentHandleChildChange={parentHandleChildChange}
                 // ChildformList={(props) => {
                 //     return palletDetailList.map((palletDetailData, index) => {
                 //         outstandingPalletNumber += 1
@@ -529,14 +539,14 @@ const PalletConfig = (props) => {
                 ></ListFormHandler>
             </Block >
 
-
+            {/* 
             <Block className="flex justify-center">
                 <BasicButton className="mt-10 mr-3 w-32" onClick={(e) => {
-                    setClickSubmit(!clickSubmit)
+                    // setClickSubmit(!clickSubmit)
                     // if (invokeFunc) {
                     //     invokeFunc(true)
                     // }
-                    setInvokeChild(true)
+                    // setInvokeChild(true)
                     // setParentInvoke(true)
                     // setInvokeFunc(true)
                     // if (submitChildCallbackList.every((func) => {
@@ -549,12 +559,7 @@ const PalletConfig = (props) => {
                 <BasicButton className="mt-10 ml-3 w-32" onClick={(e) => {
                     router.back()
                 }}>{generalString.back}</BasicButton>
-            </Block>
-
-            <Block className="md:hidden">
-                <MobileToolbar handleClickAdd={handleClickAdd} />
-            </Block>
-
+            </Block> */}
             <BasicSnackBar {...snackBarProps} />
         </>
     )
@@ -581,6 +586,9 @@ export async function getServerSideProps(ctx) {
                     machineDisplayID: id
                 }
             },
+            orderBy: {
+                palletID: 'asc',
+            },
             include: {
                 attachment: true
             }
@@ -589,7 +597,7 @@ export async function getServerSideProps(ctx) {
     }
 
     const palletDetailListdata = await internalAPICallHandler(getPalletDetail).then((data) => {
-        return deserialize(data.result)
+        return deserializeListInit(data.result)
     }).catch((e) => {
         console.log("error getserversideProps", e)
     })
@@ -603,6 +611,7 @@ export async function getServerSideProps(ctx) {
             include: {
                 attachments: true
             },
+
             isUnique: true
         },
         method: "GET"

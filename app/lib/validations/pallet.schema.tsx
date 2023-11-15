@@ -13,9 +13,9 @@ const palletProps = {
     productID: z.number({
         required_error: "pallet is required",
     }).min(1, "productID is required"),
-    inventory: z.number().default(0),
-    price: z.number().default(0),
-    weight: z.number().default(0),
+    inventory: z.number().min(0, "inventory must non megative").default(0),
+    price: z.number().min(0, "inventory must non megative").default(0),
+    weightPerUnit: z.number().default(0),
     attachment: z.object({
         size: z.number().optional(),
         type: z.string().optional(),
@@ -29,16 +29,16 @@ export const CreatePalletDetailSchema = z.object({
     productID: palletProps.productID,
     inventory: palletProps.inventory,
     price: palletProps.price,
-    weight: palletProps.weight,
-    attachment: z.object({
+    weightPerUnit: palletProps.weightPerUnit,
+    file: z.object({
         size: z.number().optional(),
         type: z.string().optional(),
     })
-        // .refine((file) => file.length == 1, "Image is required.")
+        .refine((file) => Object.keys(file).length > 0, "Image is required.")
         .refine((file) => (Object.keys(file).length == 0) || file.size <= MAX_FILE_SIZE, `Max file size is 8MB.`)
         .refine(
             (file) => (Object.keys(file).length == 0) || ACCEPTED_IMAGE_TYPES.includes(file.type),
-            ".jpg, .jpeg, .png and .webp files are accepted."
+            ".jpg, .jpeg, .png and .webp files are accepted. 1"
         ),
 })
 
@@ -49,23 +49,37 @@ export const ChangePalletDetailSchema = z.object({
     productID: palletProps.productID,
     inventory: palletProps.inventory,
     price: palletProps.price,
-    weight: palletProps.weight,
-    attachment: z.object({
+    weightPerUnit: palletProps.weightPerUnit,
+    file: z.object({
         size: z.number().optional().default(0),
         type: z.string().optional().default(""),
-    }).optional()
+    }).optional().nullable(),
+    currentAttachment: z.object({}).optional().nullable(),
 })
-    .refine((data) => data.attachment.size >= 0 && data.attachment.size <= MAX_FILE_SIZE, {
-        path: ["attachment"],
+    .refine((data) => {
+        console.log("data a", data.file)
+        if (data.file)
+            return data.file.size >= 0 && data.file.size <= MAX_FILE_SIZE
+        else
+            return true
+    }, {
+        path: ["file"],
         message: `Max file size is 8MB.`
     })
     .refine(
         (data) => {
-            console.log("data", data.attachment.type)
-            return data.attachment.type === "" || ACCEPTED_IMAGE_TYPES.includes(data.attachment.type)
+
+            if (data.file) {
+                console.log("data b", data.file, data.file.type)
+                return (data.file.type === "" || ACCEPTED_IMAGE_TYPES.includes(data.file.type))
+            }
+
+
+            else
+                return true
         }, {
-        path: ["attachment"],
-        message: ".jpg, .jpeg, .png and .webp files are accepted"
+        path: ["file"],
+        message: ".jpg, .jpeg, .png and .webp files are accepted 2"
     }
     )
 

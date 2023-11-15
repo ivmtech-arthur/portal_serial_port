@@ -10,7 +10,7 @@ import general from 'data/general'
 import Button7 from 'components/Button/Button7'
 import Popup from 'components/Popup'
 import { preprocessServerSideProps } from 'lib/serverside-prepro'
-// import io from 'socket.io-client'
+import io from 'socket.io-client'
 let socket
 
 const sendEmail = (dispatch) => {
@@ -23,11 +23,12 @@ const sendEmail = (dispatch) => {
         },
     })
 }
-// const [input, setInput] = useState('')
+
 
 const Login = (props) => {
     const { handleOnSubmit, handleValidation, errors, fields } = props
     const [authStage, setAuthStage] = useState(0)
+    const [input, setInput] = useState('')
     const {
         state: {
             site: { lang },
@@ -37,20 +38,25 @@ const Login = (props) => {
     } = useStore()
     const generalString = get(general, lang)
 
-    // useEffect(() => socketInitializer(), [])
+    useEffect(() => socketInitializer(), [])
 
-  const socketInitializer = async () => {
-    // console.log('socketInitializer')
+  const socketInitializer =  () => {
+    console.log('socketInitializer')
     // const a = await fetch('/api/socketio');
-    // socket = io()
+      socket = io({
+          query: {
+              client: "local"
+          },
+      })
 
-    // socket.on('connect', () => {
-    //   console.log('connected')
-    // })
+    socket.on('connect', () => {
+      console.log('connected')
+    })
 
-    // socket.on('update-input', msg => {
-    //     setInput(msg)
-    //   })
+      socket.on('update-input', msg => {
+        console.log("update input",msg)
+        setInput(msg)
+      })
   }
 
 //   const onChangeHandler = (e) => {

@@ -193,7 +193,7 @@ const getFieldList = (fieldConfig, handleChangeFormData, errors, placeholderMap,
                             id={key}
                             name={key}
                             error={errors[key]}
-                            value={options.find(option => option.value === fields[key])?.value}
+                            value={options.find(option => option.value === fields[key])}
                             options={options}
                             handleValidation={handleValidation}
                             onChange={(e) => {
@@ -226,8 +226,8 @@ const MachineForm = (props) => {
     } : {
         machineName: machineData.machineName,
         machineNameEn: machineData.machineNameEn,
-        machineType: machineData.machinTypr,
-        ownerID: machineData.ownerID,
+        machineType: machineData.machineType.machineTypeID,
+        ownerID: machineData.owner.userID,
         palletNo: machineData.palletNo,
         // clientRefID: machineData.clientRefID,
         remark: machineData.remark,

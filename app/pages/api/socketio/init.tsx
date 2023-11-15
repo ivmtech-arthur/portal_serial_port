@@ -4,7 +4,7 @@ import { CustomRequest } from 'lib/api/handler'
 import { multipleEntryhandler } from 'lib/api/multipleEntries'
 import { singleEntryHandler } from 'lib/api/singleEntry'
 import { prisma } from 'lib/prisma'
-import { globalSocketIOClient, socketIOActionMap } from 'lib/socketIO'
+import { SocketResponse, globalSocketIOClient, socketIOActionMap, validateIOAccess } from 'lib/socketIO'
 
 const getTokenMachine = async (handshake) => {
   const token = handshake.auth.token
@@ -60,43 +60,43 @@ const SocketHandler = (req, res) => {
     //   }
     // })
 
-    io.use((socket, next) => {
-      let err = null
-      try {
-        let handshake = socket.handshake;
-        // ...
-        console.log("handshake is", handshake.auth.token,)
-        next()
-        if (handshake.auth.token) {
-          // return await getTokenMachine(handshake).then((result) => { 
-          //   if (result.machineID) { 
-          //     return next()
-          //   }
-          // })
+    // io.use((socket, next) => {
+    //   let err = null
+    //   try {
+    //     let handshake = socket.handshake;
+    //     // ...
+    //     console.log("handshake is", handshake.auth.token,)
+    //     next()
+    //     if (handshake.auth.token) {
+    //       // return await getTokenMachine(handshake).then((result) => { 
+    //       //   if (result.machineID) { 
+    //       //     return next()
+    //       //   }
+    //       // })
 
-          // setTimeout(() => {
-          //   getTokenMachine(handshake).then((result) => {
-          //     if (result.machineID) {
-          //       next()
-          //     }
-          //   })
-          //   // next is called after the client disconnection
-          //   next({});
-          // }, 1000);
+    //       // setTimeout(() => {
+    //       //   getTokenMachine(handshake).then((result) => {
+    //       //     if (result.machineID) {
+    //       //       next()
+    //       //     }
+    //       //   })
+    //       //   // next is called after the client disconnection
+    //       //   next({});
+    //       // }, 1000);
 
-          // if (result.machineID) {
-          //   next()
-          // }
-        } else {
-          throw "token not found222"
-        }
-      } catch (e) {
-        err = e
-        return next(e)
-      }
+    //       // if (result.machineID) {
+    //       //   next()
+    //       // }
+    //     } else {
+    //       throw "token not found222"
+    //     }
+    //   } catch (e) {
+    //     err = e
+    //     return next(e)
+    //   }
 
-      // if ()
-    });
+    //   // if ()
+    // });
 
     //     io.of((name, query, next) => {
     //       // the checkToken method must return a boolean, indicating whether the client is able to connect or not.
@@ -131,57 +131,76 @@ const SocketHandler = (req, res) => {
 
     io.listen(3001);
 
-    io.on('connection', async socket => {
+    io.on('connection', socket => {
       const clientId = socket.id;
       console.log('A client connected', socket.handshake?.query, socket.handshake?.query?.token, clientId);
       const token = socket.handshake?.query?.token as string
 
-      if (socket.handshake.auth && socket.handshake.auth.token) {
-      
+      if ((socket.handshake.auth && socket.handshake.auth.token) || socket.handshake.query.client == "local") {
+
         console.log('A client connected', clientId);
-       
+
         try {
-          const result = await prisma.machine.update({
-            where: {
-              serverToken: token
-            },
-            data: {
-              socketID: clientId,
-              isActive: true
-            }
-          })
-          if (!result) { 
-            socket.disconnect()
+          if (!socket.handshake.query.client && token) {
+            const result = prisma.machine.update({
+              where: {
+                serverToken: token
+              },
+              data: {
+                socketID: clientId,
+                isActive: true
+              }
+            }).then((result) => {
+              if (!result) {
+                socket.disconnect()
+              }
+            })
+
           }
-        } catch (e) { 
+
+        } catch (e) {
+          console.log("e is",e)
           socket.disconnect()
         }
-          // io.emit("client-new", clientId);
-          // socket.on('input-change', msg => {
-          //   socket.broadcast.emit('update-input', msg)
-          // })
 
-          socket.on('action', data => {
-            console.log("from client", data);
-            // res.end()
-          })
-        
-        socketIOActionMap.forEach((actionItem) => { 
-          socket.on(actionItem.clientAction, (data) => { 
-            console.log("socket event received:",actionItem.clientAction)
-            actionItem.onReceivedCallBack(data);
+
+        // io.emit("client-new", clientId);
+        // socket.on('input-change', msg => {
+        //   socket.broadcast.emit('update-input', msg)
+        // })
+
+        socket.on('action', data => {
+          socket
+          console.log("from client", data);
+          // res.end()
+        })
+
+        socketIOActionMap.forEach((actionItem) => {
+          socket.on(actionItem.clientAction, async (data: SocketResponse) => {
+            try {
+              const machineID = await validateIOAccess(data.token, clientId)
+              if (machineID) {
+                console.log("socket event received:", actionItem.clientAction)
+                actionItem.onReceivedCallBack(data, machineID, socket);
+              }
+            } catch (e) {
+              console.log("socket event:", e)
+            }
           })
         })
 
-        socket.on("disconnect", async () => {
-          await prisma.machine.update({
-            where: {
-              serverToken: token
-            },
-            data: {
-              isActive: false
-            }
-          })
+        socket.on("disconnect", () => {
+          if (!socket.handshake.query.client && token) { 
+            prisma.machine.update({
+              where: {
+                serverToken: token
+              },
+              data: {
+                isActive: false
+              }
+            })
+          }
+         
           console.log("A client disconnected.");
           // res.end()
         });
@@ -189,6 +208,19 @@ const SocketHandler = (req, res) => {
         // res.end()
       } else {
         console.log("token not found")
+        if (socket.handshake.headers.client) {
+
+        }
+
+        socket.on('action', data => {
+          console.log("from client", data);
+          // res.end()
+        })
+
+        socket.on("disconnect", async () => {
+          console.log("A client disconnected with token.");
+          // res.end()
+        });
         // res.status(403).json({
         //   message: `error authenticating socket connection on ${clientId}`
         // })

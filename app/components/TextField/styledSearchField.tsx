@@ -87,7 +87,7 @@ type styledDropDownButtonProps = {
     value?: any,
     onChange?: (e) => void,
     variant?: 'standard' | 'outlined' | 'filled',
-    handleValidation?: (e, string,customParams?) => void,
+    handleValidation?: (e, string, customParams?) => void,
     disabled?: boolean,
     placeholder?: string,
     multiple?: boolean,
@@ -132,13 +132,13 @@ const StyledSearchField = (props: styledDropDownButtonProps) => {
                         if (handleValidation) {
                             //notes: assume ID is value
                             handleValidation(customE, "number"
-                            //     {
-                            //     action: "defaultValue",
-                            //     objParam: {
-                            //         price: 2,
-                            //         weight: 3.4
-                            //     }
-                            // }
+                                //     {
+                                //     action: "defaultValue",
+                                //     objParam: {
+                                //         price: 2,
+                                //         weight: 3.4
+                                //     }
+                                // }
                             )
                         }
                         onChange(customE)
@@ -152,7 +152,7 @@ const StyledSearchField = (props: styledDropDownButtonProps) => {
                 //     // onChange(e)
                 // }}
                 disabled={disabled}
-                popupIcon={<KeyboardArrowDownIcon/>}
+                popupIcon={<KeyboardArrowDownIcon />}
                 // value={`${value}`}
                 options={options}
                 // IconComponent={KeyboardArrowDownIcon}
@@ -160,32 +160,32 @@ const StyledSearchField = (props: styledDropDownButtonProps) => {
                     placeholder={placeholder}
                     color={!error ? (color || "primary") : "error"}
                     error={error}
-                    // InputProps={{
-                    //     endAdornment: (
-                    //         <InputAdornment position="start">
-                    //             {/* <BasicButton variant="text"
-                    //             // onClick={() => {
-                    //             //     // var x: any = document.getElementById(props.id)
-                    //             //     // if (x.type === "password") {
-                    //             //     //     x.type = "text";
-                    //             //     // } else {
-                    //             //     //     x.type = "password";
-                    //             //     // }
-                    //             // }}
-                    //             sx={{
-                    //                 color: 'black',
-                    //                 "&:hover": {
-                    //                     color: 'black',
-                    //                 },
-                    //                 "&:focus": {
-                    //                     boxShadow: 'none'
-                    //                 }
-                    //             }}><KeyboardArrowDownIcon /></BasicButton> */}
-                    //         </InputAdornment>
-                    //     )
-                    // }}
+                // InputProps={{
+                //     endAdornment: (
+                //         <InputAdornment position="start">
+                //             {/* <BasicButton variant="text"
+                //             // onClick={() => {
+                //             //     // var x: any = document.getElementById(props.id)
+                //             //     // if (x.type === "password") {
+                //             //     //     x.type = "text";
+                //             //     // } else {
+                //             //     //     x.type = "password";
+                //             //     // }
+                //             // }}
+                //             sx={{
+                //                 color: 'black',
+                //                 "&:hover": {
+                //                     color: 'black',
+                //                 },
+                //                 "&:focus": {
+                //                     boxShadow: 'none'
+                //                 }
+                //             }}><KeyboardArrowDownIcon /></BasicButton> */}
+                //         </InputAdornment>
+                //     )
+                // }}
                 />}
-               
+
             // input={
             //     <BootstrapInput color={color || 'primary'} theme={muiTheme}
             //         inputProps={{

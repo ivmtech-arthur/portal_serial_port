@@ -131,13 +131,13 @@ router
 export async function removeFileFromS3(keyList: ObjectIdentifier[]) {
 
     var bucketParams: DeleteObjectsCommandInput = {
-        Bucket: this.bucket,
+        Bucket: globalS3Client.bucket,
         Delete: {
             Objects: keyList
         }
     };
     try {
-        const data = await this.s3Client.send(new DeleteObjectsCommand(bucketParams))
+        const data = await globalS3Client.s3.send(new DeleteObjectsCommand(bucketParams))
         return data['$metadata'];
     } catch (err) {
         console.error(err);

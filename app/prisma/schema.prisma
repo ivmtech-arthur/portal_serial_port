@@ -46,8 +46,20 @@ model Machine {
   owner                 User                    @relation(fields: [ownerID], references: [userID])
   machinePalletDetail   MachinePalletDetail[]
   machineProductSummary MachineProductSummary[]
+  replenishment         Replenishment[]
   Transaction           Transaction[]
   attachments           Attachment[]            @relation("AttachmentToMachine")
+}
+
+model Replenishment {
+  replenishmentID Int      @id @unique @default(autoincrement())
+  machineID       Int
+  userID          Int
+  details         String   @db.VarChar(Max)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  machine         Machine  @relation(fields: [machineID], references: [machineID], onUpdate: NoAction)
+  user            User     @relation(fields: [userID], references: [userID], onUpdate: NoAction)
 }
 
 model MasterProduct {
@@ -84,13 +96,14 @@ model MachinePalletDetail {
   status                String
   description           String?
   productID             Int
-  inventory             Int
+  inventory             Decimal
   price                 Decimal
-  weight                Decimal
+  weightPerUnit         Decimal
   createdAt             DateTime      @default(now())
   updatedAt             DateTime      @updatedAt
   attachmentID          Int?
   palletDetailDisplayID String?       @unique @db.VarChar(21)
+  weightInPallet        Decimal?
   attachment            Attachment?   @relation(fields: [attachmentID], references: [attachmentID], onDelete: Cascade)
   machine               Machine       @relation(fields: [machineID], references: [machineID], onUpdate: NoAction)
   masterProduct         MasterProduct @relation(fields: [productID], references: [productID], onUpdate: NoAction)
@@ -126,22 +139,23 @@ model UserSession {
 }
 
 model User {
-  userID        Int          @id(map: "User_PK") @unique @default(autoincrement())
-  username      String       @unique @db.VarChar(255)
-  password      String       @db.VarChar(255)
-  name          String       @db.NVarChar(20)
-  nameEn        String       @db.VarChar(20)
+  userID        Int             @id(map: "User_PK") @unique @default(autoincrement())
+  username      String          @unique @db.VarChar(255)
+  password      String          @db.VarChar(255)
+  name          String          @db.NVarChar(20)
+  nameEn        String          @db.VarChar(20)
   authenticated Boolean
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
   userRoleID    Int
   userTypeID    Int
-  userDisplayID String?      @unique @db.VarChar(21)
+  userDisplayID String?         @unique @db.VarChar(21)
   machine       Machine[]
   profile       Profile?
-  userRole      UserRole     @relation(fields: [userRoleID], references: [userRoleID])
-  userType      UserType     @relation(fields: [userTypeID], references: [userTypeID])
+  userRole      UserRole        @relation(fields: [userRoleID], references: [userRoleID])
+  userType      UserType        @relation(fields: [userTypeID], references: [userTypeID])
   userSession   UserSession?
+  Replenishment Replenishment[]
 }
 
 model UserType {

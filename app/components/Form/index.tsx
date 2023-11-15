@@ -15,7 +15,7 @@ import MachineForm from "./machineForm";
 import { ChangeMachineInput, ChangeMachineSchema, CreateMachineInput, CreateMachineSchema } from "lib/validations/machine.schema";
 import MachineTypeForm from "./machineTypeForm";
 import PalletDetailForm from "./palletDetailForm";
-import { ChangePalletDetailInput, ChangePalletDetailSchema } from "lib/validations/pallet.schema";
+import { ChangePalletDetailInput, ChangePalletDetailSchema, CreatePalletDetailInput, CreatePalletDetailSchema } from "lib/validations/pallet.schema";
 
 
 function FormHandler(props) {
@@ -56,6 +56,10 @@ function FormHandler(props) {
                     body = fields as ChangeMachineInput;
                     data = ChangeMachineSchema.parse(body);
                     break;
+                case "createPalletDetail":
+                    body = fields as CreatePalletDetailInput;
+                    data = CreatePalletDetailSchema.parse(body)
+                    break
                 case "editPalletDetail":
                     body = fields as ChangePalletDetailInput;
                     data = ChangePalletDetailSchema.parse(body)

@@ -561,7 +561,7 @@ const ExpandableRowTable = (props) => {
         </Block>
       );
     },
-    page: 1,
+    page: 0,
     isRowSelectable: (dataIndex, selectedRows) => {
       // console.log("isRowSelectable", dataIndex, data[dataIndex], !userProfile.userID || (userProfile.userID && data[dataIndex][0] != userProfile.userID))
       return !userProfile.userID || (userProfile.userID && data[dataIndex][0] != userProfile.userID)
@@ -653,7 +653,7 @@ const ExpandableRowTable = (props) => {
     },
     fixedHeader: true,
 
-    page: 1,
+    page: 0,
     searchText: searchText,
     // ilter
     filter: false,

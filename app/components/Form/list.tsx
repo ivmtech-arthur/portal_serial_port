@@ -1,5 +1,5 @@
 import { PalletDetailListInput, PalletDetailListSchema } from "lib/validations/pallet.schema"
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import Block from 'components/Common/Element/Block'
 import { ZodError } from "zod"
 import general from 'data/general'
@@ -7,6 +7,8 @@ import get from 'lodash/get'
 import { useStore } from 'store/index'
 import BasicButton from "components/Button/BasicButton"
 import { useRouter } from "next/router"
+import { Add, FilterList, MoreVert, Search } from "@mui/icons-material"
+import { Box, ButtonGroup, Collapse } from "@mui/material"
 
 // function Test2(props) {
 //     const { Component2 } = props
@@ -15,30 +17,91 @@ import { useRouter } from "next/router"
 //     </>)
 // }
 
-function Test(props) {
-    const { Component, ...restProps } = props
-    console.log("test props", restProps)
+function MobileToolbar(props) {
+    const { setDrawerOpen, setDrawerAction, dataList, columns, handleClickAdd } = props
+    const router = useRouter();
+
+    const [open, setOpen] = useState(false)
+
+    // const handleDownload = useCallback(() => {
+    //     columns.filter((column) => { return !action.includes(column.name) })
+    //     var columnString = columns.filter((column) => { return !actions.includes(column.name) }).map((filteredCol) => { return filteredCol.name }).join(',') + '\n'
+    //     var dataString = dataList.map((data) => {
+    //         var tempResult = data.join(',')
+    //         tempResult += "\n"
+    //         return tempResult
+    //     }).join("")
+    //     const csvContent = `data:text/csv;charset=utf-8,${columnString}${dataString}`;
+    //     const encodedURI = encodeURI(csvContent);
+    //     window.open(encodedURI);
+    // }, [dataList])
+
+    const buttons = [
+        <BasicButton size="large" key="search" onClick={() => {
+            setDrawerOpen(true)
+            setDrawerAction("search")
+        }}><Search /></BasicButton>,
+
+
+        <BasicButton size="large" onClick={() => {
+            setDrawerOpen(true)
+            setDrawerAction("filter")
+        }} key="filter"><FilterList /></BasicButton>,
+        // <BasicButton size="large" key="download" onClick={handleDownload}><DownloadCloud /></BasicButton>,
+        <BasicButton key="add" onClick={() => {
+            if (handleClickAdd) {
+                handleClickAdd()
+            }
+        }}><Add /></BasicButton>,
+    ];
+
     return (
-        // <Test2
-        //     Component2={(props) => {
-        //         return <Component {...props} {...restProps} />
-        //     }}
-        // />
-        <>
-            {Component}
-        </>
-        // <Component {...restProps} />
+        <Box
+            sx={{
+                transformOrigin: '0 100% 0',
+                scale: '1.3',
+                zIndex: 9999,
+                right: 20,
+                bottom: 50,
+                position: 'fixed',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                '& > *': {
+                    marginX: 1,
+                },
+            }}
+        >
+            <Collapse in={open} >
+                <ButtonGroup
+
+                    orientation="vertical"
+                    aria-label="vertical contained button group"
+                    variant="contained"
+                >
+                    {buttons}
+                </ButtonGroup>
+            </Collapse>
+            <BasicButton
+                // size="large"
+                onClick={() => {
+                    setOpen(!open)
+                }}>
+                <MoreVert />
+            </BasicButton>
+        </Box>
     )
 }
 
 function ListFormHandler(props) {
     1
-    const { formType, formCount, ChildformList, ChildForm, Container, parentDataList, listFormType, handleSubmit, assignInvoke, assignSetDataList, invoke, parentClickSubmit, setParentClickSubmit, preserveState } = props
+    const { formType, formCount, ChildformList, ChildForm, Container, parentDataList, listFormType, handleSubmit, assignInvoke, assignSetDataList, invoke, parentClickSubmit, setParentClickSubmit, preserveState, parentHandleChildChange } = props
     const [validateResult, setValidateResult] = useState<boolean[]>([])
     const [parentInvoke, setParentInvoke] = useState(false)
     const router = useRouter();
     const [errorsFromParent, setErrorsFromParent] = useState(preserveState.errorsFromParent || [])
     const [dataList, setDataList] = useState<any[]>(parentDataList || [])
+    const [updateDetailList, setUpdateDetailList] = useState<any[]>([])
     const [submitChildCallbackList, setSubmitChildCallbackList] = useState([])
     const {
         state: {
@@ -52,12 +115,18 @@ function ListFormHandler(props) {
     useEffect(() => {
         if (assignInvoke)
             assignInvoke(setParentInvoke)
-        if (assignSetDataList) {
-            assignSetDataList(addData)
-        }
     }, [])
 
-    const addData = () => {
+    useEffect(() => {
+        parentDataList
+        // if (assignSetDataList) {
+        //     assignSetDataList(addData)
+        // }
+
+    }, [dataList])
+
+    const handleClickAdd = () => {
+        console.log("add item", dataList)
         dataList.push({})
         setDataList([...dataList])
     }
@@ -69,32 +138,20 @@ function ListFormHandler(props) {
     //     // }
 
     // }, [parentClickSubmit])
-    21
+
+
+    // useMemo(() => {
+
+    // }, [])
+
     // useEffect(() => {
-    //     console.log("parent Invoke", invoke)
-    //     setParentInvoke(invoke)
-    // }, [invoke])
-
-    useMemo(() => {
-
-    }, [])
-
-    useEffect(() => {
-        setDataList(parentDataList)
-    }, [parentDataList])
+    //     setDataList(parentDataList)
+    // }, [parentDataList])
 
     const handleChildChange = (index: number, data, isDelete = false) => {
-        console.log("handleChildChange", index, data, dataList, isDelete)
-        let tempDataList = dataList
-        if (isDelete) {
-            tempDataList.splice(index, 1)
-            // handleChildCallback(index, null, true)
-        }
-        else {
-            tempDataList[index] = data
-        }
+        if (parentHandleChildChange)
+            parentHandleChildChange(index, data, isDelete, dataList, setDataList, updateDetailList, setUpdateDetailList)
 
-        setDataList([...tempDataList])
     }
 
     const handleChildCallback = (func, index, isDelete = false) => {
@@ -108,23 +165,26 @@ function ListFormHandler(props) {
     }
 
     useEffect(() => {
-        console.log("useEffect,validate submit 2", validateResult, dataList)
+        console.log("useEffect,validate submit 2", validateResult, dataList, listFormType)
         if (validateResult.length != 0) {
             if (validateResult.length == dataList.length && validateResult.every((result) => result)) {
                 setValidateResult([])
                 setErrorsFromParent([])
                 try {
+                    console.log("useEffect,validate submit4")
                     switch (listFormType) {
                         case "PallDetailList":
+                            console.log("useEffect,validate submit5")
                             let body = dataList as PalletDetailListInput
                             let data = PalletDetailListSchema.parse(body)
-                            console.log("handleSubmit", data, body, dataList)
+                            console.log("useEffect,validate submit 3", data, body, dataList)
                             if (handleSubmit)
-                                handleSubmit(dataList)
+                                handleSubmit(dataList, updateDetailList)
                             break;
                     }
 
                 } catch (e) {
+                    console.log("error will be", dataList, e)
                     if (e instanceof ZodError) {
                         console.log("error handleOnSubmit useEffect", dataList, e, e.name, e.message, e.cause, e.issues)
                         const errorsList = e.errors.reduce((result, error, index) => {
@@ -218,7 +278,9 @@ function ListFormHandler(props) {
                     router.back()
                 }}>{generalString.back}</BasicButton>
             </Block>
-
+            <Block className="md:hidden">
+                <MobileToolbar handleClickAdd={handleClickAdd} />
+            </Block>
         </>
     )
 }

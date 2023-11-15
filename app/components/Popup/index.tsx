@@ -4,6 +4,10 @@ import Block from 'components/Common/Element/Block'
 import { useStore } from 'store'
 import { useRouter } from 'next/router'
 import ConfirmProceed from './confirmProceed'
+import ConfirmStartReplenishment from './confirmStartReplenishment'
+import ConfirmEndReplenishment from './confirmEndReplenishment'
+import Replenishing from './replenishing'
+import { useEffect } from 'react'
 const Popup = (props) => {
   const {
     type,
@@ -42,10 +46,39 @@ const Popup = (props) => {
     }
   }
 
+  useEffect(() => {
+    const exitingFunction = async () => {
+      console.log("leaving Page...");
+      closePopup()
+    };
+
+    router.events.on("routeChangeStart", exitingFunction);
+
+    return () => {
+      console.log("unmounting component...");
+      router.events.off("routeChangeStart", exitingFunction);
+    };
+  }, [])
+
   switch (popupType) {
     case 'confirmProceed':
       popupComponent = (
         <ConfirmProceed isOpen={true} closePopup={closePopup} {...propsToPopup} />
+      )
+      break;
+    case 'confirmEndReplenishment':
+      popupComponent = (
+        <ConfirmEndReplenishment isOpen={true} closePopup={closePopup} {...propsToPopup} />
+      )
+      break;
+    case 'confirmStartReplenishment':
+      popupComponent = (
+        <ConfirmStartReplenishment isOpen={true} closePopup={closePopup} {...propsToPopup} />
+      )
+      break;
+    case 'replenishment':
+      popupComponent = (
+        <Replenishing isOpen={true} closePopup={closePopup} {...propsToPopup} />
       )
       break;
     case 'logout':
@@ -84,7 +117,7 @@ const Popup = (props) => {
         >
           <Block >
             {/* <Block position='absolute' top='50%' left='50%' transform="-50%, -50%" > */}
-              {popupComponent}
+            {popupComponent}
             {/* </Block> */}
           </Block>
 

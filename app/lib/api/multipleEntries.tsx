@@ -22,13 +22,14 @@ async function GET(req: CustomRequest, collectionName?: string) {
         }
         console.log("req.query", req.query, Object.entries(req.query), new URLSearchParams(filters), typeof collection)
         if (typeof collection === 'string') {
-            const { where, include, select } = handleClause(collection, id, queryParams);
-            console.log("whereClause", where, include,select)
+            const { where, include, select, orderBy } = handleClause(collection, id, queryParams);
+            console.log("whereClause", where, include, select)
             const result = await schemaMap[collection].findMany({
 
                 ...(where ? { where: where } : {}),
                 ...(select ? { select: select } : {}),
                 ...(include ? { include: include } : {}),
+                ...(orderBy && { orderBy }),
             })
             console.log("result test", result)
             // type ThenArg<T> = T extends PromiseLike<infer U> ? U : T
@@ -72,9 +73,9 @@ async function PUT(req: CustomRequest): Promise<Prisma.BatchPayload> {
     try {
         if (typeof collection === 'string') {
             const { where } = handleClause(collection, null, bodyParams);
-            const result = await schemaMap[collection].updateMany({
+            const result = await prisma.machinePalletDetail.updateMany({
                 where: where,
-                data
+                data: [{}]
             })
             // CustomNextApiResponse(res, result, 200);
             return result;

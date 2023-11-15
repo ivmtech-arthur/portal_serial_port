@@ -105,6 +105,7 @@ export const CreateProductSchema = z
 
 export const ChangeProductSchema = z
     .object({
+        productID: z.number().optional().nullable(),
         productName: props.productName,
         productNameEn: props.productNameEn,
         desc: props.desc,

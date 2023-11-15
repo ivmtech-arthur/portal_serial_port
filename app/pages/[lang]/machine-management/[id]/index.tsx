@@ -46,7 +46,7 @@ const MachineDetail = (props) => {
             </StyledH1>
 
             <Block boxShadow='0px 10px 30px rgba(0, 0, 0, 0.1)' bg='white' borderRadius='32px' mb='30px'>
-                <FormHandler formType="MachineForm" mode="edit" machineData={machineData} clientUserData={clientUserData} machineTypeData={machineTypeData}/>
+                <FormHandler formType="MachineForm" mode="edit" machineData={machineData} clientUserData={clientUserData} machineTypeData={machineTypeData} />
             </Block>
 
             <Block>
@@ -72,6 +72,10 @@ export async function getServerSideProps(ctx: CustomCtx) {
             where: {
                 machineDisplayID: id
             },
+            include: {
+                machineType: true,
+                owner: true
+            },
             isUnique: true
         },
         method: ctx.req.method,
@@ -82,7 +86,7 @@ export async function getServerSideProps(ctx: CustomCtx) {
             collection: "user",
             where: {
                 userRoleID: 3
-            }
+            },
         },
         method: "GET"
     }

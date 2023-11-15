@@ -41,10 +41,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         for (const key in stringObj) {
             body[key] = parse(stringObj[key])
         }
-        const { query, removeFileList }: { query: Prisma.MachineUpdateArgs, removeFileList: any[] } = body
+        const { query, removeFileList, newFilePalletIDs, changeFilePalletIDs }: { query: Prisma.MachineUpdateArgs, removeFileList: any[], newFilePalletIDs: number[], changeFilePalletIDs: number[] }
+            = body
         const { machinePalletDetail, ...restInclude } = query.include
         const { include } = machinePalletDetail as Prisma.Machine$machinePalletDetailArgs<DefaultArgs>
-        console.log("register machine service", query.data.machinePalletDetail, include, newFiles, changeFiles, removeFileList);
+        console.log("changePallet machine service", query.data.machinePalletDetail, include, newFiles, changeFiles, removeFileList);
         const machine = await prisma.machine.update({
             where: query.where,
             include: {
@@ -57,16 +58,40 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         })
 
         let count = 0
-        for (const file of newFiles) {
-            let field = {
-                id: machine.machinePalletDetail[count].attachment.attachmentDisplayID,
-                type: machine.machinePalletDetail[count].attachment.type,
-                collection: machine.machinePalletDetail[count].attachment.tableName,
+        if (newFiles?.length > 0) {
+            for (const file of newFiles) {
+                //notes: they need to appedn together so that they called here
+                let outstanding = machine.machinePalletDetail.find((detail) => { return detail.palletID == newFilePalletIDs[count] }).attachment
+                if (outstanding) {
+                    let field = {
+                        id: outstanding.attachmentDisplayID,
+                        type: outstanding.type,
+                        collection: outstanding.tableName,
+                    }
+                    await addFileToS3(file, field)
+                }
+
+                count += 1
             }
-            await addFileToS3(file, field)
-            count += 1
         }
 
+        if (changeFiles?.length > 0) {
+            for (const file of changeFiles) {
+                //notes: they need to appedn together so that they called here
+                console.log("changeFile log", machine.machinePalletDetail, changeFilePalletIDs)
+                let outstanding = machine.machinePalletDetail.find((detail) => { return detail.palletID == changeFilePalletIDs[count] }).attachment
+                if (outstanding) {
+                    let field = {
+                        id: outstanding.attachmentDisplayID,
+                        type: outstanding.type,
+                        collection: outstanding.tableName,
+                    }
+                    await addFileToS3(file, field)
+                }
+
+                count += 1
+            }
+        }
 
         if (removeFileList.length > 0) {
             const keyList: ObjectIdentifier[] = removeFileList.map((removeFile) => {
@@ -74,14 +99,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     Key: `${globalS3Client.schema}/${removeFile.type}/${removeFile.collection}/${removeFile.id}/${removeFile.name}`
                 }
             })
-            removeFileFromS3(keyList)
+            await removeFileFromS3(keyList)
             // for (const removeFile in removeFileList) {
 
             // }
         }
 
         CustomNextApiResponse(res, { machine }, 200)
-        // CustomNextApiResponse(res, { test: "ok" }, 200)
+        // CustomNextApiResponse(res, { test: "ok" }, 400)
 
         res.end();
     } catch (error: any) {
