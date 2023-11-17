@@ -19,9 +19,7 @@ import { machineContent } from 'data/machine'
 import { ExtendFile, handleDeleteS3 } from 'lib/helper'
 import Image from 'next/image'
 import StyledSearchField from 'components/TextField/styledSearchField'
-import { signServerToken } from 'lib/jwt'
-import machineType from 'pages/[lang]/machine-management/machine-Type'
-import { serialize, stringify } from 'superjson'
+import { stringify } from 'superjson'
 
 
 
@@ -109,6 +107,9 @@ const getFieldList = (fieldConfig, handleChangeFormData, errors, placeholderMap,
                             onChange={(e) => { handleChangeFormData(key, e.target.value) }}
                             placeholder={placeholderMap[`${key}Placeholder`]}
                             handleValidation={handleValidation}
+                            {...(mode == "edit" ? {
+                                value: data[key]
+                            } : {})}
                             error={errors[key]}
                             id={key}
                             name={key}
@@ -198,7 +199,6 @@ const getFieldList = (fieldConfig, handleChangeFormData, errors, placeholderMap,
                             handleValidation={handleValidation}
                             onChange={(e) => {
                                 handleChangeFormData(key, parseInt(e.target.value))
-                                console.log("onChange2", parseInt(e.target.value))
                             }}
                         />
                     </Grid>
@@ -320,7 +320,7 @@ const MachineForm = (props) => {
     }, [])
 
     const handleChangeFormData = (field, value, deleteArrayIndex) => {
-        console.log("handleChangeFormData", field, value, deleteArrayIndex)
+        // console.log("handleChangeFormData", field, value, deleteArrayIndex)
         let tempFormData = formData
         switch (field) {
             case "attachments":
@@ -330,7 +330,7 @@ const MachineForm = (props) => {
                     tempArr.splice(deleteArrayIndex, 1)
                     tempFormData[field].push(null)
                     // tempFormData[field] = [...tempArr]
-                    console.log("handleChangeFormData2", field, value, deleteArrayIndex, tempFormData[field])
+                    // console.log("handleChangeFormData2", field, value, deleteArrayIndex, tempFormData[field])
                 } else {
                     if (tempFormData[field]) {
                         tempFormData[field].push(value)
@@ -414,7 +414,6 @@ const MachineForm = (props) => {
 
                 ...updateFields
             }
-            // { data, select, files: formData }
             const result = await axios.put(`/api/prisma/machine/${machineData.machineID}`, { data }, {
                 headers: {
                     Authorization: `Bearer ${accessToken}`,
@@ -482,14 +481,8 @@ const MachineForm = (props) => {
             let result = await axios.post(`/api/machine/register`, formData, {
                 headers: {
                     Authorization: `Bearer ${accessToken}`,
-                    // 'Content-Type': 'multipart/form-data',
                 },
             }).then(async ({ data }) => {
-                // const { result } = data
-                // let attachmentRecord = result.attachment
-                // if (result.attachment) {
-                //     await handleUpdateS3(attachment, attachmentRecord, token)
-                // }
                 handleSetHandleBarProps(true, () => { router.push(`/${lang}/machine-management`) }, machineString.editmachineSnackBar, "success")
                 return result
             }).catch((err) => {
@@ -506,7 +499,7 @@ const MachineForm = (props) => {
     }, [])
 
     const fieldList = getFieldList(fieldConfig, handleChangeFormData, errors, machineString, handleValidation, mode == "edit" ? fields : initFields, machineData, mode, cloudFrontURL, schema)
-    console.log("machine form props", props, accessToken)
+    // console.log("machine form props", props, accessToken)
 
     return (
         <Block

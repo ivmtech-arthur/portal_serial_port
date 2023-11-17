@@ -79,7 +79,7 @@ const AccountList = (props) => {
                 {pageName}
             </StyledH1>
 
-            <Block boxShadow='0px 10px 30px rgba(0, 0, 0, 0.1)' borderRadius='32px' mb='30px'>
+        <Block boxShadow='0px 10px 30px rgba(0, 0, 0, 0.1)' borderRadius='32px' mb='30px'>
                 <ExpandableRowTable
                     dataObjList={mapDataByCol(data, columnMap, role, false)}
                     mobileDataObjList={mapDataByCol(data, columnMap, role, true)}
@@ -87,7 +87,7 @@ const AccountList = (props) => {
                     title={pageName}
                     popupTitle={userString.deleteFromPopupTitle}
                     message={userString.deleteUserPopupMessage}
-                    handleDelete={(data) => {
+                    proceedFunc={(data) => {
                         handleDelete(data)
                     }}
                     handleClickAdd={() => { 

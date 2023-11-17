@@ -8,6 +8,8 @@ import ConfirmStartReplenishment from './confirmStartReplenishment'
 import ConfirmEndReplenishment from './confirmEndReplenishment'
 import Replenishing from './replenishing'
 import { useEffect } from 'react'
+import ConfirmPeeling from './confirmPeeling'
+import ConfirmCalibration from './confirmCalibration'
 const Popup = (props) => {
   const {
     type,
@@ -81,11 +83,22 @@ const Popup = (props) => {
         <Replenishing isOpen={true} closePopup={closePopup} {...propsToPopup} />
       )
       break;
+    case "peeling":
+      popupComponent = (
+        <ConfirmPeeling isOpen={true} closePopup={closePopup} {...propsToPopup} />
+      )
+      break;
+    case "calibration":
+      popupComponent = (
+        <ConfirmCalibration isOpen={true} closePopup={closePopup} {...propsToPopup} />
+      )
+      break;
     case 'logout':
       popupComponent = (
         <Logout isOpen={true} closePopup={closePopup} {...propsToPopup} />
       )
       break;
+  
     // case 'messageDeleteproduct':
     // popupComponent = (
     //   <MessageDeleteproduct isOpen={true} closePopup={closePopup} {...propsToPopup} />

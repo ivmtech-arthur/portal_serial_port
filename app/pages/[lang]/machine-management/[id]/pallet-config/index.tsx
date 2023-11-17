@@ -25,7 +25,8 @@ import { palletContent } from 'data/pallet'
 import { deserializeListInit } from 'lib/superjson'
 import { ZodError } from 'zod'
 import ListFormHandler from 'components/Form/list'
-import axios from 'axios'
+// import axios from 'axios'
+import { default as axios } from 'lib/axios'
 import BasicSnackBar, { SnackBarProps } from 'components/snackbar'
 // import { prisma } from '../../../lib/prisma'
 
@@ -114,7 +115,7 @@ const PalletConfig = (props) => {
         let tempDataList = dataList
         if (isDelete) {
             console.log("delete item", dataList)
-            tempDataList.splice(index, 1)
+            var deleteItem = tempDataList.splice(index, 1)
             // handleChildCallback(index, null, true)
         }
         else {
@@ -225,7 +226,7 @@ const PalletConfig = (props) => {
     //     )
     // })
 
-    const handleSetHandleBarProps = useCallback((open: boolean, handleClose: () => void, message: String, severity: AlertColor) => {
+    const handleSetHandleBarProps = useCallback((open: boolean, handleClose?: () => void, message?: String, severity?: AlertColor) => {
         setSnackbarProps({
             open: open,
             handleClose: handleClose,
@@ -369,6 +370,7 @@ const PalletConfig = (props) => {
                 }
             }
         }
+        
         const removeFileList = palletDetailListdata.filter((item) =>
             updateDetailList.find((updateDetail) => updateDetail.palletID == item.palletID)?.file
         ).map((item, index) => {
@@ -406,8 +408,12 @@ const PalletConfig = (props) => {
             return result
         }).catch((err) => {
             console.log(err)
-            handleSetHandleBarProps(true, () => { }, `${err}`, "error")
+            handleSetHandleBarProps(true, () => { handleSetHandleBarProps(false) }, `${err}`, "error")
         })
+    }
+
+    const handleDelete = (deleteItem) => { 
+
     }
     // setValidateResult([])
 

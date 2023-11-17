@@ -82,24 +82,33 @@ export function hexToRgbA(hex: string, opacity = 1) {
   throw new Error('Bad Hex');
 }
 
-export function mapDataByCol(data: any[], columnMap: any[], userRole: string, isMobile: boolean) {
+export function mapDataByCol(data: any[], columnMap: any[], userRole: string, isMobile: boolean, haveDelete = true, haveEdit = true) {
   console.log("columnMap", columnMap)
   const action = ["edit", "delete", "more", "view"]
   return data.map((entries, index) => {
     return {
       data: [
-        ...(columnMap.filter((mapItem) => { return !action.includes(mapItem.name) }).map((mapItem, index) => {
+        ...(columnMap.filter((mapItem) => { return !action.includes(mapItem.name) }).map((mapItem, index2) => {
+          console.log("mapItem", entries, index2)
+          if (mapItem.objPath) {
+            return get(entries, mapItem.objPath)
+          } else if (mapItem.yieldFunction) {
+            const reuslt = mapItem.yieldFunction(entries, index)
+            console.log("reuslt", reuslt)
+            return reuslt
+          }
 
-          return get(entries, mapItem.objPath)
         }))
       ],
       ...(!isMobile ? {
-        edit: userRole == "SuperAdmin" || userRole == "Admin",
-        delete: userRole == "SuperAdmin",
+        edit: haveDelete && (userRole == "SuperAdmin" || userRole == "Admin"),
+        delete: haveDelete && userRole == "SuperAdmin",
         view: userRole == "Client"
       } : {}),
       ...(isMobile ? {
         more: userRole == "SuperAdmin" || userRole == "Admin",
+        edit: haveDelete && (userRole == "SuperAdmin" || userRole == "Admin"),
+        delete: haveDelete && userRole == "SuperAdmin",
         test: true,
       } : {})
     }

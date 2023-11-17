@@ -37,6 +37,11 @@ export const machineContent = {
                 name: "Pallet Setting",
                 url: '/pallet-config',
                 icon: "",
+            },
+            peeling: {
+                name: "Peeling ",
+                url: '/peeling',
+                icon: "",
             }
         },
         salesManagement: {
@@ -82,6 +87,11 @@ export const machineContent = {
             palletSetting: {
                 name: "Pallet Setting tc",
                 url: '/pallet-config',
+                icon: "",
+            },
+            peeling: {
+                name: "Peeling tc",
+                url: '/peeling',
                 icon: "",
             }
         },

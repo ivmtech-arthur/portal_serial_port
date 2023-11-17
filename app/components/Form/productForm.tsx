@@ -19,6 +19,7 @@ import UploadButton from 'components/Button/UploadButton'
 import { productContent } from 'data/product'
 import { handleDeleteS3 } from 'lib/helper'
 import Image from 'next/image'
+import StyledSearchField from 'components/TextField/styledSearchField'
 
 
 
@@ -26,6 +27,7 @@ import Image from 'next/image'
 const getFieldList = (fieldConfig, handleChangeFormData, errors, placeholderMap, handleValidation, fields, data, mode, cloudURL, schema) => {
     var result = []
     for (const key in fieldConfig) {
+        var options = []
         switch (fieldConfig[key].type) {
             case "textField":
                 result.push(
@@ -80,7 +82,7 @@ const getFieldList = (fieldConfig, handleChangeFormData, errors, placeholderMap,
                             {...(mode != "add" ? {
                                 value: data[key]
                             } : {
-                                value: 0
+                                value: fields[key]
                             })}
                             placeholder={placeholderMap[`${key}Placeholder`]}
                             handleValidation={handleValidation}
@@ -105,6 +107,9 @@ const getFieldList = (fieldConfig, handleChangeFormData, errors, placeholderMap,
                             onChange={(e) => { handleChangeFormData(key, e.target.value) }}
                             placeholder={placeholderMap[`${key}Placeholder`]}
                             handleValidation={handleValidation}
+                            {...(mode == "edit" ? {
+                                value: data[key]
+                            } : {})}
                             error={errors[key]}
                             id={key}
                             name={key}
@@ -114,7 +119,7 @@ const getFieldList = (fieldConfig, handleChangeFormData, errors, placeholderMap,
                 )
                 break;
             case "select":
-                const options = fieldConfig[key].options
+                options = fieldConfig[key].options
                 result.push(
                     <Grid item xs={12} md={6}>
                         <InputLabel className="h5" shrink htmlFor="bootstrap-input">
@@ -151,9 +156,11 @@ const getFieldList = (fieldConfig, handleChangeFormData, errors, placeholderMap,
                             error={errors[key]}
                             color="primary"
                             variant="contained"
+                            multiple={fieldConfig[key].multiple}
+                            usageMap={fieldConfig[key].usageMap}
                             handleValidation={handleValidation}
-                            onChange={(file: Blob) => {
-                                handleChangeFormData(key, file)
+                            onChange={(file: Blob, deleteIndex) => {
+                                handleChangeFormData(key, file, deleteIndex)
                             }}>
                             {placeholderMap[`${key}Placeholder`]}
                         </UploadButton>
@@ -175,6 +182,27 @@ const getFieldList = (fieldConfig, handleChangeFormData, errors, placeholderMap,
                         </Grid>
                     )
                 }
+                break;
+            case "textSearch":
+                options = fieldConfig[key].options
+                result.push(
+                    <Grid item xs={12} md={6}>
+                        <InputLabel className="h5" shrink htmlFor="bootstrap-input">
+                            {placeholderMap[`${key}Placeholder`]}
+                        </InputLabel>
+                        <StyledSearchField
+                            id={key}
+                            name={key}
+                            error={errors[key]}
+                            value={options.find(option => option.value === fields[key])}
+                            options={options}
+                            handleValidation={handleValidation}
+                            onChange={(e) => {
+                                handleChangeFormData(key, parseInt(e.target.value))
+                            }}
+                        />
+                    </Grid>
+                )
 
         }
     }

@@ -23,7 +23,7 @@ const withLogin = (
     const user = await getUser(token)
     const role = cookies.get('role')
     const permissions = getPermission(role)
-    console.log("ctx type", user, token)
+    // console.log("ctx type", user, token)
     if (user) {
       const tempConstant = await getSystemContant(token)
       const { cloudFrontURL, schema } = tempConstant

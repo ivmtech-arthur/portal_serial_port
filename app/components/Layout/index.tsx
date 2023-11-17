@@ -25,6 +25,7 @@ const {
 
 import { muiTheme } from 'styles/mui'
 import axios from 'axios'
+import { AxiosInterceptor } from 'lib/axios'
 
 const refreshToken = async () => {
   return axios.post('/api/auth/refreshToken')
@@ -152,8 +153,9 @@ function Layout(props) {
   return (
     <>
       <ThemeProvider theme={muiTheme}>
-        <DesktopLayout>
-          {/* {!blankLayout && (
+        <AxiosInterceptor>
+          <DesktopLayout>
+            {/* {!blankLayout && (
           <Header
             hideLang={hideLang}
             hideLogo={hideLogo}
@@ -163,13 +165,13 @@ function Layout(props) {
           />
         )} */}
 
-          {/* {verticalMenu} */}
+            {/* {verticalMenu} */}
 
-          {children}
+            {children}
 
 
 
-          {/* {!hideFooter && !blankLayout && (
+            {/* {!hideFooter && !blankLayout && (
           <Footer
             hideEmojiFooter={hideEmojiFooter}
             hideGenericFooter={hideGenericFooter}
@@ -177,7 +179,9 @@ function Layout(props) {
         )} */}
 
 
-        </DesktopLayout>
+          </DesktopLayout>
+        </AxiosInterceptor>
+
         {loading && <Loading />}
       </ThemeProvider>
     </>

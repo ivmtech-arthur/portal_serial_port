@@ -13,6 +13,7 @@ import { deserialize } from 'superjson'
 import get from 'lodash/get'
 import { machineContent } from 'data/machine'
 import BasicButton from 'components/Button/BasicButton'
+import { default as axios } from 'lib/axios'
 const { publicRuntimeConfig } = getConfig()
 const { API_URL, APP_URL } = publicRuntimeConfig
 
@@ -24,7 +25,7 @@ const MachineDetail = (props) => {
     const {
         state: {
             site: { lang, pageName },
-            user: { userProfile }
+            user: { userProfile, accessToken }
         },
         dispatch,
     } = useStore()
@@ -33,8 +34,28 @@ const MachineDetail = (props) => {
     const machineString = get(machineContent, lang)
     const palletConfigBtnList = Object.keys(machineString.palletConfiguration).map((key) => {
         const item = machineString.palletConfiguration[key]
-        return <BasicButton onClick={() => {
-            router.push(`${router.asPath}/${item.url}`)
+        return <BasicButton onClick={async () => {
+            if (item.url) {
+                router.push(`${router.asPath}/${item.url}`)
+            }
+            // else {
+            //     switch (key) {
+            //         case "peeling":
+            //             await axios.post(`/api/socketio/${machineData.machineDisplayID}/getWeights`, {
+            //                 payload: {
+            //                     foo: "bar"
+            //                 },
+            //                 emitOnly: true,
+            //             }, {
+            //                 headers: {
+            //                     Authorization: `Bearer ${accessToken}`,
+            //                 },
+            //             })
+            //             dispatch()
+            //             break;
+
+            //     }
+            // }
         }}>{item.name}</BasicButton>
     })
 

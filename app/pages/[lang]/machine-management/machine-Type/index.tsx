@@ -88,7 +88,7 @@ const MachineTypeList = (props) => {
                     popupTitle={machineString.deleteFromPopupTitle}
                     title={pageName}
                     message={machineString.deletemachineTypePopupMessage}
-                    handleDelete={(data) => {
+                    proceedFunc={(data) => {
                         handleDelete(data)
                     }}
                     handleClickAdd={() => {

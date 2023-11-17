@@ -55,15 +55,18 @@ function ReplenishmentPage(props) {
 
         const exitingFunction = async () => {
             console.log("leaving Page...");
-            await axios.post(`/api/socketio/${machineData.machineDisplayID}/end-replenishment`, {
-                payload: {
-                    foo: "bar"
-                }
-            }, {
-                headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                },
-            })
+            if (replenishmentStage == 1) {
+                await axios.post(`/api/socketio/${machineData.machineDisplayID}/end-replenishment`, {
+                    payload: {
+                        foo: "bar"
+                    }
+                }, {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                })
+            }
+
         };
 
         router.events.on("routeChangeStart", exitingFunction);
@@ -136,7 +139,8 @@ function ReplenishmentPage(props) {
         await axios.post(`/api/socketio/${machineData.machineDisplayID}/replenishment`, {
             payload: {
                 foo: "bar"
-            }
+            },
+            emitOnly: true,
         }, {
             headers: {
                 Authorization: `Bearer ${accessToken}`,

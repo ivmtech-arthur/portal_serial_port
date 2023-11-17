@@ -77,7 +77,7 @@ function MobileToolbar(props) {
       var tempResult = data.join(',')
       tempResult += "\n"
       return tempResult
-    }).join("") 
+    }).join("")
     const csvContent = `data:text/csv;charset=utf-8,${columnString}${dataString}`;
     const encodedURI = encodeURI(csvContent);
     window.open(encodedURI);
@@ -324,8 +324,15 @@ const CustomDeleteButton = (props) => {
 }
 
 const CustomMoreButton = (props) => {
-  const { handleClickDelete, handleClickEdit, data } = props
+  const { handleClickDelete, handleClickEdit, data, customButtonList, isEdit, isDelete, setPopupData } = props
   const [showMore, setShowMore] = useState(false)
+  const customButtons = customButtonList ? customButtonList.map((item, index) => {
+    const Button = item.Button;
+    return (<Button onClick={() => {
+      setPopupData(data)
+      item.onClick()
+    }} />)
+  }) : []
   return (
 
     <Block
@@ -360,8 +367,9 @@ const CustomMoreButton = (props) => {
           <ButtonGroup
             variant="contained"
           >
-            <CustomDeleteButton data={data} handleClickDelete={(data) => { handleClickDelete(data) }} />
-            <CustomEditButton data={data} handleClickEdit={(data) => { handleClickEdit(data[0], data[1]) }} />
+            {isDelete && <CustomDeleteButton data={data} handleClickDelete={(data) => { handleClickDelete(data) }} />}
+            {isEdit && <CustomEditButton data={data} handleClickEdit={(data) => { handleClickEdit(data[0], data[1]) }} />}
+            {customButtons}
           </ButtonGroup>
         </Collapse>
         <BasicButton
@@ -382,7 +390,7 @@ const CustomMoreButton = (props) => {
 
 
 const ExpandableRowTable = (props) => {
-  const { columnsFromParent, dataObjList, mobileDataObjList, message, popupTitle, handleDelete,handleClickAdd, title } = props
+  const { columnsFromParent, dataObjList, mobileDataObjList, message, popupTitle, proceedFunc, handleClickAdd, title, customButtonList } = props
   var columns = []
   columns = JSON.parse(JSON.stringify((columnsFromParent)))
   const [drawerOpen, setDrawerOpen] = useState(false)
@@ -451,6 +459,13 @@ const ExpandableRowTable = (props) => {
 
 
     }
+
+    if (customButtonList) {
+      columns.push({ name: customButtonList.name })
+      result.push(customButtonList.button)
+    }
+
+
     return result
   })
 
@@ -524,9 +539,9 @@ const ExpandableRowTable = (props) => {
       }
       //hardcode
       // result.pop()
-      result.push(<CustomMoreButton data={result} handleClickEdit={handleClickEdit} handleClickDelete={handleClickDelete} />)
+      result.push(<CustomMoreButton isDelete={dataObj.delete} isEdit={dataObj.edit} data={result} handleClickEdit={handleClickEdit} handleClickDelete={handleClickDelete} customButtonList={customButtonList} setPopupData={setPopupData} />)
     } else {
-      result.push(<>xd</>)
+      result.push(<></>)
     }
 
     return result
@@ -781,7 +796,7 @@ const ExpandableRowTable = (props) => {
         </Drawer>
       </Block>
 
-      <Popup type="local" propsToPopup={{ proceedFunc: (data) => { handleDelete(data) }, title: popupTitle, message: message, popupData: popupData, mode: "delete" }} />
+      <Popup type="local" propsToPopup={{ proceedFunc: (data) => { proceedFunc(data) }, title: popupTitle, message: message, popupData: popupData, mode: "delete" }} />
     </ThemeProvider>
 
   );

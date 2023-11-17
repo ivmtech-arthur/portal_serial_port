@@ -42,13 +42,14 @@ model Machine {
   isActive              Boolean                 @default(false)
   socketID              String?                 @db.VarChar(30)
   machineDisplayID      String?                 @unique @db.VarChar(21)
-  machineType           MachineType             @relation(fields: [machineTypeID], references: [machineTypeID])
-  owner                 User                    @relation(fields: [ownerID], references: [userID])
+  machineType           MachineType             @relation(fields: [machineTypeID], references: [machineTypeID], onDelete: NoAction)
+  owner                 User                    @relation(fields: [ownerID], references: [userID], onDelete: NoAction)
   machinePalletDetail   MachinePalletDetail[]
   machineProductSummary MachineProductSummary[]
   replenishment         Replenishment[]
   Transaction           Transaction[]
   attachments           Attachment[]            @relation("AttachmentToMachine")
+  OperationHistory      OperationHistory[]
 }
 
 model Replenishment {
@@ -139,23 +140,24 @@ model UserSession {
 }
 
 model User {
-  userID        Int             @id(map: "User_PK") @unique @default(autoincrement())
-  username      String          @unique @db.VarChar(255)
-  password      String          @db.VarChar(255)
-  name          String          @db.NVarChar(20)
-  nameEn        String          @db.VarChar(20)
-  authenticated Boolean
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
-  userRoleID    Int
-  userTypeID    Int
-  userDisplayID String?         @unique @db.VarChar(21)
-  machine       Machine[]
-  profile       Profile?
-  userRole      UserRole        @relation(fields: [userRoleID], references: [userRoleID])
-  userType      UserType        @relation(fields: [userTypeID], references: [userTypeID])
-  userSession   UserSession?
-  Replenishment Replenishment[]
+  userID           Int                @id(map: "User_PK") @unique @default(autoincrement())
+  username         String             @unique @db.VarChar(255)
+  password         String             @db.VarChar(255)
+  name             String             @db.NVarChar(20)
+  nameEn           String             @db.VarChar(20)
+  authenticated    Boolean
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  userRoleID       Int
+  userTypeID       Int
+  userDisplayID    String?            @unique @db.VarChar(21)
+  machine          Machine[]
+  profile          Profile?
+  userRole         UserRole           @relation(fields: [userRoleID], references: [userRoleID])
+  userType         UserType           @relation(fields: [userTypeID], references: [userTypeID])
+  userSession      UserSession?
+  Replenishment    Replenishment[]
+  OperationHistory OperationHistory[]
 }
 
 model UserType {
@@ -188,6 +190,18 @@ model Attachment {
   MachinePalletDetail MachinePalletDetail[]
   MasterProduct       MasterProduct[]
   Machine             Machine[]             @relation("AttachmentToMachine")
+}
+
+model OperationHistory {
+  historyID Int      @id @unique @default(autoincrement())
+  action    String   @db.VarChar(20)
+  userID    Int
+  duration  Int
+  machineID Int
+  user      User     @relation(fields: [userID], references: [userID])
+  machine   Machine? @relation(fields: [machineID], references: [machineID], onUpdate: NoAction)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model AutoIncrement {

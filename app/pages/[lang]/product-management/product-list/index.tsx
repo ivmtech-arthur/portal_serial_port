@@ -89,7 +89,7 @@ const ProductList = (props) => {
                     popupTitle={productString.deleteFromPopupTitle}
                     title={pageName}
                     message={productString.deleteProductPopupMessage}
-                    handleDelete={(data) => {
+                    proceedFunc={(data) => {
                         handleDelete(data)
                     }}
                     handleClickAdd={() => {

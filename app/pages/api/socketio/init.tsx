@@ -131,7 +131,7 @@ const SocketHandler = (req, res) => {
 
     io.listen(3001);
 
-    io.on('connection', socket => {
+    io.on('connection', async socket => {
       const clientId = socket.id;
       console.log('A client connected', socket.handshake?.query, socket.handshake?.query?.token, clientId);
       const token = socket.handshake?.query?.token as string
@@ -142,7 +142,7 @@ const SocketHandler = (req, res) => {
 
         try {
           if (!socket.handshake.query.client && token) {
-            const result = prisma.machine.update({
+            const result = await prisma.machine.update({
               where: {
                 serverToken: token
               },
@@ -159,7 +159,7 @@ const SocketHandler = (req, res) => {
           }
 
         } catch (e) {
-          console.log("e is",e)
+          console.log("e is", e)
           socket.disconnect()
         }
 
@@ -169,28 +169,26 @@ const SocketHandler = (req, res) => {
         //   socket.broadcast.emit('update-input', msg)
         // })
 
-        socket.on('action', data => {
-          socket
-          console.log("from client", data);
-          // res.end()
-        })
+        socket.emit('authenticated');
 
-        socketIOActionMap.forEach((actionItem) => {
+        for (const key in socketIOActionMap) {
+          let actionItem = socketIOActionMap[key]
           socket.on(actionItem.clientAction, async (data: SocketResponse) => {
             try {
+              console.log("socket event received:", actionItem.clientAction, data)
               const machineID = await validateIOAccess(data.token, clientId)
               if (machineID) {
-                console.log("socket event received:", actionItem.clientAction)
-                actionItem.onReceivedCallBack(data, machineID, socket);
+
+                actionItem.onReceivedCallBack(data, machineID, socket, clientId);
               }
             } catch (e) {
               console.log("socket event:", e)
             }
           })
-        })
+        }
 
         socket.on("disconnect", () => {
-          if (!socket.handshake.query.client && token) { 
+          if (!socket.handshake.query.client && token) {
             prisma.machine.update({
               where: {
                 serverToken: token
@@ -200,7 +198,7 @@ const SocketHandler = (req, res) => {
               }
             })
           }
-         
+
           console.log("A client disconnected.");
           // res.end()
         });

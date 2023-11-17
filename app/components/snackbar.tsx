@@ -5,9 +5,9 @@ import { Check, Info } from "react-feather"
 
 export type SnackBarProps = {
     open: boolean,
-    handleClose: () => void,
-    message: String,
-    severity: AlertColor
+    handleClose?: () => void,
+    message?: String,
+    severity?: AlertColor
 }
 
 function BasicSnackBar(props: SnackBarProps) {
