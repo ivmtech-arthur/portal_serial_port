@@ -211,7 +211,7 @@ const getFieldList = (fieldConfig, handleChangeFormData, errors, placeholderMap,
 }
 
 const MachineForm = (props) => {
-    const { getInitFields, handleOnSubmit, handleValidation, errors, parentCallback, fields, machineTypeData, clientUserData, mode = "view", machineData } = props
+    const { getInitFields, handleOnSubmit, handleValidation, errors, parentCallback, fields, machineTypeData, clientUserData, mode = "view", machineData,setTitle,setMessage,setProceedFunc } = props
 
 
     const initFields: ChangeMachineInput = mode == "add" ? {
@@ -423,7 +423,7 @@ const MachineForm = (props) => {
                 let attachmentRecord = result.attachment
                 await handleDeleteS3(fields.currentAttachment, token).catch((e) => { throw (e) })
                 await handleUpdateS3(attachment, attachmentRecord, token)
-                handleSetHandleBarProps(true, () => { router.reload() }, machineString.editmachineSnackBar, "success")
+                handleSetHandleBarProps(true, () => { router.reload() }, machineString.editMachineSnackBar, "success")
                 return result
             }).catch((e) => {
                 console.log("axios req error", e)
@@ -483,7 +483,7 @@ const MachineForm = (props) => {
                     Authorization: `Bearer ${accessToken}`,
                 },
             }).then(async ({ data }) => {
-                handleSetHandleBarProps(true, () => { router.push(`/${lang}/machine-management`) }, machineString.editmachineSnackBar, "success")
+                handleSetHandleBarProps(true, () => { router.push(`/${lang}/machine-management`) }, machineString.editMachineSnackBar, "success")
                 return result
             }).catch((err) => {
                 console.log(err)
@@ -512,8 +512,13 @@ const MachineForm = (props) => {
             <Block className="flex justify-between">
                 <BasicButton className="mt-10 mr-3 w-32" onClick={(e) => {
                     handleOnSubmit(e, (fields) => {
-                        if (mode == "edit")
+                        if (mode == "edit") {
                             handleUpdate(fields)
+                            if (setTitle) setTitle(machineString.machineFormPopupTitle)
+                            if (setMessage) setMessage(machineString.machineFormPopupMessage)
+                            if (setProceedFunc) setProceedFunc(handleSubmit)
+                        }
+
                         else {
                             handleSubmit()
                         }
@@ -524,7 +529,7 @@ const MachineForm = (props) => {
                 }}>{generalString.back}</BasicButton>
             </Block>
             <BasicSnackBar {...snackBarProps} />
-            <Popup type="local" propsToPopup={{ proceedFunc: async () => { await handleSubmit() }, title: machineString.machineFormPopupTitle, message: machineString.machineFormPopupMessage }} />
+            {/* <Popup type="local" propsToPopup={{ proceedFunc: async () => { await handleSubmit() }, title: machineString.machineFormPopupTitle, message: machineString.machineFormPopupMessage }} /> */}
         </Block>
     )
 }

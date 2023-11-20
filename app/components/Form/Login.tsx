@@ -18,6 +18,8 @@ import axios from 'axios'
 import { useState } from 'react'
 import { Prisma } from '@prisma/client'
 import Cookies from 'js-cookie'
+import BasicButton from 'components/Button/BasicButton'
+import BasicTextField from 'components/TextField/basicTextField'
 const { publicRuntimeConfig } = getConfig()
 const { API_URL, APP_URL } = publicRuntimeConfig
 
@@ -55,6 +57,7 @@ const LoginForm = (props) => {
     axios.post(`/api/auth/local`, {
       identifier: fields.name,
       password: fields.password,
+      rememberMe: fields.rememberMe,
     }, {
       headers: {
         'Content-Type': 'application/json',
@@ -80,8 +83,8 @@ const LoginForm = (props) => {
         // cookies.set('role', useType, opt)
         // Cookies.set('accessToken',get(result,'accessToken',false),opt)
         // Cookies.set('refreshToken', get(result, 'jwt', false), opt)
-        Cookies.set('userRole', userRole, opt)
-        Cookies.set('userType', userType, opt)
+        // Cookies.set('userRole', userRole, opt)
+        // Cookies.set('userType', userType, opt)
         // Cookies.
         // cookies.set('refreshToken', "test", opt)
 
@@ -121,42 +124,23 @@ const LoginForm = (props) => {
   return (
     <Block display='flex' flexDirection='column' alignItems='center' height='600px' width='100%'>
       <StyledH2 color='purple2'>{loginString.welcome}</StyledH2>
-      <StyledTextField py="10px" placeholder={generalString.placeholderName} handleValidation={handleValidation} id="name" name="name" error={errors['name']} value={value} />
+      <BasicTextField className="my-3" placeholder={generalString.placeholderName} handleValidation={handleValidation} id="name" name="name" error={errors['name']} value={value} />
       {/* <StyledTextField py="10px" placeholder={generalString.placeholdername} handleValidation={handleValidation} type="name" id="name" name="name" error={errors['name']} value={value} /> */}
-      <StyledTextFieldPassword py="10px" placeholder={generalString.placeholderPassword} handleValidation={handleValidation} id="password" name="password" error={errors['password']} />
+      <BasicTextField className="my-3" placeholder={generalString.placeholderPassword} handleValidation={handleValidation} id="password" name="password" error={errors['password']} type={'password'} />
       <CustomCheckBox alignSelf="start" label={loginString.rememberMe} handleValidation={handleValidation} onClick={(isChecked) => { }} name="rememberMe" />
-      <Button4 onClick={async () => {
-        const params: Prisma.MasterProductAggregateArgs = {
-          where: {
-            productName: {
-              contains: "test"
-            }
-          },
-          orderBy: {
 
-          }
-        }
-        const playListVideoData = await axios
-          .get(`/api/prisma/masterProduct`, {
-            headers: {
-              Authorization: `Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJTdXBlckFkbWluIiwiZXhwIjozNTg5MDAwMzA0LCJpYXQiOjE2OTY4NDAzMDR9.Tw0Lb6TH82f9NvBZTcRL0eCQl-NtKwHDrQnmSU01MVI`,
-            },
-            params: params,
-          })
-          .then(({ data }) => data.data)
-      }}>test</Button4>
-      <Button1 py='30px' onClick={
+      <BasicButton className="my-7" onClick={
         (e) => {
           // router.push(`/${lang}/`)
           handleSubmit(e)
-        }}>{generalString.confirm}</Button1>
-      <Button4 py='30px'
+        }}>{generalString.confirm}</BasicButton>
+      <BasicButton py='30px'
         onClick={
           () => {
             if (parentCallback.forgetPassword) {
               parentCallback.forgetPassword()
             }
-          }}>{loginString.forgotPassword}</Button4>
+          }}>{loginString.forgotPassword}</BasicButton>
     </Block>
   )
 }

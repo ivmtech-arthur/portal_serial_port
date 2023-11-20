@@ -46,7 +46,7 @@ const ConfirmPeeling = (props) => {
                 >{palletString.peelingPopupTitle}</StyledH5>
                 <StyledBody1
                     className="body1 text-center m-4 relative flex-auto p-4"
-                >{palletString.peelingPopupMessage + `${popupData}`}</StyledBody1>
+                >{palletString.peelingPopupMessage + ` palletID: ${popupData[1]}`}</StyledBody1>
                 <Block className="flex flex-wrap items-center justify-end p-3 border-t-[1] border-[#dee2e6]">
                     <BasicButton className="mx-1" onClick={() => { handleCancel() }}>{generalString.cancel}</BasicButton>
                     <BasicButton color={mode == "delete" ? "error" : "primary"} className="mx-1" onClick={async () => {

@@ -18,7 +18,6 @@ import { withCookies } from 'react-cookie'
 import StyledBody1 from 'components/Common/Element/body1'
 import StyledH5 from 'components/Common/Element/H5'
 import BasicButton from 'components/Button/BasicButton'
-import CustomTable3 from 'components/Table/newTable'
 import CustomTable from 'components/Table/table'
 
 const ConfirmEndReplenishment = (props) => {

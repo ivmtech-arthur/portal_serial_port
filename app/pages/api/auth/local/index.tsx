@@ -7,6 +7,16 @@ import { NextRequest, NextResponse } from "next/server";
 import { NextApiRequest, NextApiResponse } from "next";
 import { ZodError } from "zod";
 import CustomNextApiResponse from "lib/response";
+import { serialize } from 'cookie';
+
+const getCookiesOption = (name: string, rememberMe: boolean) => {
+  return {
+    ...(name == "refreshToken" && { httpOnly: true }),
+    // maxAge: 60 * 60 * 24 * 7,
+    ...(rememberMe && { maxAge: 60 * 60 * 24 * 365 }),
+    path: '/'
+  }
+}
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   console.log("login service");
@@ -57,7 +67,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       payload
     );
 
-    sendRefreshToken(res, refreshToken)
+    // sendRefreshToken(res, refreshToken)
+
+
+
+    res.setHeader('Set-Cookie',
+      [
+        serialize('userRole', user.userRole.userRoleName, getCookiesOption('userRole', data.rememberMe)),
+        serialize('userType', user.userType.userTypeName, getCookiesOption('userRole', data.rememberMe)),
+        serialize('refreshToken', refreshToken, getCookiesOption('refreshToken', data.rememberMe))
+      ])
+
 
     const accessToken = await createAccessToken(payload)
     if (user.userSession) {

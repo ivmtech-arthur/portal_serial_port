@@ -1,3 +1,6 @@
+import { CircleRounded, Inventory, LockOpen, Settings } from "@mui/icons-material"
+import axios from "axios"
+
 export const machineContent = {
     en: {
         machineDisplayIDPlaceholder: 'Machine ID',
@@ -31,17 +34,38 @@ export const machineContent = {
             replenishment: {
                 name: "Replenishment",
                 url: "/replenishment",
-                icon: "",
+                icon: <Inventory />,
             },
             palletSetting: {
                 name: "Pallet Setting",
                 url: '/pallet-config',
-                icon: "",
+                icon: <Settings />,
             },
             peeling: {
-                name: "Peeling ",
+                name: "Peeling",
                 url: '/peeling',
-                icon: "",
+                icon: <CircleRounded />,
+            },
+            unlock: {
+                name: "unlock",
+                action: async ({ id, accessToken }) => {
+                    await axios.post(`/api/socketio/${id}/unlock`, {
+                        payload: {
+                            lockID: 0,
+                            seconds: 10,
+                        },
+                        emitOnly: true,
+                    }, {
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                        }
+                    }).catch(e => {
+                        console.log(e)
+                    })
+                },
+                title: "Are you sure to unlock?",
+                message: "Remember to close the door after then",
+                icon: <LockOpen />,
             }
         },
         salesManagement: {
@@ -82,17 +106,38 @@ export const machineContent = {
             replenishment: {
                 name: "Replenishment tc",
                 url: "/replenishment",
-                icon: "",
+                icon: <Inventory />,
             },
             palletSetting: {
                 name: "Pallet Setting tc",
                 url: '/pallet-config',
-                icon: "",
+                icon: <Settings />,
             },
             peeling: {
                 name: "Peeling tc",
                 url: '/peeling',
-                icon: "",
+                icon: <CircleRounded />,
+            },
+            unlock: {
+                name: "unlock tc",
+                action: async ({ id, accessToken }) => {
+                    await axios.post(`/api/socketio/${id}/unlock`, {
+                        payload: {
+                            lockID: 0,
+                            seconds: 10,
+                        },
+                        // emitOnly: true,
+                    }, {
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                        }
+                    }).catch(e => {
+                            console.log(e)
+                        })
+                },
+                title: "Are you sure to unlock? tc",
+                message: "Remember to close the door after then tc",
+                icon: <LockOpen />,
             }
         },
         salesManagement: {

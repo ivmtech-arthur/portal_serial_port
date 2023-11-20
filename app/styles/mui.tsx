@@ -164,7 +164,7 @@ export const muiTheme = createTheme({
                     // },
                     paddingTop: '1px',
                     paddingBottom: '1px',
-             
+
                     paddingLeft: '8px'
                     // paddingX: '4px'
                 },
@@ -174,7 +174,7 @@ export const muiTheme = createTheme({
                         //     padding: '13px'
                         // },
                         paddingX: '4px',
-                        paddingY:'2px'
+                        paddingY: '2px'
                     }
                     // padding: '9px'
                 }

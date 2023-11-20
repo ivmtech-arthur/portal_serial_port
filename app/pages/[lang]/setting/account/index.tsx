@@ -15,13 +15,15 @@ import axios from 'axios'
 import BasicSnackBar, { SnackBarProps } from 'components/snackbar'
 import { deserialize } from 'superjson'
 import { deserializeListInit } from 'lib/superjson'
+import Cookies from 'js-cookie'
 const { publicRuntimeConfig } = getConfig()
 
 
 const AccountList = (props) => {
     const { cookies, profile, data, columnMap, collection } = props
     const token = cookies.get("accessToken")
-    const role = cookies.get("userRole")
+    // const role = cookies.get("userRole")
+    const role = Cookies.get("userRole")
 
     const {
         state: {
@@ -31,7 +33,7 @@ const AccountList = (props) => {
         dispatch,
     } = useStore()
 
-    // console.log("accountList props", props, pageName, lang, data, columnMap, role)
+    console.log("accountList props", props, pageName, lang, data, columnMap, role)
     const [snackBarProps, setSnackbarProps] = useState<SnackBarProps>({
         open: false,
         handleClose: () => {
@@ -44,32 +46,32 @@ const AccountList = (props) => {
 
     const handleDelete = useCallback(
         async (id) => {
-        await axios.delete(`/api/prisma/user/${id}`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        }).then((data) => {
-            console.log("success!!")
-            var tempSnackBarProps = snackBarProps
-            tempSnackBarProps.open = true
-            tempSnackBarProps.severity = "success"
-            tempSnackBarProps.handleClose = () => {
-                router.reload()
-            }
-            tempSnackBarProps.message = userString.deleteUserSnackbar + id
-            setSnackbarProps({ ...tempSnackBarProps })
-        }).catch((e) => {
-            var tempSnackBarProps = snackBarProps
-            tempSnackBarProps.open = true
-            tempSnackBarProps.severity = "error"
-            tempSnackBarProps.message = `${e}`
-            tempSnackBarProps.handleClose = () => {
-                tempSnackBarProps.open = false
+            await axios.delete(`/api/prisma/user/${id}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }).then((data) => {
+                console.log("success!!")
+                var tempSnackBarProps = snackBarProps
+                tempSnackBarProps.open = true
+                tempSnackBarProps.severity = "success"
+                tempSnackBarProps.handleClose = () => {
+                    router.reload()
+                }
+                tempSnackBarProps.message = userString.deleteUserSnackbar + id
                 setSnackbarProps({ ...tempSnackBarProps })
-             }
-            setSnackbarProps({ ...tempSnackBarProps })
-        })
-    },[])
+            }).catch((e) => {
+                var tempSnackBarProps = snackBarProps
+                tempSnackBarProps.open = true
+                tempSnackBarProps.severity = "error"
+                tempSnackBarProps.message = `${e}`
+                tempSnackBarProps.handleClose = () => {
+                    tempSnackBarProps.open = false
+                    setSnackbarProps({ ...tempSnackBarProps })
+                }
+                setSnackbarProps({ ...tempSnackBarProps })
+            })
+        }, [])
 
 
     return (
@@ -79,7 +81,7 @@ const AccountList = (props) => {
                 {pageName}
             </StyledH1>
 
-        <Block boxShadow='0px 10px 30px rgba(0, 0, 0, 0.1)' borderRadius='32px' mb='30px'>
+            <Block boxShadow='0px 10px 30px rgba(0, 0, 0, 0.1)' borderRadius='32px' mb='30px'>
                 <ExpandableRowTable
                     dataObjList={mapDataByCol(data, columnMap, role, false)}
                     mobileDataObjList={mapDataByCol(data, columnMap, role, true)}
@@ -90,7 +92,7 @@ const AccountList = (props) => {
                     proceedFunc={(data) => {
                         handleDelete(data)
                     }}
-                    handleClickAdd={() => { 
+                    handleClickAdd={() => {
                         router.push(`${router.asPath}/add`)
                     }}
                 />
@@ -124,6 +126,7 @@ export async function getServerSideProps(ctx: CustomCtx) {
         },
         {
             name: "name",
+            mobileDisplay: true,
             mobileCollapse: true,
             objPath: "name",
         },
@@ -135,6 +138,7 @@ export async function getServerSideProps(ctx: CustomCtx) {
         {
             name: "authenticated",
             mobileCollapse: true,
+            valueType: "boolean",
             objPath: "authenticated",
         },
         {

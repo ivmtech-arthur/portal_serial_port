@@ -9,6 +9,7 @@ const initialState = {
   popup: false,
   popupType: '',
   loading: false,
+  loadingTheme: "white",
   scanProcessing: false,
   popupGlobal: true,
   showHeaderStore: true,
@@ -37,9 +38,9 @@ function reducer(state, action) {
         siteCopy,
       }
     }
-    case 'setPageName': { 
+    case 'setPageName': {
       const { pageName } = payload
-      return { 
+      return {
         ...state,
         pageName
       }
@@ -48,6 +49,7 @@ function reducer(state, action) {
       return {
         ...state,
         loading: payload.value,
+        loadingTheme: payload.theme || "white"
       }
     }
     case 'setScanProcessing': {

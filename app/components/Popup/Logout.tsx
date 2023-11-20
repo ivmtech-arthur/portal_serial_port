@@ -15,9 +15,12 @@ import Button1 from '../Button/Button1'
 import StyledH3 from '../Common/Element/H3'
 import StyledBody2 from '../Common/Element/body2'
 import { withCookies } from 'react-cookie'
+import Cookies from 'js-cookie'
+import axios from 'axios'
+import BasicButton from 'components/Button/BasicButton'
 
 const Logout = (props) => {
-    const { cookies,isOpen, closePopup, } = props
+    const { cookies, isOpen, closePopup, } = props
     const router = useRouter()
     const {
         state: {
@@ -26,7 +29,7 @@ const Logout = (props) => {
         dispatch
     } = useStore()
     const [deleted, setDeleted] = useState(false)
-    
+
     const [open, setOpen] = useState(isOpen ? isOpen : false)
 
     const generalString = get(general, lang)
@@ -38,32 +41,33 @@ const Logout = (props) => {
     const handleClose = () => {
         closePopup()
     }
-    
-    const handleLogout = () => {
-        cookies.remove('refreshToken', { path: '/' })
-        cookies.remove('role', { path: '/' })
+
+    const handleLogout = async () => {
+        await axios.post('/api/auth/logout')
+        // cookies.remove('refreshToken', { path: '/' })
+        // cookies.remove('role', { path: '/' })
         dispatch({ type: 'setAuthenticated', payload: { authenticated: false } })
         handleClose()
         router.push(`/${lang}/login`)
-        
+
     }
-   
+
     return (
-        <Block  width={{ md: '860px', _: '320px' }} height='450px' bg='white'  borderRadius='32px'>
+        <Block width={{ md: '860px', _: '320px' }} height='450px' bg='white' borderRadius='32px'>
             <Block className="popupContainer" display='flex' flexDirection='column' alignItems='center' justifyContent='center' height='100%'>
-                <SvgIconLogout />
+                {/* <SvgIconLogout /> */}
                 <StyledH3 textAlign='center' color='purple2'>{loginString.logoutTitle}</StyledH3>
-            
+
                 <Block display='flex'>
-                    <Button1 px="5px" onClick={() => { handleCancel() }}>{generalString.cancel}</Button1>
-                    <Button1 px="5px" onClick={() => { handleLogout() }}>{generalString.confirm}</Button1>
+                    <BasicButton className="mr-1" onClick={() => { handleCancel() }}>{generalString.cancel}</BasicButton>
+                    <BasicButton className="ml-1" onClick={() => { handleLogout() }}>{generalString.confirm}</BasicButton>
                 </Block>
             </Block>
 
 
         </Block>
     )
-    
+
 
 }
 

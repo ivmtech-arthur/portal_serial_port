@@ -46,7 +46,7 @@ function Layout(props) {
   } = props
   const {
     state: {
-      site: { loading, lang, storeHeaderTheme, noticeTitle },
+      site: { loading, loadingTheme, lang, storeHeaderTheme, noticeTitle },
     },
     dispatch,
   } = useStore()
@@ -73,7 +73,7 @@ function Layout(props) {
       dispatch({
         type: 'setPageName',
         payload: {
-          pageName: getMenu(get(urlLang, '[1]')).find((menu) => { return menu.url == pathList.slice(2).join('/') || menu.regex?.test(pathList.slice(2).join('/')) }).title
+          pageName: getMenu(get(urlLang, '[1]')).find((menu) => { return menu.url == pathList.slice(2).join('/') || menu.regex?.test(pathList.slice(2).join('/')) })?.title
         }
       })
 
@@ -182,7 +182,7 @@ function Layout(props) {
           </DesktopLayout>
         </AxiosInterceptor>
 
-        {loading && <Loading />}
+        {loading && <Loading loadingTheme={loadingTheme} />}
       </ThemeProvider>
     </>
   )

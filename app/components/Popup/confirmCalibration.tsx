@@ -48,7 +48,7 @@ const ConfirmCalibration = (props) => {
                 >{palletString.calibrationPopupTitle}</StyledH5>
                 <StyledBody1
                     className="body1 text-center m-4 relative flex-auto p-4"
-                >{palletString.calibrationPopupMessage + `${popupData}`}</StyledBody1>
+                >{palletString.calibrationPopupMessage + ` palletID: ${popupData[1]}`}</StyledBody1>
                 <BasicTextField placeholder={palletString.calibrationPlaceholder} onChange={(e) => {
                     setWeight(parseFloat(e.target.value))
                 }} />

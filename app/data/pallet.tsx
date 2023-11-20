@@ -24,6 +24,7 @@ export const palletContent = {
         peelingPopupMessage: "Are you sure to Do Peeling on",
         peelingSnackbar: "Peeling Successful",
         calibrationSnackbar: "Calibration Successful",
+        noConnection: "Connection Not Established between server and machine.",
     }
     ,
     tc: {
@@ -51,5 +52,6 @@ export const palletContent = {
         peelingPopupMessage: "Are you sure to Do Peeling on tc",
         peelingSnackbar: "Peeling Successful tc",
         calibrationSnackbar: "Calibration Successful tc",
+        noConnection: "Connection Not Established between server and machine. tc",
     }
 }

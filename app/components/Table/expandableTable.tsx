@@ -27,6 +27,8 @@ import { CSVLink, CSVDownload } from "react-csv";
 import { useRouter } from "next/router";
 import { useStore } from "store/contexts";
 import Popup from "components/Popup";
+import BasicChip from "components/chip";
+import { boolean } from "zod";
 
 function CustomToolbar(props) {
   const router = useRouter()
@@ -264,19 +266,26 @@ function CustomPagination(props) {
 
 function createCritieras(columns, data) {
   var mapping = {};
-  var result = columns.reduce((tempResult, value, index) => {
+  var tempResult = columns.reduce((tempResult, value, index) => {
     tempResult[value.name] = [];
     mapping[index] = value.name
     return tempResult
   }, {})
-  console.log("createCrtieria", result, columns, data)
+  console.log("createCrtieria", tempResult, columns, data)
   data.forEach((entries) => {
-    result[mapping[0]].push(entries[0])
-    result[mapping[1]].push(entries[1])
-    result[mapping[2]].push(entries[2])
-    result[mapping[3]].push(entries[3])
-    result[mapping[4]].push(entries[4])
+    entries.forEach((entry, entryIndex) => {
+      tempResult[mapping[entryIndex]].push(entries[entryIndex])
+    })
+    // result[mapping[0]].push(entries[0])
+    // result[mapping[1]].push(entries[1])
+    // result[mapping[2]].push(entries[2])
+    // result[mapping[3]].push(entries[3])
+    // result[mapping[4]].push(entries[4])
   })
+  var result = {}
+  for (var resultName in tempResult) {
+    result[resultName] = [...new Set(tempResult[resultName])]
+  }
   return result
   // return {}
 }
@@ -411,7 +420,7 @@ const ExpandableRowTable = (props) => {
 
   const handleClickEdit = (
     (id, displayID) => {
-      console.log("id", id, displayID)
+      console.log("id hihi", id, displayID)
       router.push({ pathname: `${router.asPath}/${id}` }, `${router.asPath}/${displayID}`)
     })
 
@@ -431,6 +440,15 @@ const ExpandableRowTable = (props) => {
   useEffect(() => {
     setCanGetDesiredData(true)
   }, [filterObj, searchText])
+
+  // useEffect(() => {
+  //   console.log("useEffect expandabletable")
+  //   const elements = document.getElementsByClassName("booleanChip")
+  //   for (let i = 0; i < elements.length; i++) {
+  //     console.log("useEffect booleanchip", elements[i], elements[i].innerHTML, elements[i].firstChild)
+  //     // elements[i].textContent = elements[i].firstChild;
+  //   }
+  // }, [filterObj])
 
 
 
@@ -501,7 +519,17 @@ const ExpandableRowTable = (props) => {
             ...(filteredColumn.name == "edit" || filteredColumn.name == "delete" || filteredColumn.name == "more" ? {
               download: false
             } : {}),
-            ...(filteredColumn.download ? {} : { download: false })
+            ...(filteredColumn.download ? {} : { download: false }),
+            // ...(filteredColumn.valueType == "boolean" && {
+            //   customHeadLabelRender(options) {
+            //     console.log("customHeadLabelRender", options)
+            //     return <BasicChip label={""} handleClose={() => {
+            //       var field: any = mobileColumn[""];
+            //       delete filterObj[field.name]
+            //       setFilterObj({ ...filterObj })
+            //     }} />
+            //   },
+            // })
             // setCellProps: () => ({ style: { minWidth: "100px", maxWidth: "800px",display:"flex",alignitems:'end', justifyContent: 'end',backgroundColor:'orange' }})
             // customBodyRender: (data, type, row) => { return <Block className=" h-40">{data}</Block> }
             // ...(filterObj[column.name] ? { filterList: [filterObj[column.name]] } : {}),
@@ -565,7 +593,7 @@ const ExpandableRowTable = (props) => {
     selectableRows: "multiple",
     filterType: "dropdown",
     // responsive: "scrollMaxHeight",
-    rowsPerPage: 5,
+    rowsPerPage: 10,
     expandableRows: false,
     // selectableRowsHideCheckboxes: true,
     renderExpandableRow: (rowData, rowMeta) => {
@@ -593,6 +621,17 @@ const ExpandableRowTable = (props) => {
     onChangePage: (page) => {
       console.log()
     },
+    // setFilterChipProps: (colIndex, colName, data) => {
+    //   console.log("setFilterChipProps", colIndex, colName, data);
+    //   return {
+    //     // color: 'primary',
+    //     children: `${data}`,
+
+    //     variant: 'outlined',
+    //     className: 'booleanChip',
+
+    //   };
+    // },
     onFilterChipClose: (index, removeFilter, filterList) => {
       var field: any = mobileColumn[index];
       delete filterObj[field.name]
@@ -607,7 +646,7 @@ const ExpandableRowTable = (props) => {
     filterType: "dropdown",
 
     responsive: 'standard',
-    rowsPerPage: 5,
+    rowsPerPage: 10,
     expandableRows: true,
     selectableRowsHeader: true,
     rowHover: true,
@@ -628,7 +667,9 @@ const ExpandableRowTable = (props) => {
         }).includes(index)
       }).map((filteredRowItem: any) => {
 
-        return <TableCell align="right">{(filteredRowItem == true) ? "true" : filteredRowItem}</TableCell>
+        return <TableCell align="right">{
+          (typeof filteredRowItem == "boolean" && filteredRowItem == true) ? "true" : (typeof filteredRowItem == "boolean" && filteredRowItem == false ? "false" : filteredRowItem)
+        }</TableCell>
         // } else {
         //   continue
         // }
@@ -678,6 +719,7 @@ const ExpandableRowTable = (props) => {
     viewColumns: false,
     // search: false,
     customSearchRender: () => null,
+
     isRowSelectable: (dataIndex, selectedRows) => {
       // console.log("isRowSelectable", dataIndex, data[dataIndex], !userProfile.userID || (userProfile.userID && data[dataIndex][0] != userProfile.userID))
       return !userProfile.userID || (userProfile.userID && data[dataIndex][0] != userProfile.userID)
@@ -744,6 +786,10 @@ const ExpandableRowTable = (props) => {
 
 
     },
+
+    // customHeadLabelRender: (data) => {
+    //   return <Block />
+    // },
     // print
     // selectToolbarPlacement: "above",
     // download: false
@@ -778,7 +824,7 @@ const ExpandableRowTable = (props) => {
           open={drawerOpen}
           onClose={() => { setDrawerOpen(false) }}
         >
-          {drawerAction == "search" && <SearchForm value={searchText} setSearchText={setSearchText} onChange={(text) => {
+          {drawerAction == "search" && <SearchForm searchText={searchText} setSearchText={setSearchText} onChange={(text) => {
             setSearchText(text)
           }} />}
           {drawerAction == "filter" && <FilterForm criterias={criterias} onChange={(tempFilter) => {

@@ -42,7 +42,7 @@ function ReplenishmentPage(props) {
         message: "",
         severity: 'success'
     })
-    const handleSetHandleBarProps = useCallback((open: boolean, handleClose: () => void, message: String, severity: AlertColor) => {
+    const handleSetHandleBarProps = useCallback((open: boolean, handleClose?: () => void, message?: String, severity?: AlertColor) => {
         setSnackbarProps({
             open: open,
             handleClose: handleClose,
@@ -64,6 +64,8 @@ function ReplenishmentPage(props) {
                     headers: {
                         Authorization: `Bearer ${accessToken}`,
                     },
+                }).catch((e) => {
+                    console.log("connection timeout");
                 })
             }
 
@@ -136,7 +138,7 @@ function ReplenishmentPage(props) {
     }
 
     const handleStartReplenishment = useCallback(async () => {
-        await axios.post(`/api/socketio/${machineData.machineDisplayID}/replenishment`, {
+        axios.post(`/api/socketio/${machineData.machineDisplayID}/replenishment`, {
             payload: {
                 foo: "bar"
             },
@@ -145,17 +147,21 @@ function ReplenishmentPage(props) {
             headers: {
                 Authorization: `Bearer ${accessToken}`,
             },
+        }).then(() => {
+            setReplenishmentStage(1)
+            dispatch({
+                type: 'showPopup',
+                payload: {
+                    popup: true,
+                    popupType: 'replenishment',
+                    isGlobal: false,
+                },
+            })
+        }).catch(err => {
+            handleSetHandleBarProps(true, () => { handleSetHandleBarProps(false) }, `${err}`, "error")
         })
 
-        setReplenishmentStage(1)
-        dispatch({
-            type: 'showPopup',
-            payload: {
-                popup: true,
-                popupType: 'replenishment',
-                isGlobal: false,
-            },
-        })
+
     }, [accessToken])
 
     const handleFinishReplenishment = useCallback((updateData: any[]) => {

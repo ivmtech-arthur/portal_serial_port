@@ -49,6 +49,17 @@ export const socketIOActionMap = [
         },
     },
     {
+        name: "unlock",
+        serverAction: "server-unlock",
+        clientAction: "client-unlock",
+        timeout: 10000,
+        pingTime: 1000,
+        onReceivedCallBack: async (response: SocketResponse, machineID: number, socket: Socket) => {
+            console.log("event finished callback", eventArg.eventFinished, eventArg.eventReturn, response)
+            setEventFinish(true, response)
+        }
+    },
+    {
         name: "getWeights",
         serverAction: "server-get-weights",
         clientAction: "client-get-weights",
@@ -229,11 +240,12 @@ export const IOEvent = async (socketID, action: string, payload?: any) => {
     var actionItem = socketIOActionMap.find((actionItem) => actionItem.name == action)
     console.log("event started", eventArg.eventFinished, eventArg.eventReturn)
     return new Promise<any>(async (resolve, reject) => {
-        try {
-            handleIOEmit(socketID, action, payload)
-            console.log("event waiting", eventArg.eventFinished, eventArg.eventReturn)
-            let timeout = 0;
-            const eventTimer = setInterval(() => {
+
+        handleIOEmit(socketID, action, payload)
+        console.log("event waiting", eventArg.eventFinished, eventArg.eventReturn)
+        let timeout = 0;
+        const eventTimer = setInterval(() => {
+            try {
                 // console.log("event finished", eventArg.eventFinished, eventArg.eventReturn)
                 if (eventArg.eventFinished) {
                     resolve(eventArg.eventReturn)
@@ -244,16 +256,17 @@ export const IOEvent = async (socketID, action: string, payload?: any) => {
                     clearInterval(eventTimer)
                     throw ("event timeout")
                 }
-                timeout += actionItem.pingTime;
-            }, actionItem.pingTime || 1000)
+            } catch (e) {
+                reject(e)
+            }
+            timeout += actionItem.pingTime;
+        }, actionItem.pingTime || 1000)
 
-            // io.on(socketIOActionMap.find((actionItem) => actionItem.name == action).clientAction, (data: SocketResponse) => {
-            //     console.log("socket event received via IOEvent:", data.action)
-            //     resolve(data.data)
-            // })
-        } catch (e) {
-            reject(e)
-        }
+        // io.on(socketIOActionMap.find((actionItem) => actionItem.name == action).clientAction, (data: SocketResponse) => {
+        //     console.log("socket event received via IOEvent:", data.action)
+        //     resolve(data.data)
+        // })
+
 
     })
 }

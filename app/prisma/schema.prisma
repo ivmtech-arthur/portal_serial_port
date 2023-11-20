@@ -19,9 +19,9 @@ model Profile {
 
 model MachineType {
   machineTypeID        Int       @id @unique @default(autoincrement())
-  machineTypeDisplayID String?   @unique @db.VarChar(20)
   machineTypeName      String    @db.NVarChar(50)
   machineTypeNameEn    String    @db.VarChar(50)
+  machineTypeDisplayID String?   @unique @db.VarChar(21)
   Machine              Machine[]
 }
 
@@ -42,23 +42,23 @@ model Machine {
   isActive              Boolean                 @default(false)
   socketID              String?                 @db.VarChar(30)
   machineDisplayID      String?                 @unique @db.VarChar(21)
-  machineType           MachineType             @relation(fields: [machineTypeID], references: [machineTypeID], onDelete: NoAction)
-  owner                 User                    @relation(fields: [ownerID], references: [userID], onDelete: NoAction)
+  machineType           MachineType             @relation(fields: [machineTypeID], references: [machineTypeID])
+  owner                 User                    @relation(fields: [ownerID], references: [userID])
   machinePalletDetail   MachinePalletDetail[]
   machineProductSummary MachineProductSummary[]
+  OperationHistory      OperationHistory[]
   replenishment         Replenishment[]
   Transaction           Transaction[]
   attachments           Attachment[]            @relation("AttachmentToMachine")
-  OperationHistory      OperationHistory[]
 }
 
 model Replenishment {
   replenishmentID Int      @id @unique @default(autoincrement())
   machineID       Int
-  userID          Int
   details         String   @db.VarChar(Max)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+  userID          Int
   machine         Machine  @relation(fields: [machineID], references: [machineID], onUpdate: NoAction)
   user            User     @relation(fields: [userID], references: [userID], onUpdate: NoAction)
 }
@@ -82,7 +82,7 @@ model MasterProduct {
   cost                  Decimal?                @db.Decimal(32, 2)
   weight                Decimal                 @db.Decimal(32, 3)
   abbreviation          String                  @default("PRD") @db.VarChar(3)
-  clientRefID           String?                 @unique @db.NVarChar(255)
+  clientRefID           String?                 @db.NVarChar(255)
   productDisplayID      String?                 @unique @db.VarChar(21)
   machinePalletDetails  MachinePalletDetail[]
   machineProductSummary MachineProductSummary[]
@@ -152,12 +152,12 @@ model User {
   userTypeID       Int
   userDisplayID    String?            @unique @db.VarChar(21)
   machine          Machine[]
+  OperationHistory OperationHistory[]
   profile          Profile?
+  Replenishment    Replenishment[]
   userRole         UserRole           @relation(fields: [userRoleID], references: [userRoleID])
   userType         UserType           @relation(fields: [userTypeID], references: [userTypeID])
   userSession      UserSession?
-  Replenishment    Replenishment[]
-  OperationHistory OperationHistory[]
 }
 
 model UserType {
@@ -198,10 +198,10 @@ model OperationHistory {
   userID    Int
   duration  Int
   machineID Int
-  user      User     @relation(fields: [userID], references: [userID])
-  machine   Machine? @relation(fields: [machineID], references: [machineID], onUpdate: NoAction)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  machine   Machine  @relation(fields: [machineID], references: [machineID], onUpdate: NoAction)
+  user      User     @relation(fields: [userID], references: [userID])
 }
 
 model AutoIncrement {

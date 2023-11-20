@@ -3,6 +3,7 @@ import { DefaultArgs } from "@prisma/client/runtime/library";
 import { NextApiRequest } from "next";
 import { CustomServerResponse } from "./response";
 import { verifyPublicJWT } from "./jwt";
+import machineType from "pages/[lang]/machine-management/machine-Type";
 // import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
@@ -296,21 +297,14 @@ export function handleClause(collection, id?, queryParams?) {
         ...queryParams?.where
       }
       whereInput = machineClause;
-
-      // if (populate) {
-      //   var machineInclude: Prisma.MachineInclude = {
-
-      //   };
-
-      //   includeInput = {
-      //     ...(allPopulate ? machineInclude : {}),
-      //     ...(listPopulate ? {
-      //       ...(createInclude(machineInclude, populate))
-      //     } : {}),
-      //     ...(singlePopulate ? { ...(createInclude(machineInclude, populate)) } : {})
-      //   }
-      // }
       break
+    case "machineType":
+      var machineTypeClause: Prisma.MachineTypeWhereUniqueInput = {
+        ...(id && { machineTypeID: id }),
+        ...queryParams?.where
+      }
+      whereInput = machineTypeClause;
+      break;
     case "machinePalletDetail":
       var machinePalletDetailClause: Prisma.MachinePalletDetailWhereUniqueInput = {
         palletDetailID: id,
@@ -347,21 +341,6 @@ export function handleClause(collection, id?, queryParams?) {
         ...queryParams?.where
       }
       whereInput = masterProductClause;
-
-
-      // if (populate) {
-      //   var productInclude: Prisma.MasterProductInclude = {
-
-      //   };
-
-      //   includeInput = {
-      //     ...(allPopulate ? productInclude : {}),
-      //     ...(listPopulate ? {
-      //       ...(createInclude(productInclude, populate))
-      //     } : {}),
-      //     ...(singlePopulate ? { ...(createInclude(productInclude, populate)) } : {})
-      //   }
-      // }
       break
     case "user":
       var userClause: Prisma.UserWhereUniqueInput = {
@@ -369,35 +348,6 @@ export function handleClause(collection, id?, queryParams?) {
         ...queryParams?.where
       }
       whereInput = userClause
-
-      // if (populate) {
-      //   var userInclude: Prisma.UserInclude = {
-      //     userSession: true,
-      //     machine: {
-      //       include: {
-      //         machinePalletDetail: {
-      //           include: {
-      //             masterProduct: true
-      //           }
-      //         },
-      //         machineProductSummary: {
-      //           include: {
-      //             masterProduct: true
-      //           }
-      //         }
-      //       }
-      //     },
-      //   };
-
-
-      //   includeInput = {
-      //     ...(allPopulate ? userInclude : {}),
-      //     ...(listPopulate ? {
-      //       ...(createInclude(userInclude, populate))
-      //     } : {}),
-      //     ...(singlePopulate ? { ...(createInclude(userInclude, populate)) } : {})
-      //   }
-      // }
       break
     default:
       break;

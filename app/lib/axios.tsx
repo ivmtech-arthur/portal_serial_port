@@ -15,17 +15,17 @@ const AxiosInterceptor = ({ children }) => {
     useEffect(() => {
 
         const reqAcceptIntercepter = config => {
-            dispatch({ type: 'setLoading', payload: { value: true } })
+            dispatch({ type: 'setLoading', payload: { value: true, theme: "shadow" } })
             return config;
         }
 
         const resAcceptIntercepter = res => {
-            dispatch({ type: 'setLoading', payload: { value: false } })
+            dispatch({ type: 'setLoading', payload: { value: false, theme: "shadow" } })
             return res;
         }
 
         const errorInterceptor = error => {
-            dispatch({ type: 'setLoading', payload: { value: false } })
+            dispatch({ type: 'setLoading', payload: { value: false, theme: "shadow" } })
             return Promise.reject(error);
         }
 

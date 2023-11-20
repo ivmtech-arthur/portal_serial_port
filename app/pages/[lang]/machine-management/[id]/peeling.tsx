@@ -53,7 +53,7 @@ function PeelingPage(props) {
             mobileCollapse: true,
             yieldFunction: (data, index) => {
                 console.log("mapItem weightResult", data, index, weightResult)
-                return weightResult[index]
+                return weightResult[data.palletID - 1]
             }
         },
         {
@@ -159,7 +159,7 @@ function PeelingPage(props) {
             </StyledH1>
 
             <Block boxShadow='0px 10px 30px rgba(0, 0, 0, 0.1)' borderRadius='32px' mb='30px'>
-                <ExpandableRowTable
+                {weightResult && <ExpandableRowTable
                     dataObjList={mapDataByCol(machinePalletDetailListData, columnMap, role, false, false, false)}
                     mobileDataObjList={mapDataByCol(machinePalletDetailListData, columnMap, role, true, false, false)}
                     columnsFromParent={columnMap}
@@ -222,7 +222,12 @@ function PeelingPage(props) {
                 // handleClickAdd={() => {
                 //     router.push(`/${lang}/machine-management/add`)
                 // }}
-                />
+                />}
+                {!weightResult &&
+                    <Block className="bg-white h-screen m-auto flex items-center justify-center">
+                        <StyledH1>{palletString.noConnection}</StyledH1>
+                    </Block>
+                }
             </Block>
             <BasicSnackBar {...snackBarProps} />
             {/* <Popup type="local" propsToPopup={{
@@ -303,12 +308,17 @@ export async function getServerSideProps(ctx: CustomCtx) {
     }).catch((e) => {
         console.log("error getserversideProps", e)
     })
+    let weightResult;
+    try {
+        weightResult = await IOEvent(machineData.socketID, "getWeights").then((data) => { return data.result })
+            .catch((e) => {
+                console.log(" IOEvent e: ", e)
+            })
+        console.log("weightResult getserversideProps", weightResult)
+    } catch (e) {
+        console.log(" IOEvent e: ", e)
+    }
 
-    const weightResult = await IOEvent(machineData.socketID, "getWeights").then((data) => { return data.result })
-        .catch((e) => {
-            console.log(e)
-        })
-    console.log("weightResult getserversideProps", weightResult)
 
     return {
         props: {

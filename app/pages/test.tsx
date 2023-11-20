@@ -1,7 +1,6 @@
 import BasicButton from "components/Button/BasicButton"
 import SimpleCard from "components/Card/simpleCard"
 import ExpandableRowTable from "components/Table/expandableTable"
-import CustomTable3 from "components/Table/newTable"
 import { Add, CloudUpload, MoneyOff } from "@mui/icons-material"
 import * as Icon from "react-feather";
 import { Alert, Button, FormControl, Input, InputLabel, MenuItem, Select, Snackbar, TextField, TextareaAutosize } from "@mui/material"
@@ -47,7 +46,7 @@ export default function Test() {
     return (
         <>
             {/* <ExpandableRowTable/> */}
-            <CustomTable3 />
+            {/* <CustomTable3 /> */}
             <SimpleCard image={{
                 src: "/image/logo.jpg",
                 width: "359px",

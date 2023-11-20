@@ -84,6 +84,11 @@ export const getMenu = (lang) => {
             url: 'machine-management/add',
         },
         {
+            title: lang == 'en' ? 'Machine Replenishment' : "補貨",
+            url: 'machine-management/[id]',
+            regex: /machine-management\/([^(?!.*(add|machine\-Type)).*]+)\/replenishment/
+        },
+        {
             title: lang == 'en' ? 'Machine Change' : "Change設備",
             url: 'machine-management/[id]',
             regex: /machine-management\/([^(?!.*(add|machine\-Type)).*]+)/

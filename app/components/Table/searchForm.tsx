@@ -25,17 +25,13 @@ function SearchForm(props) {
             <BasicButton
                 className="my-2"
                 onClick={() => {
-                setTempsearchs("")
-                setSearchText("")
-            }}>{generalString.cancel}</BasicButton>
+                    setTempsearchs("")
+                    setSearchText("")
+                }}>{generalString.cancel}</BasicButton>
             <BasicButton onClick={() => {
                 onChange(tempsearchs)
             }}>{generalString.confirm}</BasicButton>
-            </Block>
-        // </Box>
-           
-        // </Grid>
-
+        </Block>
     )
 }
 

@@ -14,6 +14,8 @@ import get from 'lodash/get'
 import { machineContent } from 'data/machine'
 import BasicButton from 'components/Button/BasicButton'
 import { default as axios } from 'lib/axios'
+import Popup from 'components/Popup'
+import StyledBody1 from 'components/Common/Element/body1'
 const { publicRuntimeConfig } = getConfig()
 const { API_URL, APP_URL } = publicRuntimeConfig
 
@@ -30,33 +32,36 @@ const MachineDetail = (props) => {
         dispatch,
     } = useStore()
     const router = useRouter()
+    const [proceedFunc, setProceedFunc] = useState<Function>(null);
+    const [title, setTitle] = useState("");
+    const [message, setMessage] = useState("");
+    const [popupData, setPopupData] = useState({});
 
     const machineString = get(machineContent, lang)
     const palletConfigBtnList = Object.keys(machineString.palletConfiguration).map((key) => {
         const item = machineString.palletConfiguration[key]
-        return <BasicButton onClick={async () => {
-            if (item.url) {
-                router.push(`${router.asPath}/${item.url}`)
-            }
-            // else {
-            //     switch (key) {
-            //         case "peeling":
-            //             await axios.post(`/api/socketio/${machineData.machineDisplayID}/getWeights`, {
-            //                 payload: {
-            //                     foo: "bar"
-            //                 },
-            //                 emitOnly: true,
-            //             }, {
-            //                 headers: {
-            //                     Authorization: `Bearer ${accessToken}`,
-            //                 },
-            //             })
-            //             dispatch()
-            //             break;
+        return <Block className="flex-1 flex flex-col items-center">
+            <BasicButton onClick={async () => {
+                if (item.url) {
+                    router.push(`${router.asPath}/${item.url}`)
+                } else if (item.action) {
+                    setPopupData({ id: machineData.machineDisplayID, accessToken: accessToken })
+                    setProceedFunc(() => item.action)
 
-            //     }
-            // }
-        }}>{item.name}</BasicButton>
+                    setMessage(item.memssage)
+                    setTitle(item.title)
+                    dispatch({
+                        type: 'showPopup',
+                        payload: {
+                            popup: true,
+                            popupType: 'confirmProceed',
+                            isGlobal: false,
+                        },
+                    })
+                }
+            }}>{item.icon}</BasicButton>
+            <StyledBody1>{item.name}</StyledBody1>
+        </Block>
     })
 
     return (
@@ -67,13 +72,18 @@ const MachineDetail = (props) => {
             </StyledH1>
 
             <Block boxShadow='0px 10px 30px rgba(0, 0, 0, 0.1)' bg='white' borderRadius='32px' mb='30px'>
-                <FormHandler formType="MachineForm" mode="edit" machineData={machineData} clientUserData={clientUserData} machineTypeData={machineTypeData} />
+                <FormHandler formType="MachineForm" mode="edit" machineData={machineData} clientUserData={clientUserData} machineTypeData={machineTypeData} setTitle={setTitle} setMessage={setMessage} setProceedFunc={setProceedFunc} />
             </Block>
 
-            <Block>
+            <Block className="flex ">
                 {palletConfigBtnList}
             </Block>
-            {/* <Popup type="local" /> */}
+            <Popup type="local" propsToPopup={{
+                proceedFunc: async (data) => {
+                    console.log("function", proceedFunc, title, message)
+                    await proceedFunc(data)
+                }, title: title, message: message, mode: "delete", popupData: popupData
+            }} />
         </Block>
     )
 }

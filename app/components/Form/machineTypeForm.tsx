@@ -239,12 +239,12 @@ const MachineTypeForm = (props) => {
     const {
         state: {
             site: { lang, systemConstant: { cloudFrontURL, schema } },
-            user
+            user: { accessToken }
         },
         dispatch
     } = useStore()
     const { cookies } = props
-    const token = cookies.get("accessToken")
+    // const token = cookies.get("accessToken")
     const generalString = get(general, lang)
     const machineString = get(machineContent, lang)
     const router = useRouter()
@@ -257,7 +257,7 @@ const MachineTypeForm = (props) => {
         message: "",
         severity: 'success'
     })
-    const handleSetHandleBarProps = useCallback((open: boolean, handleClose: () => void, message: String, severity: AlertColor) => {
+    const handleSetHandleBarProps = useCallback((open: boolean, handleClose?: () => void, message?: String, severity?: AlertColor) => {
         setSnackbarProps({
             open: open,
             handleClose: handleClose,
@@ -304,7 +304,7 @@ const MachineTypeForm = (props) => {
         await axios.post('/api/aws/s3', data,
             {
                 headers: {
-                    Authorization: `Bearer ${token}`,
+                    Authorization: `Bearer ${accessToken}`,
                 },
             }
         )
@@ -336,18 +336,18 @@ const MachineTypeForm = (props) => {
             }
             const result = await axios.put(`/api/prisma/machineType/${machineTypeData.machineID}`, { data, select }, {
                 headers: {
-                    Authorization: `Bearer ${token}`,
+                    Authorization: `Bearer ${accessToken}`,
                 },
             }).then(async ({ data }) => {
                 const { result } = data
                 let attachmentRecord = result.attachment
-                await handleDeleteS3(fields.currentAttachment, token).catch((e) => { throw (e) })
-                await handleUpdateS3(attachment, attachmentRecord, token)
+                await handleDeleteS3(fields.currentAttachment, accessToken).catch((e) => { throw (e) })
+                await handleUpdateS3(attachment, attachmentRecord, accessToken)
                 handleSetHandleBarProps(true, () => { router.reload() }, machineString.editmachineSnackBar, "success")
                 return result
             }).catch((e) => {
                 console.log("axios req error", e)
-                handleSetHandleBarProps(true, () => { }, `${e}`, "error")
+                handleSetHandleBarProps(true, () => { handleSetHandleBarProps(false)}, `${e}`, "error")
             })
         } else if (mode == "add") {
             let data: Prisma.MachineTypeCreateInput = {
@@ -365,7 +365,7 @@ const MachineTypeForm = (props) => {
             }
             let result = await axios.post(`/api/prisma/machineType`, { data }, {
                 headers: {
-                    Authorization: `Bearer ${token}`,
+                    Authorization: `Bearer ${accessToken}`,
                 },
             })
                 .then(async ({ data }) => {
@@ -374,7 +374,7 @@ const MachineTypeForm = (props) => {
                     // if (result.attachment) {
                     //     await handleUpdateS3(attachment, attachmentRecord, token)
                     // }
-                    handleSetHandleBarProps(true, () => { router.push(`${lang}/machine-management/machine-Type`) }, machineString.editMachineTypeSnackBar, "success")
+                    handleSetHandleBarProps(true, () => { router.push(`/${lang}/machine-management/machine-Type`) }, machineString.editMachineTypeSnackBar, "success")
                     return result
                 }).catch((err) => {
                     console.log(err)

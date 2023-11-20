@@ -55,6 +55,7 @@ export const LoginUserSchema = z.object({
     })
     .min(1, "Password is required")
     .min(8, "Password must be at least 8 characters"),
+  rememberMe: z.boolean().optional().nullable(),
 });
 
 export const ChangeUserDataSchema = z.object({

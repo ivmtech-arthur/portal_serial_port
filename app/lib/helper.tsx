@@ -91,7 +91,16 @@ export function mapDataByCol(data: any[], columnMap: any[], userRole: string, is
         ...(columnMap.filter((mapItem) => { return !action.includes(mapItem.name) }).map((mapItem, index2) => {
           console.log("mapItem", entries, index2)
           if (mapItem.objPath) {
-            return get(entries, mapItem.objPath)
+            const result = get(entries, mapItem.objPath)
+            switch (typeof result) { 
+              case "number":
+                return result
+              case "boolean":
+                return `${result}`
+              default:
+                return result
+            }
+            return 
           } else if (mapItem.yieldFunction) {
             const reuslt = mapItem.yieldFunction(entries, index)
             console.log("reuslt", reuslt)

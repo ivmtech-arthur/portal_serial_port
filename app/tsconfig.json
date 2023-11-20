@@ -2,35 +2,19 @@
   "compilerOptions": {
     "baseUrl": "./",
     "paths": {
-      "style/*": [
-        "./style/*"
-      ],
-      "store/*": [
-        "./store/*"
-      ],
-      "components/*": [
-        "./components/*"
-      ],
-      "prisma/*": [
-        "./prisma/*"
-      ],
-      "data/*":[
-        "./data/*"
-      ],
-      "public/*":[
-        "./public/*"
-      ],
+      "style/*": ["./style/*"],
+      "store/*": ["./store/*"],
+      "components/*": ["./components/*"],
+      "prisma/*": ["./prisma/*"],
+      "data/*": ["./data/*"],
+      "public/*": ["./public/*"]
       // "api/*": [
       //   "pages/api/api/*"
       // ]
     },
     "target": "ES2020",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
-    "allowJs": true, 
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
     "skipLibCheck": true,
     "strict": false,
     "forceConsistentCasingInFileNames": true,
@@ -45,14 +29,15 @@
     "moduleResolution": "node",
     "jsx": "preserve"
   },
-  "exclude": [
-    "node_modules"
-  ],
+  "exclude": ["node_modules"],
   "include": [
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    "components/Common/Element/Block.tsx", "components/Table/newTable.tsx", "components/Menu/drawer.js", "pages/_app.js", "server/app/server.js",
+    "components/Common/Element/Block.tsx",
+    "components/Menu/drawer.js",
+    "pages/_app.js",
+    "server/app/server.js"
     // "pages/[lang]/pallet-config/index.js"
   ]
 }

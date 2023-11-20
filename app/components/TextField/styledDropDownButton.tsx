@@ -92,7 +92,7 @@ const StyledDropDownButton = (props: styledDropDownButtonProps) => {
 
     const list = map(options, (option, index) => {
         return (
-            <MenuItem value={option.value}>{option.label}</MenuItem>
+            <MenuItem value={option.value}>{`${option.label}`}</MenuItem>
         )
     })
     return (

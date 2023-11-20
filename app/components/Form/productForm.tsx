@@ -322,7 +322,7 @@ const ProductForm = (props) => {
         message: "",
         severity: 'success'
     })
-    const handleSetHandleBarProps = useCallback((open: boolean, handleClose: () => void, message: String, severity: AlertColor) => {
+    const handleSetHandleBarProps = useCallback((open: boolean, handleClose?: () => void, message?: String, severity?: AlertColor) => {
         setSnackbarProps({
             open: open,
             handleClose: handleClose,
@@ -412,7 +412,7 @@ const ProductForm = (props) => {
                 return result
             }).catch((e) => {
                 console.log("axios req error", e)
-                handleSetHandleBarProps(true, () => { }, `${e}`, "error")
+                handleSetHandleBarProps(true, () => { handleSetHandleBarProps(false) }, `${e}`, "error")
             })
         } else if (mode == "add") {
             let attachment: File = fields.attachment;
@@ -449,7 +449,7 @@ const ProductForm = (props) => {
                 return result
             }).catch((err) => {
                 console.log(err)
-                handleSetHandleBarProps(true, () => { }, `${err}`, "error")
+                handleSetHandleBarProps(true, () => { handleSetHandleBarProps(false) }, `${err}`, "error")
             })
         }
 

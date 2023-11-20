@@ -68,7 +68,23 @@ const MenuItem = (props) => {
         )
     }) : null
     return (
-        <Block className=" w-full list-item" onClick={!item.list ? () => { router.push({ pathname: `/${lang}/${item.url}`, query: { pageName: item.title } }, `/${lang}/${item.url}`) } : () => { setOpen(!open) }}>
+        <Block className=" w-full list-item" onClick={!item.list ?
+            () => {
+                if (item.key == "logout") {
+                    dispatch({
+                        type: 'showPopup',
+                        payload: {
+                            popup: true,
+                            popupType: 'logout',
+                            isGlobal: false,
+                        },
+                    })
+                } else {
+                    router.push({ pathname: `/${lang}/${item.url}`, query: { pageName: item.title } }, `/${lang}/${item.url}`)
+                }
+
+            }
+            : () => { setOpen(!open) }}>
             <Block className=" flex items-center cursor-pointer hover block py-2 px-3 my-0 mx-2 bg-transparent rounded transition ease-in-out">
                 <Block className=" w-[12.5%]">
                     {item.icon}
@@ -103,7 +119,7 @@ function ResponsiveDrawer(props) {
     const menu = get(menuContent, lang)
 
 
- 
+
 
 
 
@@ -126,7 +142,7 @@ function ResponsiveDrawer(props) {
         // <Block float="left" width="250px">
 
         <Block className="md:w-[280px]" zIndex="5" position="static">
-            
+
             <Box
                 sx={{ width: { md: drawerWidth }, }}
                 aria-label="mailbox folders"
@@ -142,7 +158,7 @@ function ResponsiveDrawer(props) {
                     // anchor={'lef'}
                     sx={{
 
-                        display: { xs: 'block', md: 'none' }, 
+                        display: { xs: 'block', md: 'none' },
                         '& .MuiDrawer-paper': { zIndex: 0, boxSizing: 'border-box', width: drawerWidth, backgroundColor: 'white', },
                     }}
                 >
