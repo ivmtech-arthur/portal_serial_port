@@ -1,4 +1,4 @@
-import { Server, Socket } from 'Socket.IO'
+import { Server, Socket } from 'socket.io'
 import { prisma } from './prisma';
 import { CollectionsOutlined } from '@mui/icons-material';
 

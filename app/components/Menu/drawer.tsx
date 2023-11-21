@@ -188,7 +188,7 @@ function ResponsiveDrawer(props) {
                         px='0px'
                         // mx='27px'
                         // my='20px'
-                        width='270px' height='200px'
+                        width='280px' height='200px'
                     >
                         {/* <Block position='fixed' borderBottom="1px solid white" height='200px' width='220px' >
                             <Block

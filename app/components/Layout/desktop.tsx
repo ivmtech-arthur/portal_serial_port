@@ -57,7 +57,7 @@ const DesktopLayout = (props) => {
       {/* <Block flex="0 0 200px" bg="purple1"> */}
       <Block className="flex w-full">
         {showMenu && <ResponsiveDrawer mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} handleDrawerToggle={handleDrawerToggle} />}
-        
+
         {/* <StyledLHSWrapper
           width="100%"  
           height="100%"
@@ -69,7 +69,7 @@ const DesktopLayout = (props) => {
           <Menu />
         </StyledLHSWrapper> */}
         {/* </Block> */}
-        <Block className='container md:w-[calc(100%-280px)] max-w-full mt-20 mx-5 z-[6] relative'>
+        <Block className={`container ${showMenu ? 'md:w-[calc(100%-280px)]' : 'md:w-[calc(100%-280px)]'} max-w-full mt-20 mx-5 z-[6] relative`}>
           <AppBar
             className="bg-[#203A45] shadow  md:w-[calc(100%-280px)]"
             sx={{
@@ -103,7 +103,7 @@ const DesktopLayout = (props) => {
           <Popup type="global" />
         </Block>
       </Block>
-     
+
     </StyledMainWrapper>
   )
 }

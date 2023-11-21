@@ -68,10 +68,6 @@ const Login = (props) => {
         <Block  height='100vh' position='relative'>
             <Block display='flex' flexDirection={{ md: 'row', _: 'column' }} alignItems='center' justifyContent='space-around' position='absolute' top='50%' left='50%' transform="-50%, -50%"  className="containerNoMenu" width='100vw'>
 
-                <Block width="359px" height="316px">
-                    <Image src="/image/logo_main.png" width="359px" height="316px"/>
-                </Block>
-
                 <Block position='relative' width='600px' maxWidth='80%'>
                     {authStage == 0 && <FormHandler formType="Login"
                         parentCallback={{

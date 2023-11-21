@@ -104,6 +104,7 @@ export async function getServerSideProps(ctx: CustomCtx) {
                 machineDisplayID: id
             },
             include: {
+                attachments: true,
                 machineType: true,
                 owner: true
             },

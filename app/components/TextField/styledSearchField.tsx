@@ -99,6 +99,10 @@ const StyledSearchField = (props: styledDropDownButtonProps) => {
     const [showDropDownList, setDropDownList] = useState(false)
     // const [currValue, setCurrValue] = useState(value)
 
+
+    const index = value ? options.findIndex((option) => { return option.value == value?.value }) : 0
+
+    console.log("StyledSearhcField", JSON.parse(JSON.stringify(props)), index)
     const list = map(options, (option, index) => {
         return (
             <MenuItem value={option.value}>{option.label}</MenuItem>
@@ -117,14 +121,14 @@ const StyledSearchField = (props: styledDropDownButtonProps) => {
                     textDecorationColor: "white",
                     // padding: '0.5px',
                 }}
-                value={value}
+                value={`${options[index].label}`}
                 onChange={(e, value: any) => {
                     if (value) {
                         console.log("onChange", value.value)
                         let customE: any = {
                             ...e
                         }
-                        customE.target.value = value.value
+                        customE.target.value = options.find((option) => { return option.label == value }).value
                         customE.target.id = id
                         customE.target.name = name
                         customE.target.type = "number"
@@ -154,7 +158,7 @@ const StyledSearchField = (props: styledDropDownButtonProps) => {
                 disabled={disabled}
                 popupIcon={<KeyboardArrowDownIcon />}
                 // value={`${value}`}
-                options={options}
+                options={options.map((option) => { return option.label })}
                 // IconComponent={KeyboardArrowDownIcon}
                 renderInput={(params) => <TextField {...params}
                     placeholder={placeholder}

@@ -499,7 +499,7 @@ const MachineForm = (props) => {
     }, [])
 
     const fieldList = getFieldList(fieldConfig, handleChangeFormData, errors, machineString, handleValidation, mode == "edit" ? fields : initFields, machineData, mode, cloudFrontURL, schema)
-    // console.log("machine form props", props, accessToken)
+    console.log("machine form props", props)
 
     return (
         <Block

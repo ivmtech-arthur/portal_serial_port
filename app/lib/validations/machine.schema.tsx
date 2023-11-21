@@ -81,7 +81,7 @@ export const ChangeMachineSchema = z
     }).optional()).min(1, 'at least one attachment are required')
     // .refine((file) => file.length == 1, "Image is required.")
     ,
-    currentAttachment: z.object({})
+    currentAttachment: z.object({}).optional().nullable(),
   })
   .refine((data) => data.attachments.length > 0 &&
     data.attachments.some((attachment) => attachment.size >= 0 && attachment.size <= MAX_FILE_SIZE), {
