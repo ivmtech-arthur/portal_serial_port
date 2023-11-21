@@ -7,7 +7,7 @@ import StyledH1 from 'components/Common/Element/H1'
 //import Calendar from 'components/test/test'
 // import { useStore } from '/store'
 import { useEffect } from 'react'
-import io from 'Socket.IO-client'
+import io from 'socket.io-client'
 let socket
 
 export default function Home() {

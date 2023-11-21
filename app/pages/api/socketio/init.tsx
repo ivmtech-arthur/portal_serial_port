@@ -1,5 +1,5 @@
 import { Prisma } from '@prisma/client'
-import { Server } from 'Socket.IO'
+import { Server } from 'socket.io'
 import { CustomRequest } from 'lib/api/handler'
 import { multipleEntryhandler } from 'lib/api/multipleEntries'
 import { singleEntryHandler } from 'lib/api/singleEntry'
