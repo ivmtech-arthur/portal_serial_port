@@ -60,7 +60,7 @@ const MachineDetail = (props) => {
                     })
                 }
             }}>{item.icon}</BasicButton>
-            <StyledBody1>{item.name}</StyledBody1>
+            <StyledBody1 className="text-center">{item.name}</StyledBody1>
         </Block>
     })
 

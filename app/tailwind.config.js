@@ -1,5 +1,6 @@
 module.exports = {
     // mode: 'jit',
+    important: true,
     // important: '#__next',
     content: [
         'components/**/*.js',

@@ -123,7 +123,7 @@ export const machineContent = {
                 action: async ({ id, accessToken }) => {
                     await axios.post(`/api/socketio/${id}/unlock`, {
                         payload: {
-                            lockID: 0,
+                            lockID: 1,
                             seconds: 10,
                         },
                         // emitOnly: true,
@@ -132,8 +132,8 @@ export const machineContent = {
                             Authorization: `Bearer ${accessToken}`,
                         }
                     }).catch(e => {
-                            console.log(e)
-                        })
+                        console.log(e)
+                    })
                 },
                 title: "Are you sure to unlock? tc",
                 message: "Remember to close the door after then tc",
