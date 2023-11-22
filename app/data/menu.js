@@ -89,6 +89,11 @@ export const getMenu = (lang) => {
             regex: /machine-management\/([^(?!.*(add|machine\-Type)).*]+)\/replenishment/
         },
         {
+            title: lang == 'en' ? "Machine Energy Managment" : "耗能管理",
+            url: 'machine-management/[id]',
+            regex: /machine-management\/([^(?!.*(add|machine\-Type)).*]+)\/energy-management/
+        },
+        {
             title: lang == 'en' ? 'Machine Change' : "Change設備",
             url: 'machine-management/[id]',
             regex: /machine-management\/([^(?!.*(add|machine\-Type)).*]+)/
@@ -101,6 +106,7 @@ export const getMenu = (lang) => {
             title: lang == 'en' ? 'Change Machine Type' : "Change新增設備種類",
             url: /machine-management\/machine-Type\/([^(?!add)*]+)/,
         },
+        
         // {}
     ]
 

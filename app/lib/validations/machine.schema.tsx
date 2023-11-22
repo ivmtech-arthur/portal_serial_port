@@ -78,14 +78,15 @@ export const ChangeMachineSchema = z
     attachments: z.array(z.object({
       size: z.number().optional().default(0),
       type: z.string().optional().default(""),
-    }).optional()).min(1, 'at least one attachment are required')
+    }).optional())
+      // .min(1, 'at least one attachment are required')
     // .refine((file) => file.length == 1, "Image is required.")
     ,
-    currentAttachment: z.object({}).optional().nullable(),
+    currentAttachments: z.array(z.object({})).optional().nullable(),
   })
-  .refine((data) => data.attachments.length > 0 &&
-    data.attachments.some((attachment) => attachment.size >= 0 && attachment.size <= MAX_FILE_SIZE), {
-    path: ["attachment"],
+  .refine((data) => data.attachments.length > 0 ||
+    data.attachments.every((attachment) => { return attachment.size >= 0 && attachment.size <= MAX_FILE_SIZE }), {
+    path: ["attachments"],
     message: `Max file size is 8MB.`
   })
   .refine(
@@ -93,7 +94,7 @@ export const ChangeMachineSchema = z
       data.attachments.length > 0 &&
         data.attachments.some((attachment) => attachment.type === "" || ACCEPTED_IMAGE_TYPES.includes(attachment.type))
     }, {
-    path: ["attachment"],
+    path: ["attachments"],
     message: ".jpg, .jpeg, .png and .webp files are accepted"
   }
   )

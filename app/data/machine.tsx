@@ -1,4 +1,4 @@
-import { CircleRounded, Inventory, LockOpen, Settings } from "@mui/icons-material"
+import { Battery0Bar, CircleRounded, Inventory, LockOpen, Settings } from "@mui/icons-material"
 import axios from "axios"
 
 export const machineContent = {
@@ -70,8 +70,15 @@ export const machineContent = {
         },
         salesManagement: {
             salesRecord: {
-
-            }
+                // name: "Energy Management",
+                // url: '/energy-management',
+                icon: <Battery0Bar />,
+            },
+            energyManagement: {
+                name: "Energy Management",
+                url: '/energy-management',
+                icon: <Battery0Bar />,
+            },
         }
 
     },
@@ -142,8 +149,15 @@ export const machineContent = {
         },
         salesManagement: {
             salesRecord: {
-
-            }
+                // name: "Energy Management tc",
+                // url: '/energy-management',
+                icon: <Battery0Bar />,
+            },
+            energyManagement: {
+                name: "Energy Management tc",
+                url: '/energy-management',
+                icon: <Battery0Bar />,
+            },
         }
 
     }

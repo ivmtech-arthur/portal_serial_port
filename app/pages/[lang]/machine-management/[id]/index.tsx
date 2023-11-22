@@ -64,6 +64,32 @@ const MachineDetail = (props) => {
         </Block>
     })
 
+    const salesManagmentList = Object.keys(machineString.salesManagement).map((key) => {
+        const item = machineString.salesManagement[key]
+        return <Block className="flex-1 flex flex-col items-center">
+            <BasicButton color="success" onClick={async () => {
+                if (item.url) {
+                    router.push(`${router.asPath}/${item.url}`)
+                } else if (item.action) {
+                    setPopupData({ id: machineData.machineDisplayID, accessToken: accessToken })
+                    setProceedFunc(() => item.action)
+
+                    setMessage(item.memssage)
+                    setTitle(item.title)
+                    dispatch({
+                        type: 'showPopup',
+                        payload: {
+                            popup: true,
+                            popupType: 'confirmProceed',
+                            isGlobal: false,
+                        },
+                    })
+                }
+            }}>{item.icon}</BasicButton>
+            <StyledBody1 className="text-center">{item.name}</StyledBody1>
+        </Block>
+    })
+
     return (
         <Block>
             <StyledH1 className={`${lang == 'en' ? 'font-jost' : 'font-notoSansTC'}`} color="white"
@@ -77,6 +103,10 @@ const MachineDetail = (props) => {
 
             <Block className="flex ">
                 {palletConfigBtnList}
+            </Block>
+
+            <Block className="flex ">
+                {salesManagmentList}
             </Block>
             <Popup type="local" propsToPopup={{
                 proceedFunc: async (data) => {

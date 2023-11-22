@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const applicationConfig = require('./config/app.config')
 const nextConfig = {
-  // reactStrictMode: true,
+  reactStrictMode: true,
   swcMinify: true,
   poweredByHeader: false,
   publicRuntimeConfig: applicationConfig,

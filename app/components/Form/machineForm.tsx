@@ -156,6 +156,11 @@ const getFieldList = (fieldConfig, handleChangeFormData, errors, placeholderMap,
                             error={errors[key]}
                             color="primary"
                             variant="contained"
+                            {...(mode != "add" ? {
+                                originalFilelist: data[key]
+                            } : {
+                                // originalFilelist: fields[key]
+                            })}
                             multiple={fieldConfig[key].multiple}
                             usageMap={fieldConfig[key].usageMap}
                             handleValidation={handleValidation}
@@ -168,20 +173,46 @@ const getFieldList = (fieldConfig, handleChangeFormData, errors, placeholderMap,
                 )
                 break;
             case "preview":
-                let attachment = data?.attachment;
-                if (attachment) {
-                    const { type, tableName, attachmentDisplayID, name } = attachment
-                    result.push(
-                        <Grid item xs={12} md={6}>
-                            <Image
-                                src={`https://${cloudURL}/${schema}/${type}/${tableName}/${attachmentDisplayID}/${name}`}
-                                // layout="fill"
-                                width="100%"
-                                height="100%"
-                            />
-                        </Grid>
-                    )
+                if (fieldConfig[key].multiple) {
+                    let attachments = data?.attachments;
+                    if (attachments && attachments.length > 0) {
+                        const list = attachments.map((attachment) => {
+                            const { type, tableName, attachmentDisplayID, name } = attachment
+                            return (
+                                <Image
+                                    src={`https://${cloudURL}/${schema}/${type}/${tableName}/${attachmentDisplayID}/${name}`}
+                                    // layout="fill"
+                                    width="100%"
+                                    height="100%"
+                                />
+                            )
+                        })
+
+                        result.push(
+                            <Grid item xs={12} md={6}>
+                                <Block>
+                                    {list}
+                                </Block>
+                            </Grid>
+                        )
+                    }
+                } else {
+                    let attachment = data?.attachments;
+                    if (attachment) {
+                        const { type, tableName, attachmentDisplayID, name } = attachment
+                        result.push(
+                            <Grid item xs={12} md={6}>
+                                <Image
+                                    src={`https://${cloudURL}/${schema}/${type}/${tableName}/${attachmentDisplayID}/${name}`}
+                                    // layout="fill"
+                                    width="100%"
+                                    height="100%"
+                                />
+                            </Grid>
+                        )
+                    }
                 }
+
                 break;
             case "textSearch":
                 options = fieldConfig[key].options
@@ -211,7 +242,7 @@ const getFieldList = (fieldConfig, handleChangeFormData, errors, placeholderMap,
 }
 
 const MachineForm = (props) => {
-    const { getInitFields, handleOnSubmit, handleValidation, errors, parentCallback, fields, machineTypeData, clientUserData, mode = "view", machineData,setTitle,setMessage,setProceedFunc } = props
+    const { getInitFields, handleOnSubmit, handleValidation, errors, parentCallback, fields, machineTypeData, clientUserData, mode = "view", machineData, setTitle, setMessage, setProceedFunc } = props
 
 
     const initFields: ChangeMachineInput = mode == "add" ? {
@@ -231,8 +262,8 @@ const MachineForm = (props) => {
         palletNo: machineData.palletNo,
         // clientRefID: machineData.clientRefID,
         remark: machineData.remark,
-        attachments: machineData.attachments,
-        currentAttachment: machineData.attachment,
+        attachments: [],
+        currentAttachments: machineData.attachments,
     }
 
     const fieldConfig = {
@@ -286,6 +317,7 @@ const MachineForm = (props) => {
         },
         currentAttachment: {
             type: "preview",
+            multiple: true,
         }
     }
 
@@ -353,6 +385,7 @@ const MachineForm = (props) => {
 
 
     const handleUpdate = (fields) => {
+        console.log("handleUpdate", fields, initFields)
         var needUpdate = false
         var updateField = {}
         for (const field in fields) {
@@ -517,6 +550,14 @@ const MachineForm = (props) => {
                             if (setTitle) setTitle(machineString.machineFormPopupTitle)
                             if (setMessage) setMessage(machineString.machineFormPopupMessage)
                             if (setProceedFunc) setProceedFunc(handleSubmit)
+                            dispatch({
+                                type: 'showPopup',
+                                payload: {
+                                    popup: true,
+                                    popupType: 'confirmProceed',
+                                    isGlobal: false,
+                                },
+                            })
                         }
 
                         else {

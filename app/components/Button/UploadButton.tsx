@@ -38,8 +38,8 @@ type UploadButtonProps = {
 }
 
 function UploadButton(props: UploadButtonProps) {
-    const { id, name, placeholder, onChange, variant, error, color, handleValidation, multiple, usageMap, ...restProps } = props
-    const [filenameList, setFilenameList] = useState([])
+    const { id, name, placeholder, onChange, variant, error, color, handleValidation, multiple, usageMap, originalFilelist, ...restProps } = props
+    const [filenameList, setFilenameList] = useState(originalFilelist ? originalFilelist.map((file) => { return file.name}) : [])
     const [fileIndex, setFileIndex] = useState(0)
     const {
         state: {
@@ -52,7 +52,7 @@ function UploadButton(props: UploadButtonProps) {
         if (e.target.files[fileIndex]) {
             setFilenameList([...filenameList, e.target.files[fileIndex].name])
             let custFile: ExtendFile = e.target.files[fileIndex]
-            if (multiple) { 
+            if (multiple) {
                 custFile.usage = usageMap[fileIndex]
             }
             if (onChange)
