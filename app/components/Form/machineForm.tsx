@@ -315,7 +315,7 @@ const MachineForm = (props) => {
                 "qc"
             ]
         },
-        currentAttachment: {
+        currentAttachments: {
             type: "preview",
             multiple: true,
         }
