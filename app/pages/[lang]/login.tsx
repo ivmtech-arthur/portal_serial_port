@@ -84,7 +84,9 @@ const Login = (props) => {
                         parentCallback={{
                             toLogin: () => { setAuthStage(0) },
                         }} />}
-                    <Button7 href="/" position='absolute' top='100%' left='50%' transform="-50%, -50%" width='max-content'>{generalString.tnc}</Button7>
+                    <Button7 href="/"
+                        position='absolute' top='120%' left='50%' transform="-50%, -50%"
+                        width='max-content'>{generalString.tnc}</Button7>
                 </Block>
                 {/* <input
       placeholder="Type something"

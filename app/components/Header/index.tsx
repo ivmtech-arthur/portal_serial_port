@@ -56,7 +56,9 @@ const Header = (props) => {
       >
         {/* <Button
         ></Button> */}
-        <BasicButton variant="text" className="md:hidden xs:block z-0" onClick={() => { 
+        <BasicButton variant="text" className="md:hidden xs:block z-0" sx={{
+          color: 'white',
+        }} onClick={() => { 
           router.back()
         }}><KeyboardArrowLeft /></BasicButton>
         <Button5

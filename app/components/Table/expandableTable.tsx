@@ -39,7 +39,11 @@ function CustomToolbar(props) {
   } = useStore()
   const { handleClickAdd } = props
   return (<>
-    <BasicButton variant="text" tooltip="Add Record" onClick={() => {
+    <BasicButton variant="text" tooltip="Add Record"
+      sx={{
+        color: 'white',
+      }}
+      onClick={() => {
       console.log("path", window.location.href, router.asPath)
       if (handleClickAdd)
         handleClickAdd()

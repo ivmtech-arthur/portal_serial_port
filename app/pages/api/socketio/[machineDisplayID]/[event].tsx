@@ -5,8 +5,8 @@ import { NextApiRequest, NextApiResponse } from "next";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     try {
-        const { machineDisplayID, action } = req.query;
-        const { payload, emitOnly } = req.body
+        const { machineDisplayID, event } = req.query;
+        const { payload, action, emitOnly } = req.body
         await AuthorisedMiddleware(req)
         const result = await prisma.machine.findUnique({
             where: {
@@ -24,13 +24,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         let result2
         if (emitOnly) {
-            result2 = handleIOEmit(result.socketID, action as string, payload)
+            result2 = handleIOEmit(result.socketID, event as string, payload, action)
         } else {
-            result2 = await IOEvent(result.socketID, action as string, payload)
+            result2 = await IOEvent(result.socketID, event as string, payload, action)
         }
 
 
-        CustomNextApiResponse(res, { emitAction: action, "status": "ok", return: result2 }, 200)
+        CustomNextApiResponse(res, { emitAction: event, "status": "ok", return: result2 }, 200)
 
     } catch (e) {
         let statusCode = 400

@@ -60,7 +60,7 @@ function App({ Component, pageProps, router }: AppProps<any>) {
     }
   }
 
-  if (router.query.lang) {
+  if (router.query.lang && router.query.lang != "socket.io") {
 
     var pageName = "";
     let urlList = router.asPath.split('/');
@@ -88,7 +88,7 @@ function App({ Component, pageProps, router }: AppProps<any>) {
   }
 
 
-  // console.log(injectStates, 'injectStates', router.basePath)
+  console.log('injectStates', injectStates, router.basePath, router.query)
   return (
     <>
       {/* <style jsx global>
@@ -111,7 +111,7 @@ App.getInitialProps = async (ctx: NextPageContext) => {
   const props = ctx.query;
   const config = dotenv.config();
   dotenvExpand.expand(config);
-  console.log("getInitProps")
+  console.log("getInitProps2")
   // if (!globalS3Client.s3) { 
   //   await axios.post('/api/aws/init').then((res) => {
   //     console.log("res", res)

@@ -122,8 +122,8 @@ const LoginForm = (props) => {
       getInitFields(initFields)
   }, [])
   return (
-    <Block display='flex' flexDirection='column' alignItems='center' height='600px' width='100%'>
-      <StyledH2 color='purple2'>{loginString.welcome}</StyledH2>
+    <Block display='flex' flexDirection='column' alignItems='center'  width='100%'>
+      <StyledH2 color='black'>{loginString.welcome}</StyledH2>
       <BasicTextField className="my-3" placeholder={generalString.placeholderName} handleValidation={handleValidation} id="name" name="name" error={errors['name']} value={value} />
       {/* <StyledTextField py="10px" placeholder={generalString.placeholdername} handleValidation={handleValidation} type="name" id="name" name="name" error={errors['name']} value={value} /> */}
       <BasicTextField className="my-3" placeholder={generalString.placeholderPassword} handleValidation={handleValidation} id="password" name="password" error={errors['password']} type={'password'} />

@@ -4,7 +4,7 @@ import { CustomRequest } from 'lib/api/handler'
 import { multipleEntryhandler } from 'lib/api/multipleEntries'
 import { singleEntryHandler } from 'lib/api/singleEntry'
 import { prisma } from 'lib/prisma'
-import { SocketResponse, globalSocketIOClient, socketIOActionMap, validateIOAccess } from 'lib/socketIO'
+import { SocketResponse, globalSocketIOClient, socketIOEventMap, validateIOAccess } from 'lib/socketIO'
 
 const getTokenMachine = async (handshake) => {
   const token = handshake.auth.token
@@ -171,11 +171,11 @@ const SocketHandler = (req, res) => {
 
         socket.emit('authenticated');
 
-        for (const key in socketIOActionMap) {
-          let actionItem = socketIOActionMap[key]
-          socket.on(actionItem.clientAction, async (data: SocketResponse) => {
+        for (const key in socketIOEventMap) {
+          let actionItem = socketIOEventMap[key]
+          socket.on(actionItem.clientEvent, async (data: SocketResponse) => {
             try {
-              console.log("socket event received:", actionItem.clientAction, data)
+              console.log("socket event received:", actionItem.clientEvent, data)
               const machineID = await validateIOAccess(data.token, clientId)
               if (machineID) {
 
@@ -199,7 +199,7 @@ const SocketHandler = (req, res) => {
             })
           }
 
-          console.log("A client disconnected.");
+          console.log("A client disconnected.", socket.handshake.query.client, token);
           // res.end()
         });
 

@@ -4,6 +4,12 @@ import { CollectionsOutlined } from '@mui/icons-material';
 
 export const globalSocketIOClient = global as unknown as { IOServer: Server }
 
+export type SocketRequest = {
+    action: string,
+    payload: any,
+    timestamp?: number
+}
+
 export type SocketResponse = {
     action: string,
     token?: string,
@@ -17,11 +23,11 @@ let eventArg = global as unknown as {
 }
 // let eventReturn = {}
 
-export const socketIOActionMap = [
+export const socketIOEventMap = [
     {
         name: "getMachineInfo",
-        serverAction: "server-get-machine-info",
-        clientAction: "client-get-machine-info",
+        serverEvent: "server-get-machine-info",
+        clientEvent: "client-get-machine-info",
         payload: false,
         timeout: 10000,
         pingTime: 1000,
@@ -50,8 +56,8 @@ export const socketIOActionMap = [
     },
     {
         name: "unlock",
-        serverAction: "server-unlock",
-        clientAction: "client-unlock",
+        serverEvent: "server-unlock",
+        clientEvent: "client-unlock",
         timeout: 10000,
         pingTime: 1000,
         onReceivedCallBack: async (response: SocketResponse, machineID: number, socket: Socket) => {
@@ -61,8 +67,8 @@ export const socketIOActionMap = [
     },
     {
         name: "getWeights",
-        serverAction: "server-get-weights",
-        clientAction: "client-get-weights",
+        serverEvent: "server-get-weights",
+        clientEvent: "client-get-weights",
         timeout: 10000,
         pingTime: 1000,
         onReceivedCallBack: async (response: SocketResponse, machineID: number, socket: Socket) => {
@@ -72,16 +78,16 @@ export const socketIOActionMap = [
     },
     {
         name: "replenishment",
-        serverAction: "server-replenishment",
+        serverEvent: "server-replenishment",
         payload: false,
         timeout: 18000000,
         pingTime: 1000,
-        clientAction: "client-replenishment",
+        clientEvent: "client-replenishment",
         actionLocal: "server-replenishment-local",
         onReceivedCallBack: async (response: SocketResponse, machineID: number, socket: Socket) => {
             var io = globalSocketIOClient.IOServer
-            const data = response.data
-            const result = await prisma.machinePalletDetail.findMany({
+            const { result } = response.data
+            const palletDetails = await prisma.machinePalletDetail.findMany({
                 where: {
                     machineID
                 },
@@ -89,8 +95,8 @@ export const socketIOActionMap = [
                     masterProduct: true
                 }
             })
-            const a = result.map((detail, index) => {
-                const weightDiff: number = data.find((item) => detail.palletID == item.palletID).value;
+            const a = palletDetails.map((detail, index) => {
+                const weightDiff: number = result.find((item) => detail.palletID == item.palletID).value;
                 let inventory = Math.floor(weightDiff / detail.weightPerUnit.toNumber())
                 const remainder = weightDiff % detail.weightPerUnit.toNumber();
                 if (remainder / detail.weightPerUnit.toNumber() >= 0.9) {
@@ -120,16 +126,16 @@ export const socketIOActionMap = [
     },
     {
         name: "end-replenishment",
-        serverAction: "server-end-replenishment",
+        serverEvent: "server-end-replenishment",
         payload: false,
-        clientAction: "client-end-replenishment",
+        clientEvent: "client-end-replenishment",
     },
     {
         name: "changePalletPrice",
         timeout: 2000,
         pingTime: 500,
-        serverAction: "server-change-pallet-price",
-        clientAction: "client-change-pallet-price",
+        serverEvent: "server-change-pallet-price",
+        clientEvent: "client-change-pallet-price",
         onReceivedCallBack: async (data: SocketResponse, machineID, socket) => {
             console.log("event finished callback", eventArg.eventFinished, eventArg.eventReturn, data)
             setEventFinish(true, data)
@@ -137,47 +143,101 @@ export const socketIOActionMap = [
     },
     {
         name: "getWeights",
-        serverAction: "server-get-weights",
-        clientAction: "client-get-weights",
-        onReceivedCallBack: async (data: SocketResponse, machineID, socket) => {
-            console.log("event finished callback", eventArg.eventFinished, eventArg.eventReturn, data)
-            setEventFinish(true, data.data)
+        serverEvent: "server-get-weights",
+        clientEvent: "client-get-weights",
+        onReceivedCallBack: async (response: SocketResponse, machineID, socket) => {
+            console.log("event finished callback", eventArg.eventFinished, eventArg.eventReturn, response)
+            setEventFinish(true, response.data)
         },
     },
     {
         name: "calibration",
         timeout: 10000,
         pingTime: 1000,
-        serverAction: "server-calibration",
-        clientAction: "client-calibration",
-        onReceivedCallBack: async (data: SocketResponse, machineID, socket) => {
-            console.log("event finished callback", eventArg.eventFinished, eventArg.eventReturn, data)
-            setEventFinish(true, data.data)
+        serverEvent: "server-calibration",
+        clientEvent: "client-calibration",
+        onReceivedCallBack: async (response: SocketResponse, machineID, socket) => {
+            console.log("event finished callback", eventArg.eventFinished, eventArg.eventReturn, response)
+            setEventFinish(true, response.data)
         },
     },
     {
         name: "peeling",
         timeout: 10000,
         pingTime: 1000,
-        serverAction: "server-peeling",
-        clientAction: "client-peeling",
-        onReceivedCallBack: async (data: SocketResponse, machineID, socket) => {
-            console.log("event finished callback", eventArg.eventFinished, eventArg.eventReturn, data)
-            setEventFinish(true, data.data)
+        serverEvent: "server-peeling",
+        clientEvent: "client-peeling",
+        onReceivedCallBack: async (response: SocketResponse, machineID, socket) => {
+            console.log("event finished callback", eventArg.eventFinished, eventArg.eventReturn, response)
+            setEventFinish(true, response.data)
+        },
+    },
+    {
+        name: "screenSoundControl",
+        timeout: 10000,
+        pingTime: 1000,
+        serverEvent: "server-screen-sound-control",
+        clientEvent: "client-screen-sound-control",
+        onReceivedCallBack: async (response: SocketResponse, machineID, socket) => {
+            console.log("event finished callback", eventArg.eventFinished, eventArg.eventReturn, response)
+            setEventFinish(true, response.data)
+        },
+    },
+    {
+        name: "controlLight",
+        timeout: 10000,
+        pingTime: 1000,
+        serverEvent: "server-control-light",
+        clientEvent: "client-control-light",
+        onReceivedCallBack: async (response: SocketResponse, machineID, socket) => {
+            console.log("event finished callback", eventArg.eventFinished, eventArg.eventReturn, response)
+            setEventFinish(true, response.data)
+        },
+    },
+    
+    {
+        name: "controlGlassHeat",
+        timeout: 10000,
+        pingTime: 1000,
+        serverEvent: "server-control-glass-Heat",
+        clientEvent: "client-control-glass-heat",
+        onReceivedCallBack: async (response: SocketResponse, machineID, socket) => {
+            console.log("event finished callback", eventArg.eventFinished, eventArg.eventReturn, response)
+            setEventFinish(true, response.data)
+        },
+    },
+    {
+        name: "queryDeviceStatus",
+        timeout: 10000,
+        pingTime: 1000,
+        serverEvent: "server-query-device-status",
+        clientEvent: "client-query-device-status",
+        onReceivedCallBack: async (response: SocketResponse, machineID, socket) => {
+            console.log("event finished callback", eventArg.eventFinished, eventArg.eventReturn, response)
+            setEventFinish(true, response.data)
+        },
+    },
+    {
+        name: "controlTemperature",
+        timeout: 10000,
+        pingTime: 1000,
+        serverEvent: "server-control-temperature",
+        clientEvent: "client-control-temperature",
+        onReceivedCallBack: async (response: SocketResponse, machineID, socket) => {
+            console.log("event finished callback", eventArg.eventFinished, eventArg.eventReturn, response)
+            setEventFinish(true, response.data)
         },
     }
 ]
 
 
-function validatePayload(action, payload) {
-    switch (action) {
-
+function validatePayload(event, payload) {
+    switch (event) {
         case "":
             break;
-
     }
 
-    if (!socketIOActionMap.find((actionItem) => actionItem.name == action)) {
+    if (!socketIOEventMap.find((eventItem) => eventItem.name == event)) {
         throw ("action not found")
     }
 
@@ -206,15 +266,19 @@ export async function validateIOAccess(token, clientID) {
 }
 
 
-export const handleIOEmit = (socketID, action: string, payload) => {
+export const handleIOEmit = (socketID, event: string, payload: any, action?: string) => {
     var io = globalSocketIOClient.IOServer
     try {
         if (io) {
-            console.log("io server", socketID, action, payload)
+            console.log("io server", socketID, event, payload)
             setEventFinish(false, {})
-            if (validatePayload(action, payload)) {
+            if (validatePayload(event, payload)) {
+                var request: SocketRequest = {
+                    action: action,
+                    payload: payload,
+                }
                 // let b = payload as actionType[action as actionString]
-                const a = io.to(socketID).emit(socketIOActionMap.find((actionItem) => actionItem.name == action).serverAction, payload)
+                const a = io.to(socketID).emit(socketIOEventMap.find((eventItem) => eventItem.name == event).serverEvent, request)
                 return a;
             } else {
                 throw ("")
@@ -235,18 +299,18 @@ export function setEventFinish(finished: boolean, payload: any) {
     eventArg.eventReturn = payload
 }
 
-export const IOEvent = async (socketID, action: string, payload?: any) => {
+export const IOEvent = async (socketID, event: string, payload?: any, action?: string) => {
     var io = globalSocketIOClient.IOServer
-    var actionItem = socketIOActionMap.find((actionItem) => actionItem.name == action)
+    var actionItem = socketIOEventMap.find((actionItem) => actionItem.name == event)
     console.log("event started", eventArg.eventFinished, eventArg.eventReturn)
     return new Promise<any>(async (resolve, reject) => {
 
-        handleIOEmit(socketID, action, payload)
+        handleIOEmit(socketID, event, payload, action)
         console.log("event waiting", eventArg.eventFinished, eventArg.eventReturn)
         let timeout = 0;
         const eventTimer = setInterval(() => {
             try {
-                // console.log("event finished", eventArg.eventFinished, eventArg.eventReturn)
+                console.log("event finished", eventArg.eventFinished, eventArg.eventReturn)
                 if (eventArg.eventFinished) {
                     resolve(eventArg.eventReturn)
                     setEventFinish(false, {})
@@ -262,7 +326,7 @@ export const IOEvent = async (socketID, action: string, payload?: any) => {
             timeout += actionItem.pingTime;
         }, actionItem.pingTime || 1000)
 
-        // io.on(socketIOActionMap.find((actionItem) => actionItem.name == action).clientAction, (data: SocketResponse) => {
+        // io.on(socketIOActionMap.find((actionItem) => actionItem.name == action).clientEvent, (data: SocketResponse) => {
         //     console.log("socket event received via IOEvent:", data.action)
         //     resolve(data.data)
         // })

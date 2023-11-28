@@ -572,6 +572,7 @@ const PalletConfig = (props) => {
 }
 
 export async function getServerSideProps(ctx) {
+    console.log("getserversideprops xdd")
     const preProps = await preprocessServerSideProps(ctx)
     if (preProps.redirect)
         return preProps

@@ -12,17 +12,18 @@ import withLogin from "/lib/with-login"
 
 const Home = () => {
 
- 
+
 
   return (<></>)
 }
+
 export const getServerSideProps = withLogin(
   async (ctx) => {
     if (ctx?.props?.profile) {
       return {
         redirect: {
           permanent: false,
-          destination: '/en/machine-list',
+          destination: '/en/machine',
         },
         props: {},
       }

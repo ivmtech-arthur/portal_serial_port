@@ -10,6 +10,7 @@ import Replenishing from './replenishing'
 import { useEffect } from 'react'
 import ConfirmPeeling from './confirmPeeling'
 import ConfirmCalibration from './confirmCalibration'
+import ScreenSoundControlForm from './screenSoundControl'
 const Popup = (props) => {
   const {
     type,
@@ -93,12 +94,17 @@ const Popup = (props) => {
         <ConfirmCalibration isOpen={true} closePopup={closePopup} {...propsToPopup} />
       )
       break;
+    case "screenSoundControl":
+      popupComponent = (
+        <ScreenSoundControlForm isOpen={true} closePopup={closePopup} {...propsToPopup} />
+      )
+      break;
     case 'logout':
       popupComponent = (
         <Logout isOpen={true} closePopup={closePopup} {...propsToPopup} />
       )
       break;
-  
+
     // case 'messageDeleteproduct':
     // popupComponent = (
     //   <MessageDeleteproduct isOpen={true} closePopup={closePopup} {...propsToPopup} />

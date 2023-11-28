@@ -8,7 +8,7 @@ import { useCallback, useEffect, useState } from "react"
 import { withCookies } from "react-cookie"
 import { useStore } from 'store'
 import io, { Socket } from 'socket.io-client'
-import { IOEvent, socketIOActionMap } from "lib/socketIO"
+import { IOEvent, socketIOEventMap } from "lib/socketIO"
 import { machineContent } from "data/machine"
 import Popup from "components/Popup"
 import { Prisma } from "@prisma/client"

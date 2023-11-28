@@ -4,6 +4,7 @@ import { useRouter } from "next/router"
 
 const preprocessServerSidePropsPromise = withLogin(
   async (ctx, staticPath?) => {
+    console.log("withlogin preprocessServerSidePropsPromise")
     // const router = useRouter();
     const { props, params } = ctx
     const { token, authenticated } = props

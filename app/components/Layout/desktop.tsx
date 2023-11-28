@@ -87,7 +87,8 @@ const DesktopLayout = (props) => {
                 aria-label="open drawer"
                 edge="start"
                 onClick={handleDrawerToggle}
-                sx={{ mr: 2, visibility: { md: 'hidden' }, color: "white" }}
+                // className={`${showMenu ? "hidden" : ""}`}
+                sx={{ mr: 2, visibility: { md: 'hidden', xs: `${!showMenu ? "hidden" : ""}` }, color: "white" }}
               >
                 <MenuIcon />
               </IconButton>
@@ -104,7 +105,7 @@ const DesktopLayout = (props) => {
         </Block>
       </Block>
 
-    </StyledMainWrapper>
+    </StyledMainWrapper >
   )
 }
 

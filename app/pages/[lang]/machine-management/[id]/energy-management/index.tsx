@@ -17,8 +17,9 @@ import { AlertColor } from "@mui/material"
 import { palletContent } from "data/pallet"
 import { useRouter } from "next/router"
 import StyledH1 from "components/Common/Element/H1"
+import StyledBody1 from "components/Common/Element/body1"
 
-function EnergyManagementPage(props) {
+const EnergyManagementPage = (props) => {
     const { machineData } = props
     let socket: Socket;
     const {
@@ -50,68 +51,21 @@ function EnergyManagementPage(props) {
         })
     }, [])
     useEffect(() => {
-        socketHandler();
 
-        const exitingFunction = async () => {
-            console.log("leaving Page...");
-            if (energymanagementStage == 1) {
-                await axios.post(`/api/socketio/${machineData.machineDisplayID}/end-energymanagement`, {
-                    payload: {
-                        foo: "bar"
-                    }
-                }, {
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                    },
-                }).catch((e) => {
-                    console.log("connection timeout");
-                })
-            }
-
-        };
-
-        router.events.on("routeChangeStart", exitingFunction);
-
-        return () => {
-            console.log("unmounting component...");
-            router.events.off("routeChangeStart", exitingFunction);
-        };
     }, [])
 
-    const socketHandler = async () => {
-        console.log('socketInitializer')
-        // await fetch('/api/socketio/init');
-        socket = io({
-            query: {
-                client: "local"
-            },
-        })
-
-        socket.on("connect", () => {
-            console.log("local connected", socket);
-            console.log('socketInitializer', socket, socket.connected)
-
-        })
-
-
-
-        socket.on("local-energymanagement", async response => {
-            const { data } = response
-            console.log('later2', response);
-            setEnergyManagementStage(2)
-            setPopupData(data)
-            dispatch({
-                type: 'showPopup',
-                payload: {
-                    popup: true,
-                    popupType: 'confirmEndEnergyManagement',
-                    isGlobal: false,
-                },
-            })
-        })
-    }
-
-
+    const list = Object.keys(machineString.energyManagement)?.map((key) => {
+        const item = machineString.energyManagement[key]
+        return <Block className="flex-1 flex flex-col items-center">
+            <BasicButton onClick={async () => {
+                if (item.url) {
+                    router.push({ pathname: `${router.asPath}/${item.url}` }, `${router.asPath}/${item.as}`)
+                    // router.push(`${router.asPath}/${item.url}`)
+                }
+            }}>{item.icon}</BasicButton>
+            <StyledBody1 className="text-center">{item.name}</StyledBody1>
+        </Block>
+    })
 
 
     console.log("EnergyManagement props", props, accessToken)
@@ -121,6 +75,10 @@ function EnergyManagementPage(props) {
             >
                 {pageName}
             </StyledH1>
+
+            <Block className="flex">
+                {list}
+            </Block>
 
             <Popup type="local" propsToPopup={{
                 proceedFunc: (data) => {

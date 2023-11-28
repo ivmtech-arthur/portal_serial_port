@@ -8,8 +8,6 @@ import { useCallback, useEffect, useState } from "react"
 import { withCookies } from "react-cookie"
 import { useStore } from 'store'
 import io, { Socket } from 'socket.io-client'
-import { deserialize } from "v8"
-import { socketIOActionMap } from "lib/socketIO"
 import { machineContent } from "data/machine"
 import Popup from "components/Popup"
 import { Prisma } from "@prisma/client"
@@ -77,11 +75,6 @@ function ReplenishmentPage(props) {
             console.log("unmounting component...");
             router.events.off("routeChangeStart", exitingFunction);
         };
-        // return () => {
-        //     if (socket.connected) {
-        //         socket.disconnect()
-        //     }
-        // }
     }, [])
 
     const socketHandler = async () => {
@@ -91,20 +84,8 @@ function ReplenishmentPage(props) {
             query: {
                 client: "local"
             },
-            // host: "https://localhost:3000",
-            // auth: {
-            //     token: "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOjE2LCJtYWNoaW5lRGlzcGxheUlEIjoiTUFDMDAwMDAwMDAxNiIsImV4cCI6MTczMTE0MjYxMiwiaWF0IjoxNjk5NTg1MDEyfQ.uc3rRTqnJoi3i3CofFC3UaUfI96GjHlCB6VD056-eK7VitfQOUdJFykF21aZQhJn70Byanuko52mIYgG_kL6vmqKhlqaDGIywsqxEAuZXa8OdOlvavkqwdq0ehfUxId9oLNc0tuF2khIJwT9irhv4xOZQqC1sst_rCY-Qv2spVjIBfN5p-ROILJIfqJYQUCDNyq4RJ1NahQ7jB-eQ4uScy0oPXqsc9BAlPKxuIXriGT_gnRyxxwtwcI8pveTEA1_qARP9LfnuBzp-vbehMIZXkXc5ovjxg_Z6jcVmvsIGWjX2fxJvpunZ7ImWzWjrkyLqNw-9iCC2oMrOubgoDuMmw"
-            // },
-            // upgrade: false,
-            // autoConnect: false,
-            // transports: ["websocket"],
-            // extraHeaders: {
-            //     client: "local"
-            // }
         })
-        // socket.connect();
 
-        // 
         socket.on("connect", () => {
             console.log("local connected", socket);
             console.log('socketInitializer', socket, socket.connected)
@@ -127,14 +108,6 @@ function ReplenishmentPage(props) {
                 },
             })
         })
-
-        // socket.on("update-input", async message => {
-        //     console.log("update-input 2", message);
-        // })
-
-
-
-
     }
 
     const handleStartReplenishment = useCallback(async () => {
@@ -165,7 +138,6 @@ function ReplenishmentPage(props) {
     }, [accessToken])
 
     const handleFinishReplenishment = useCallback((updateData: any[]) => {
-        // console.log("update Data", updateData)
         const update: Prisma.MachinePalletDetailUpdateWithWhereUniqueWithoutMachineInput[] =
             updateData.map((item) => {
                 const { id, currentInventory, inventory } = item
@@ -183,11 +155,6 @@ function ReplenishmentPage(props) {
 
         const replenishmentData: Prisma.ReplenishmentCreateWithoutMachineInput = {
             details: stringify(updateData),
-            // machine: {
-            //     connect: {
-            //         machineID: machineData.machineID
-            //     }
-            // },
             user: {
                 connect: {
                     userID: userProfile.userID
@@ -219,10 +186,6 @@ function ReplenishmentPage(props) {
             }
         }
 
-
-        // const replenishmentQuery: Prisma.ReplenishmentCreateArgs = {
-        //     data: replenishmentData
-        // }
         setReplenishmentStage(0)
         console.log("machineQuery", machineQuery)
         axios.put(`/api/prisma/machine/${machineData.machineID}`,
@@ -236,7 +199,6 @@ function ReplenishmentPage(props) {
             }).catch(e => {
                 handleSetHandleBarProps(true, () => { }, `${e}`, "error")
             })
-        // axios.post()
     }, [accessToken]);
 
 
@@ -287,7 +249,7 @@ function ReplenishmentPage(props) {
     )
 }
 
-export async function getServerSideProps(ctx: CustomCtx) {
+export async function getServerSideProps(ctx) {
     const preProps = await preprocessServerSideProps(ctx)
     if (preProps.redirect)
         return preProps

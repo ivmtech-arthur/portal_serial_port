@@ -16,6 +16,10 @@ import { ChangeMachineInput, ChangeMachineSchema, CreateMachineInput, CreateMach
 import MachineTypeForm from "./machineTypeForm";
 import PalletDetailForm from "./palletDetailForm";
 import { ChangePalletDetailInput, ChangePalletDetailSchema, CreatePalletDetailInput, CreatePalletDetailSchema } from "lib/validations/pallet.schema";
+import LightControlForm from "./energyManagement/lightControlForm";
+import GlassHeatControlForm from "./energyManagement/glassHeatForm";
+import ScreenSoundControlForm from "./energyManagement/soundScreenForm";
+import TemperatureControlForm from "./energyManagement/temperatureControlForm";
 
 
 function FormHandler(props) {
@@ -260,6 +264,10 @@ function FormHandler(props) {
             {formType == "MachineForm" && <MachineForm getInitFields={getInitFields} handleOnSubmit={handleOnSubmit} handleValidation={handleValidation} errors={errors} parentCallback={parentCallback} fields={fields} {...restProps} />}
             {formType == "MachineTypeForm" && <MachineTypeForm getInitFields={getInitFields} handleOnSubmit={handleOnSubmit} handleValidation={handleValidation} errors={errors} parentCallback={parentCallback} fields={fields} {...restProps} />}
             {formType == "PalletDetailForm" && <PalletDetailForm getInitFields={getInitFields} handleOnSubmit={handleOnSubmit} handleValidation={handleValidation} setDefaultValue={setDefaultValue} errors={errors} parentCallback={parentCallback} fields={fields} {...restProps} />}
+            {formType == "LightControlForm" && <LightControlForm {...restProps} />}
+            {formType == "GlassHeatControlForm" && <GlassHeatControlForm {...restProps} />}
+            {formType == "ScreenSoundControlForm" && <ScreenSoundControlForm {...restProps} />}
+            {formType == "TemperatureControlForm" && <TemperatureControlForm {...restProps} />}
         </Block>
     )
 }

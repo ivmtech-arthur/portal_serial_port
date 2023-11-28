@@ -288,7 +288,7 @@ export const muiTheme = createTheme({
                     // theme.palette.primary.main
                     return {
                         ...(ownerState.variant == "text" ? {
-                            color: 'white',
+                            color: 'black',
                         } : {}),
                         '&.Mui-disabled': {
                             opacity: "0.65",
@@ -309,7 +309,7 @@ export const muiTheme = createTheme({
                             ...(ownerState.variant == "text" && {
                                 background: 'transparent',
                                 // background: theme.palette[ownerState.color]?.dark,
-                                color: 'white',
+                                // color: 'white',
                             }),
                             ...(ownerState.variant == "contained" && {
                                 // border: 
